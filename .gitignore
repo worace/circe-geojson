@@ -1,0 +1,7 @@
+.metals/
+.bloop/
+target/
+boot/
+lib_managed/
+src_managed/
+project/plugins/project/
