@@ -1,4 +1,5 @@
-val SCALA_VERSION = "2.12.12"
+val SCALA_VERSION = "2.12.10"
+val circeVersion = "0.13.0"
 
 val commonSettings = Seq(
   organization := "works.worace.geojson",
@@ -15,5 +16,12 @@ lazy val core = project
     organization := "works.worace.geojson.core",
     name := "circe-geojson Core",
     version := "0.1.0-SNAPSHOT"
+  ).settings(
+    libraryDependencies ++= Seq(
+      "io.circe" %% "circe-core" % circeVersion,
+      "io.circe" %% "circe-generic" % circeVersion,
+      "io.circe" %% "circe-generic-extras" % circeVersion,
+      "io.circe" %% "circe-parser" % circeVersion
+    )
   )
 
