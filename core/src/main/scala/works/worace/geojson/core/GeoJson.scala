@@ -103,6 +103,16 @@ case class GeometryCollection(
   `type`: String,
   geometries: Vector[Geometry]
 ) extends GeoJson with Geometry
+case class Feature(
+  `type`: String,
+  id: Option[String],
+  properties: Option[JsonObject],
+  geometry: Geometry
+) extends GeoJson
+case class FeatureCollection(
+  `type`: String,
+  features: Vector[Feature]
+) extends GeoJson
 
 // case class Geometry(
 //   `type`: String,
@@ -137,4 +147,14 @@ object MultiPolygon {
 
 object GeometryCollection {
   def apply(geometries: Seq[Geometry]): GeometryCollection = GeometryCollection("GeometryCollection", geometries.toVector)
+}
+
+object Feature {
+  def apply(geometry: Geometry): Feature = Feature("Feature", None, None, geometry)
+  def apply(properties: JsonObject, geometry: Geometry): Feature = Feature("Feature", None, Some(properties), geometry)
+  def apply(id: String, properties: JsonObject, geometry: Geometry): Feature = Feature("Feature", Some(id), Some(properties), geometry)
+}
+
+object FeatureCollection {
+  def apply(features: Seq[Feature]): FeatureCollection = FeatureCollection("FeatureCollection", features.toVector)
 }

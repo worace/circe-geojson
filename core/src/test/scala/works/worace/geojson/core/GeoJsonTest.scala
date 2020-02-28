@@ -1,6 +1,7 @@
 package works.worace.geojson.core
 
 import org.scalatest.FeatureSpec
+import io.circe.{Json, JsonObject}
 
 class GeoJsonTest extends FeatureSpec {
   feature("example") {
@@ -109,6 +110,71 @@ class GeoJsonTest extends FeatureSpec {
           LineString(Vector(Coordinate(101.0, 0.0), Coordinate(102.0, 1.0)))
         )
       )
+      assert(decoded == Right(exp))
+    }
+
+    scenario("feature no props") {
+      val gj = """
+      { "type": "Feature", "geometry": {"type": "Point", "coordinates": [101.0, 1.0]}}
+      """
+      val decoded = GeoJson.parse(gj)
+      val exp = Feature(
+        Point(Coordinate(101.0, 1.0))
+      )
+      assert(decoded == Right(exp))
+    }
+
+    scenario("feature with props") {
+      val gj = """
+      { "type": "Feature",
+        "properties": {"a": "b"},
+        "geometry": {"type": "Point", "coordinates": [101.0, 1.0]}
+      }
+      """
+      val decoded = GeoJson.parse(gj)
+      val exp = Feature(
+        JsonObject("a" -> Json.fromString("b")),
+        Point(Coordinate(101.0, 1.0))
+      )
+      assert(decoded == Right(exp))
+    }
+
+    scenario("feature with id") {
+      val gj = """
+      { "type": "Feature",
+        "id": "pizza",
+        "properties": {"a": "b"},
+        "geometry": {"type": "Point", "coordinates": [101.0, 1.0]}
+      }
+      """
+      val decoded = GeoJson.parse(gj)
+      val exp = Feature(
+        "pizza",
+        JsonObject("a" -> Json.fromString("b")),
+        Point(Coordinate(101.0, 1.0))
+      )
+      assert(decoded == Right(exp))
+    }
+
+    scenario("feature collection") {
+      val gj = """
+      {"type": "FeatureCollection",
+       "features": [
+         {"type": "Feature",
+          "id": "pizza",
+          "properties": {"a": "b"},
+          "geometry": {"type": "Point", "coordinates": [101.0, 1.0]}
+         }
+        ]
+      }
+      """
+      val decoded = GeoJson.parse(gj)
+      val f = Feature(
+        "pizza",
+        JsonObject("a" -> Json.fromString("b")),
+        Point(Coordinate(101.0, 1.0))
+      )
+      val exp = FeatureCollection(Vector(f))
       assert(decoded == Right(exp))
     }
   }
