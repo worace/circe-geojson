@@ -72,31 +72,37 @@ object CoordinateSerde {
 // MultiPoint(Seq[Point])
 // vs MultiPoint(type: String, coordinates: Seq[Coordinate])
 
+sealed trait Geometry
+
 sealed trait GeoJson
 case class Point(
   `type`: String,
   coordinates: Coordinate
-) extends GeoJson
+) extends GeoJson with Geometry
 case class LineString(
   `type`: String,
   coordinates: Vector[Coordinate]
-) extends GeoJson
+) extends GeoJson with Geometry
 case class Polygon(
   `type`: String,
   coordinates: Vector[Vector[Coordinate]]
-) extends GeoJson
+) extends GeoJson with Geometry
 case class MultiPoint(
   `type`: String,
   coordinates: Vector[Coordinate]
-) extends GeoJson
+) extends GeoJson with Geometry
 case class MultiLineString(
   `type`: String,
   coordinates: Vector[Vector[Coordinate]]
-) extends GeoJson
+) extends GeoJson with Geometry
 case class MultiPolygon(
   `type`: String,
   coordinates: Vector[Vector[Vector[Coordinate]]]
-) extends GeoJson
+) extends GeoJson with Geometry
+case class GeometryCollection(
+  `type`: String,
+  geometries: Vector[Geometry]
+) extends GeoJson with Geometry
 
 // case class Geometry(
 //   `type`: String,
@@ -127,4 +133,8 @@ object MultiLineString {
 
 object MultiPolygon {
   def apply(coords: Seq[Seq[Seq[Coordinate]]]): MultiPolygon = MultiPolygon("MultiPolygon", coords.map(_.map(_.toVector).toVector).toVector)
+}
+
+object GeometryCollection {
+  def apply(geometries: Seq[Geometry]): GeometryCollection = GeometryCollection("GeometryCollection", geometries.toVector)
 }

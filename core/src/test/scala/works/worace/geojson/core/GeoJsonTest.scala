@@ -14,9 +14,9 @@ class GeoJsonTest extends FeatureSpec {
       val lineString = """
       {"type": "LineString", "coordinates": [[1.0, 2.0], [2.0, 3.0]]}
       """
-      val decodedLineString = GeoJson.parse(lineString)
+      val decoded = GeoJson.parse(lineString)
       assert(
-        decodedLineString == Right(LineString(Vector(Coordinate(1.0, 2.0), Coordinate(2.0, 3.0))))
+        decoded == Right(LineString(Vector(Coordinate(1.0, 2.0), Coordinate(2.0, 3.0))))
       )
     }
 
@@ -24,7 +24,7 @@ class GeoJsonTest extends FeatureSpec {
       val gj = """
       {"type": "Polygon", "coordinates": [[[100.0, 0.0], [101.0, 0.0], [101.0, 1.0], [100.0, 1.0], [100.0, 0.0]]]}
       """
-      val decodedLineString = GeoJson.parse(gj)
+      val decoded = GeoJson.parse(gj)
       val exp = Polygon(
         Vector(
           Vector(
@@ -36,16 +36,16 @@ class GeoJsonTest extends FeatureSpec {
           )
         )
       )
-      assert(decodedLineString == Right(exp))
+      assert(decoded == Right(exp))
     }
 
     scenario("multi point") {
       val gj = """
       {"type": "MultiPoint", "coordinates": [ [100.0, 0.0], [101.0, 1.0]]}
       """
-      val decodedLineString = GeoJson.parse(gj)
+      val decoded = GeoJson.parse(gj)
       val exp = MultiPoint(Vector(Coordinate(100.0, 0.0), Coordinate(101.0, 1.0)))
-      assert(decodedLineString == Right(exp))
+      assert(decoded == Right(exp))
     }
 
     scenario("multi linestring") {
@@ -57,14 +57,14 @@ class GeoJsonTest extends FeatureSpec {
        ]
       }
       """
-      val decodedLineString = GeoJson.parse(gj)
+      val decoded = GeoJson.parse(gj)
       val exp = MultiLineString(
         Vector(
           Vector(Coordinate(100.0, 0.0), Coordinate(101.0, 1.0)),
           Vector(Coordinate(102.0, 2.0), Coordinate(103.0, 3.0))
         )
       )
-      assert(decodedLineString == Right(exp))
+      assert(decoded == Right(exp))
     }
 
     scenario("multi polygon") {
@@ -77,7 +77,7 @@ class GeoJsonTest extends FeatureSpec {
        ]
       }
       """
-      val decodedLineString = GeoJson.parse(gj)
+      val decoded = GeoJson.parse(gj)
       val exp = MultiPolygon(
         Vector(
           Vector(
@@ -90,7 +90,26 @@ class GeoJsonTest extends FeatureSpec {
           )
         )
       )
-      assert(decodedLineString == Right(exp))
+      assert(decoded == Right(exp))
+    }
+
+    scenario("geometry collection") {
+      val gj = """
+      { "type": "GeometryCollection",
+        "geometries": [
+          { "type": "Point", "coordinates": [101.0, 1.0]},
+          { "type": "LineString", "coordinates": [ [101.0, 0.0], [102.0, 1.0] ]}
+        ]
+      }
+      """
+      val decoded = GeoJson.parse(gj)
+      val exp = GeometryCollection(
+        Vector(
+          Point(Coordinate(101.0, 1.0)),
+          LineString(Vector(Coordinate(101.0, 0.0), Coordinate(102.0, 1.0)))
+        )
+      )
+      assert(decoded == Right(exp))
     }
   }
 }
