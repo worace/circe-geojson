@@ -6,11 +6,29 @@ import io.circe.parser._
 // import io.circe.syntax._
 
 object GeoJson {
+  import io.circe.syntax._
   import io.circe.generic.extras.auto._
   import io.circe.generic.extras.Configuration
   implicit val geojsonTypeDiscriminator: Configuration =
     Configuration.default.withDiscriminator("type")
   import CoordinateSerde._
+
+  type ID = Either[Long, String]
+
+  // https://github.com/circe/circe/issues/672
+  implicit def encodeEither[A, B](implicit
+    encoderA: Encoder[A],
+    encoderB: Encoder[B]
+  ): Encoder[Either[A, B]] = {
+    o: Either[A, B] =>
+      o.fold(_.asJson, _.asJson)
+  }
+
+  implicit def decodeEither[A, B](
+    implicit
+    decoderA: Decoder[A],
+    decoderB: Decoder[B]
+  ): Decoder[Either[A, B]] = decoderA.either(decoderB)
 
   def parse(rawJson: String): Either[io.circe.Error, GeoJson] = {
     // println(rawJson)
@@ -27,8 +45,8 @@ object GeoJson {
 case class Coordinate(x: Double, y: Double, z: Option[Double], m: Option[Double]) {
   def arr: Array[Double] = {
     this match {
-      case Coordinate(x, y, None, None) => Array(x, y)
-      case Coordinate(x, y, Some(z), None) => Array(x, y, z)
+      case Coordinate(x, y, None, None)       => Array(x, y)
+      case Coordinate(x, y, Some(z), None)    => Array(x, y, z)
       case Coordinate(x, y, Some(z), Some(m)) => Array(x, y, z, m)
       // TODO: What is right here? Should ideally prevent constructing Coord with x,y,m but no z
       case Coordinate(x, y, None, Some(_)) => Array(x, y)
@@ -49,7 +67,8 @@ object Coordinate {
 object CoordinateSerde {
   implicit val encodeCoord: Encoder[Coordinate] = Encoder.instance {
     // TODO - how does this handle large numbers that circe can't represent as JsonNumber
-    coord => Json.arr(coord.arr.flatMap(Json.fromDouble):_*)
+    coord =>
+      Json.arr(coord.arr.flatMap(Json.fromDouble): _*)
   }
 
   implicit val decodeCoord: Decoder[Coordinate] = new Decoder[Coordinate] {
@@ -60,9 +79,9 @@ object CoordinateSerde {
           DecodingFailure("Invalid GeoJson Coordinates", c.history)
         )
         .map {
-          case Array(x,y,z,m) => Coordinate(x, y, Some(z), Some(m))
-          case Array(x,y,z) => Coordinate(x, y, Some(z), None)
-          case Array(x,y) => Coordinate(x, y, None, None)
+          case Array(x, y, z, m) => Coordinate(x, y, Some(z), Some(m))
+          case Array(x, y, z)    => Coordinate(x, y, Some(z), None)
+          case Array(x, y)       => Coordinate(x, y, None, None)
         }
     }
   }
@@ -78,34 +97,41 @@ sealed trait GeoJson
 case class Point(
   `type`: String,
   coordinates: Coordinate
-) extends GeoJson with Geometry
+) extends GeoJson
+    with Geometry
 case class LineString(
   `type`: String,
   coordinates: Vector[Coordinate]
-) extends GeoJson with Geometry
+) extends GeoJson
+    with Geometry
 case class Polygon(
   `type`: String,
   coordinates: Vector[Vector[Coordinate]]
-) extends GeoJson with Geometry
+) extends GeoJson
+    with Geometry
 case class MultiPoint(
   `type`: String,
   coordinates: Vector[Coordinate]
-) extends GeoJson with Geometry
+) extends GeoJson
+    with Geometry
 case class MultiLineString(
   `type`: String,
   coordinates: Vector[Vector[Coordinate]]
-) extends GeoJson with Geometry
+) extends GeoJson
+    with Geometry
 case class MultiPolygon(
   `type`: String,
   coordinates: Vector[Vector[Vector[Coordinate]]]
-) extends GeoJson with Geometry
+) extends GeoJson
+    with Geometry
 case class GeometryCollection(
   `type`: String,
   geometries: Vector[Geometry]
-) extends GeoJson with Geometry
+) extends GeoJson
+    with Geometry
 case class Feature(
   `type`: String,
-  id: Option[String],
+  id: Option[Either[JsonNumber, String]],
   properties: Option[JsonObject],
   geometry: Geometry
 ) extends GeoJson
@@ -119,7 +145,6 @@ case class FeatureCollection(
 //   coordinates: Array[Double]
 // ) extends GeoJson
 
-
 object Point {
   def apply(coord: Coordinate): Point = Point("Point", coord)
   def apply(x: Double, y: Double): Point = Point(Coordinate(x, y))
@@ -130,7 +155,8 @@ object LineString {
 }
 
 object Polygon {
-  def apply(coords: Seq[Seq[Coordinate]]): Polygon = Polygon("Polygon", coords.map(_.toVector).toVector)
+  def apply(coords: Seq[Seq[Coordinate]]): Polygon =
+    Polygon("Polygon", coords.map(_.toVector).toVector)
 }
 
 object MultiPoint {
@@ -138,23 +164,31 @@ object MultiPoint {
 }
 
 object MultiLineString {
-  def apply(coords: Seq[Seq[Coordinate]]): MultiLineString = MultiLineString("MultiLineString", coords.map(_.toVector).toVector)
+  def apply(coords: Seq[Seq[Coordinate]]): MultiLineString =
+    MultiLineString("MultiLineString", coords.map(_.toVector).toVector)
 }
 
 object MultiPolygon {
-  def apply(coords: Seq[Seq[Seq[Coordinate]]]): MultiPolygon = MultiPolygon("MultiPolygon", coords.map(_.map(_.toVector).toVector).toVector)
+  def apply(coords: Seq[Seq[Seq[Coordinate]]]): MultiPolygon =
+    MultiPolygon("MultiPolygon", coords.map(_.map(_.toVector).toVector).toVector)
 }
 
 object GeometryCollection {
-  def apply(geometries: Seq[Geometry]): GeometryCollection = GeometryCollection("GeometryCollection", geometries.toVector)
+  def apply(geometries: Seq[Geometry]): GeometryCollection =
+    GeometryCollection("GeometryCollection", geometries.toVector)
 }
 
 object Feature {
   def apply(geometry: Geometry): Feature = Feature("Feature", None, None, geometry)
-  def apply(properties: JsonObject, geometry: Geometry): Feature = Feature("Feature", None, Some(properties), geometry)
-  def apply(id: String, properties: JsonObject, geometry: Geometry): Feature = Feature("Feature", Some(id), Some(properties), geometry)
+  def apply(properties: JsonObject, geometry: Geometry): Feature =
+    Feature("Feature", None, Some(properties), geometry)
+  def apply(id: String, properties: JsonObject, geometry: Geometry): Feature =
+    Feature("Feature", Some(Right(id)), Some(properties), geometry)
+  def apply(id: Int, properties: JsonObject, geometry: Geometry): Feature =
+    Feature("Feature", Some(Left(Json.fromInt(id).asNumber.get)), Some(properties), geometry)
 }
 
 object FeatureCollection {
-  def apply(features: Seq[Feature]): FeatureCollection = FeatureCollection("FeatureCollection", features.toVector)
+  def apply(features: Seq[Feature]): FeatureCollection =
+    FeatureCollection("FeatureCollection", features.toVector)
 }

@@ -139,17 +139,17 @@ class GeoJsonTest extends FeatureSpec {
       assert(decoded == Right(exp))
     }
 
-    scenario("feature with id") {
+    scenario("feature with numeric id") {
       val gj = """
       { "type": "Feature",
-        "id": "pizza",
+        "id": 123,
         "properties": {"a": "b"},
         "geometry": {"type": "Point", "coordinates": [101.0, 1.0]}
       }
       """
       val decoded = GeoJson.parse(gj)
       val exp = Feature(
-        "pizza",
+        123,
         JsonObject("a" -> Json.fromString("b")),
         Point(Coordinate(101.0, 1.0))
       )
