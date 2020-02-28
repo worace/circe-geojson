@@ -68,6 +68,10 @@ object CoordinateSerde {
   }
 }
 
+// Q: Separate ADT for decoders / formats vs. public interface?
+// MultiPoint(Seq[Point])
+// vs MultiPoint(type: String, coordinates: Seq[Coordinate])
+
 sealed trait GeoJson
 case class Point(
   `type`: String,
@@ -76,6 +80,22 @@ case class Point(
 case class LineString(
   `type`: String,
   coordinates: Vector[Coordinate]
+) extends GeoJson
+case class Polygon(
+  `type`: String,
+  coordinates: Vector[Vector[Coordinate]]
+) extends GeoJson
+case class MultiPoint(
+  `type`: String,
+  coordinates: Vector[Coordinate]
+) extends GeoJson
+case class MultiLineString(
+  `type`: String,
+  coordinates: Vector[Vector[Coordinate]]
+) extends GeoJson
+case class MultiPolygon(
+  `type`: String,
+  coordinates: Vector[Vector[Vector[Coordinate]]]
 ) extends GeoJson
 
 // case class Geometry(
@@ -86,8 +106,25 @@ case class LineString(
 
 object Point {
   def apply(coord: Coordinate): Point = Point("Point", coord)
+  def apply(x: Double, y: Double): Point = Point(Coordinate(x, y))
 }
 
 object LineString {
   def apply(coords: Seq[Coordinate]): LineString = LineString("LineString", coords.toVector)
+}
+
+object Polygon {
+  def apply(coords: Seq[Seq[Coordinate]]): Polygon = Polygon("Polygon", coords.map(_.toVector).toVector)
+}
+
+object MultiPoint {
+  def apply(coords: Seq[Coordinate]): MultiPoint = MultiPoint("MultiPoint", coords.toVector)
+}
+
+object MultiLineString {
+  def apply(coords: Seq[Seq[Coordinate]]): MultiLineString = MultiLineString("MultiLineString", coords.map(_.toVector).toVector)
+}
+
+object MultiPolygon {
+  def apply(coords: Seq[Seq[Seq[Coordinate]]]): MultiPolygon = MultiPolygon("MultiPolygon", coords.map(_.map(_.toVector).toVector).toVector)
 }
