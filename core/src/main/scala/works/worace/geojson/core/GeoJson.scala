@@ -87,6 +87,68 @@ object CoordinateSerde {
   }
 }
 
+object GeometrySerde {
+  def geomType(g: Geometry): String = {
+    g match {
+      case _: Point => "Point"
+      case _: LineString => "LineString"
+      case _: Polygon => "Polygon"
+      case _: MultiPoint => "MultiPoint"
+      case _: MultiLineString => "MultiLineString"
+      case _: MultiPolygon => "MultiPolygon"
+      case _: GeometryCollection => "GeometryCollection"
+    }
+  }
+
+  def geomBase(g: Geometry): JsonObject = {
+    import io.circe.syntax._
+    import CoordinateSerde._
+    g match {
+      case geom: Point => JsonObject("coordinates" -> geom.coordinates.asJson)
+      case geom: LineString => JsonObject("coordinates" -> geom.coordinates.asJson)
+      case geom: Polygon => JsonObject("coordinates" -> geom.coordinates.asJson)
+      case geom: MultiPoint => JsonObject("coordinates" -> geom.coordinates.asJson)
+      case geom: MultiLineString => JsonObject("coordinates" -> geom.coordinates.asJson)
+      case geom: MultiPolygon => JsonObject("coordinates" -> geom.coordinates.asJson)
+      case geom: GeometryCollection => JsonObject("geometries" -> geom.geometries.asJson)
+    }
+  }
+
+  implicit val encodeGeometry: Encoder[Geometry] = Encoder.instance {
+    geom => Json.fromJsonObject(geomBase(geom).add("type", Json.fromString(geomType(geom))))
+  }
+
+  val coreKeys = Set("type", "geometry", "coordinates", "properties")
+
+  import io.circe.generic.extras.auto._
+  import io.circe.generic.extras.Configuration
+  implicit val geojsonTypeDiscriminator: Configuration =
+    Configuration.default.withDiscriminator("type")
+  implicit val decodeGeom: Decoder[Geometry] = new Decoder[Geometry] {
+    final def apply(c: HCursor): Decoder.Result[Geometry] = {
+      c.as[JsonObject]
+        .flatMap { obj =>
+          val base = Json.fromJsonObject(obj).as[Geometry]
+          val foreignMembers = obj.filterKeys(!coreKeys.contains(_))
+          // get foreign members: keys other than type, coordinates, geometry
+          base
+        }
+
+      c.as[Array[Double]]
+        .filterOrElse(
+          coords => coords.size > 1 && coords.size < 5,
+          DecodingFailure("Invalid GeoJson Coordinates", c.history)
+        )
+        .map {
+          // case Array(x, y, z, m) => Coordinate(x, y, Some(z), Some(m))
+          // case Array(x, y, z)    => Coordinate(x, y, Some(z), None)
+          // case Array(x, y)       => Coordinate(x, y, None, None)
+          ???
+        }
+    }
+  }
+}
+
 // Q: Separate ADT for decoders / formats vs. public interface?
 // MultiPoint(Seq[Point])
 // vs MultiPoint(type: String, coordinates: Seq[Coordinate])
@@ -192,3 +254,32 @@ object FeatureCollection {
   def apply(features: Seq[Feature]): FeatureCollection =
     FeatureCollection("FeatureCollection", features.toVector)
 }
+
+// Goals
+// Coordinates
+// * [x] 2d
+// * [x] 3d
+// * [x] 4d
+// * [ ] Test: fails with too few and too many dimensions
+// Basic Geometries
+// * [x] Point
+// * [x] LineString
+// * [x] Polygon
+// * [x] MultiPoint
+// * [x] MultiLineString
+// * [x] MultiPolygon
+// * [x] GeometryCollection
+// * [ ] Feature
+//   * [x] id
+//     * [x] Nullable
+//     * [x] String
+//     * [x] JsonNumber
+//   * [ ] properties
+//     * [ ] Nullable
+//   * [ ] geometry
+//     * [ ] Nullable
+//   * [ ] BBox
+// * FeatureCollection
+//   * [ ] Foreign Members
+//   * [ ] BBox
+//   * [x] Features
