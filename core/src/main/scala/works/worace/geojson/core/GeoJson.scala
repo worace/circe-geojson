@@ -88,6 +88,9 @@ object CoordinateSerde {
 }
 
 object GeometrySerde {
+  // TODO: Replace this with `type` member on GeoJson trait
+  // Widen Geometry Serde to GeoJsonSerde and handle all cases here
+  // since foreign members + bbox apply to all, this should be OK
   def geomType(g: Geometry): String = {
     g match {
       case _: Point => "Point"
