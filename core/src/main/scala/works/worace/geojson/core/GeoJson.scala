@@ -153,9 +153,15 @@ object GeometrySerde {
 // MultiPoint(Seq[Point])
 // vs MultiPoint(type: String, coordinates: Seq[Coordinate])
 
+case class BBox(min: Coordinate, max: Coordinate)
+
 sealed trait Geometry
 
-sealed trait GeoJson
+sealed trait GeoJson {
+  val foreignMembers: Option[JsonObject]
+  val bbox: Option[BBox]
+}
+
 case class Point(
   `type`: String,
   coordinates: Coordinate
