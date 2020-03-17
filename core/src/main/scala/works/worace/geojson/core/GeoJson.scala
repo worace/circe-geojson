@@ -181,14 +181,17 @@ sealed trait GeoJson {
   val foreignMembers: Option[JsonObject]
   val bbox: Option[BBox]
   def `type`: String
+  def withForeignMembers(fm: JsonObject): GeoJson
 }
 
 case class Point(
   coordinates: Coordinate,
   bbox: Option[BBox],
   foreignMembers: Option[JsonObject]
-) extends GeoJson with Geometry {
+) extends GeoJson
+    with Geometry {
   val `type` = "Point"
+  def withForeignMembers(fm: JsonObject): GeoJson = copy(foreignMembers = Some(fm))
 }
 case class LineString(
   coordinates: Vector[Coordinate],
@@ -197,6 +200,7 @@ case class LineString(
 ) extends GeoJson
     with Geometry {
   val `type` = "LineString"
+  def withForeignMembers(fm: JsonObject): GeoJson = copy(foreignMembers = Some(fm))
 }
 case class Polygon(
   coordinates: Vector[Vector[Coordinate]],
@@ -205,6 +209,7 @@ case class Polygon(
 ) extends GeoJson
     with Geometry {
   val `type` = "Polygon"
+  def withForeignMembers(fm: JsonObject): GeoJson = copy(foreignMembers = Some(fm))
 }
 case class MultiPoint(
   coordinates: Vector[Coordinate],
@@ -213,6 +218,7 @@ case class MultiPoint(
 ) extends GeoJson
     with Geometry {
   val `type` = "MultiPoint"
+  def withForeignMembers(fm: JsonObject): GeoJson = copy(foreignMembers = Some(fm))
 }
 case class MultiLineString(
   coordinates: Vector[Vector[Coordinate]],
@@ -221,6 +227,7 @@ case class MultiLineString(
 ) extends GeoJson
     with Geometry {
   val `type` = "MultiLineString"
+  def withForeignMembers(fm: JsonObject): GeoJson = copy(foreignMembers = Some(fm))
 }
 case class MultiPolygon(
   coordinates: Vector[Vector[Vector[Coordinate]]],
@@ -229,6 +236,7 @@ case class MultiPolygon(
 ) extends GeoJson
     with Geometry {
   val `type` = "MultiPolygon"
+  def withForeignMembers(fm: JsonObject): GeoJson = copy(foreignMembers = Some(fm))
 }
 case class GeometryCollection(
   geometries: Vector[Geometry],
@@ -237,6 +245,7 @@ case class GeometryCollection(
 ) extends GeoJson
     with Geometry {
   val `type` = "GeometryCollection"
+  def withForeignMembers(fm: JsonObject): GeoJson = copy(foreignMembers = Some(fm))
 }
 case class Feature(
   id: Option[Either[JsonNumber, String]],
@@ -246,6 +255,7 @@ case class Feature(
   foreignMembers: Option[JsonObject]
 ) extends GeoJson {
   val `type` = "Feature"
+  def withForeignMembers(fm: JsonObject): GeoJson = copy(foreignMembers = Some(fm))
 }
 
 case class FeatureCollection(
@@ -254,6 +264,7 @@ case class FeatureCollection(
   foreignMembers: Option[JsonObject]
 ) extends GeoJson {
   val `type` = "FeatureCollection"
+  def withForeignMembers(fm: JsonObject): GeoJson = copy(foreignMembers = Some(fm))
 }
 
 object Point {
@@ -332,3 +343,27 @@ object FeatureCollection {
 //   * [ ] Foreign Members
 //   * [ ] BBox
 //   * [x] Features
+// Basic Geometry XYZM
+// * [ ] Point
+// * [ ] LineString
+// * [ ] Polygon
+// * [ ] MultiPoint
+// * [ ] MultiLineString
+// * [ ] MultiPolygon
+// * [ ] GeometryCollection
+// Basic Geometry BBox
+// * [ ] Point
+// * [ ] LineString
+// * [ ] Polygon
+// * [ ] MultiPoint
+// * [ ] MultiLineString
+// * [ ] MultiPolygon
+// * [ ] GeometryCollection
+// Basic Geometry Foreign Members
+// * [ ] Point
+// * [ ] LineString
+// * [ ] Polygon
+// * [ ] MultiPoint
+// * [ ] MultiLineString
+// * [ ] MultiPolygon
+// * [ ] GeometryCollection
