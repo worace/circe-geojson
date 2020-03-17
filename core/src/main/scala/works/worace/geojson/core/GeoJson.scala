@@ -11,8 +11,6 @@ object GeoJson {
   import GeoJsonSerde._
 
   def parse(rawJson: String): Either[io.circe.Error, GeoJson] = {
-    println("decode json")
-    println(rawJson)
     decode[GeoJson](rawJson)(GeoJsonSerde.decoder)
   }
 }
@@ -21,13 +19,13 @@ object IdSerde {
   type ID = Either[Long, String]
 
   // https://github.com/circe/circe/issues/672
-  implicit def encodeEither[A, B](implicit
+  implicit def encodeEither[A, B](
+    implicit
     encoderA: Encoder[A],
     encoderB: Encoder[B]
   ): Encoder[Either[A, B]] = {
     import io.circe.syntax._
-    o: Either[A, B] =>
-      o.fold(_.asJson, _.asJson)
+    o: Either[A, B] => o.fold(_.asJson, _.asJson)
   }
 
   implicit def decodeEither[A, B](
@@ -68,9 +66,6 @@ object CoordinateSerde {
 
   implicit val decodeCoord: Decoder[Coordinate] = new Decoder[Coordinate] {
     final def apply(c: HCursor): Decoder.Result[Coordinate] = {
-      println("decode coord")
-      println(c)
-      println(c.as[Array[Double]])
       c.as[Array[Double]]
         .filterOrElse(
           coords => coords.size > 1 && coords.size < 5,
@@ -101,12 +96,12 @@ object GeoJsonSerde {
     import io.circe.syntax._
     import CoordinateSerde._
     g match {
-      case geom: Point => JsonObject("coordinates" -> geom.coordinates.asJson)
-      case geom: LineString => JsonObject("coordinates" -> geom.coordinates.asJson)
-      case geom: Polygon => JsonObject("coordinates" -> geom.coordinates.asJson)
-      case geom: MultiPoint => JsonObject("coordinates" -> geom.coordinates.asJson)
-      case geom: MultiLineString => JsonObject("coordinates" -> geom.coordinates.asJson)
-      case geom: MultiPolygon => JsonObject("coordinates" -> geom.coordinates.asJson)
+      case geom: Point              => JsonObject("coordinates" -> geom.coordinates.asJson)
+      case geom: LineString         => JsonObject("coordinates" -> geom.coordinates.asJson)
+      case geom: Polygon            => JsonObject("coordinates" -> geom.coordinates.asJson)
+      case geom: MultiPoint         => JsonObject("coordinates" -> geom.coordinates.asJson)
+      case geom: MultiLineString    => JsonObject("coordinates" -> geom.coordinates.asJson)
+      case geom: MultiPolygon       => JsonObject("coordinates" -> geom.coordinates.asJson)
       case geom: GeometryCollection => geomCollectionBase(geom)
     }
   }
@@ -114,7 +109,7 @@ object GeoJsonSerde {
   def featureBase(f: Feature): JsonObject = {
     val geom = JsonObject("geometry" -> Json.fromJsonObject(geomBase(f.geometry)))
     f.properties match {
-      case None => geom
+      case None        => geom
       case Some(props) => geom.add("properties", Json.fromJsonObject(props))
     }
   }
@@ -132,17 +127,17 @@ object GeoJsonSerde {
   def base(g: GeoJson): JsonObject = {
     import io.circe.syntax._
     g match {
-      case geom: Geometry => geomBase(geom)
-      case f: Feature => featureBase(f)
+      case geom: Geometry        => geomBase(geom)
+      case f: Feature            => featureBase(f)
       case fc: FeatureCollection => featureCollectionBase(fc)
     }
   }
 
-  implicit val encodeGeoJson: Encoder[GeoJson] = Encoder.instance {
-    gj => Json.fromJsonObject(base(gj).add("type", Json.fromString(gj.`type`)))
+  implicit val encodeGeoJson: Encoder[GeoJson] = Encoder.instance { gj =>
+    Json.fromJsonObject(base(gj).add("type", Json.fromString(gj.`type`)))
   }
 
-  val coreKeys = Set("type", "geometry", "coordinates", "properties", "features")
+  val coreKeys = Set("type", "geometry", "coordinates", "properties", "features", "geometries", "id")
 
   object Base {
     import io.circe.generic.extras.auto._
@@ -160,33 +155,23 @@ object GeoJsonSerde {
 
   val decoder: Decoder[GeoJson] = new Decoder[GeoJson] {
     final def apply(c: HCursor): Decoder.Result[GeoJson] = {
-      println("decode geom")
-      println(c)
-
-      println("as JsonObject res:")
-      println(c.as[JsonObject])
-      println("as GeoJson res:")
-      println(c.as[GeoJson](Base.decoder))
-val base = c.as[GeoJson](Base.decoder)
-
       c.as[JsonObject]
         .flatMap { obj =>
-          val base = Json.fromJsonObject(obj).as[GeoJson](Base.decoder)
-          println("got base")
-          println(base)
-          // get foreign members: keys other than type, coordinates, geometry
-          val foreignMembers = obj.filterKeys(!coreKeys.contains(_))
-          println("has foreign mebers:")
-          println(foreignMembers)
-          base
+          Json
+            .fromJsonObject(obj)
+            .as[GeoJson](Base.decoder)
+            .map { base =>
+              val foreignMembers = obj.filterKeys(!coreKeys.contains(_))
+              if (foreignMembers.nonEmpty) {
+                base.withForeignMembers(foreignMembers)
+              } else {
+                base
+              }
+            }
         }
     }
   }
 }
-
-// Q: Separate ADT for decoders / formats vs. public interface?
-// MultiPoint(Seq[Point])
-// vs MultiPoint(type: String, coordinates: Seq[Coordinate])
 
 case class BBox(min: Coordinate, max: Coordinate)
 
