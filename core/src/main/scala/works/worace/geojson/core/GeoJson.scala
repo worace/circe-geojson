@@ -7,12 +7,17 @@ import io.circe.parser._
 
 object GeoJson {
   import io.circe.syntax._
-  import io.circe.generic.extras.auto._
   import io.circe.generic.extras.Configuration
-  implicit val geojsonTypeDiscriminator: Configuration =
-    Configuration.default.withDiscriminator("type")
-  import CoordinateSerde._
+  import GeoJsonSerde._
 
+  def parse(rawJson: String): Either[io.circe.Error, GeoJson] = {
+    println("decode json")
+    println(rawJson)
+    decode[GeoJson](rawJson)(GeoJsonSerde.decoder)
+  }
+}
+
+object IdSerde {
   type ID = Either[Long, String]
 
   // https://github.com/circe/circe/issues/672
@@ -20,6 +25,7 @@ object GeoJson {
     encoderA: Encoder[A],
     encoderB: Encoder[B]
   ): Encoder[Either[A, B]] = {
+    import io.circe.syntax._
     o: Either[A, B] =>
       o.fold(_.asJson, _.asJson)
   }
@@ -29,17 +35,6 @@ object GeoJson {
     decoderA: Decoder[A],
     decoderB: Decoder[B]
   ): Decoder[Either[A, B]] = decoderA.either(decoderB)
-
-  def parse(rawJson: String): Either[io.circe.Error, GeoJson] = {
-    // println(rawJson)
-    // io.circe.parser.parse(rawJson).map { json =>
-    //   println("parsed:")
-    //   println(json)
-    //   json.as[GeoJson]
-    // }
-
-    decode[GeoJson](rawJson)
-  }
 }
 
 case class Coordinate(x: Double, y: Double, z: Option[Double], m: Option[Double]) {
@@ -73,6 +68,9 @@ object CoordinateSerde {
 
   implicit val decodeCoord: Decoder[Coordinate] = new Decoder[Coordinate] {
     final def apply(c: HCursor): Decoder.Result[Coordinate] = {
+      println("decode coord")
+      println(c)
+      println(c.as[Array[Double]])
       c.as[Array[Double]]
         .filterOrElse(
           coords => coords.size > 1 && coords.size < 5,
@@ -87,20 +85,16 @@ object CoordinateSerde {
   }
 }
 
-object GeometrySerde {
-  // TODO: Replace this with `type` member on GeoJson trait
-  // Widen Geometry Serde to GeoJsonSerde and handle all cases here
-  // since foreign members + bbox apply to all, this should be OK
-  def geomType(g: Geometry): String = {
-    g match {
-      case _: Point => "Point"
-      case _: LineString => "LineString"
-      case _: Polygon => "Polygon"
-      case _: MultiPoint => "MultiPoint"
-      case _: MultiLineString => "MultiLineString"
-      case _: MultiPolygon => "MultiPolygon"
-      case _: GeometryCollection => "GeometryCollection"
-    }
+object GeoJsonSerde {
+  // TODO:
+  // * [x] Replace this with `type` member on GeoJson trait
+  // * [x] Widen Geometry Serde to GeoJsonSerde and handle all cases here
+  // * [ ] since foreign members + bbox apply to all, this should be OK
+
+  def geomCollectionBase(gc: GeometryCollection): JsonObject = {
+    import io.circe.syntax._
+    val children = gc.geometries.map(child => Json.fromJsonObject(geomBase(child)))
+    JsonObject("geometries" -> children.asJson)
   }
 
   def geomBase(g: Geometry): JsonObject = {
@@ -113,40 +107,78 @@ object GeometrySerde {
       case geom: MultiPoint => JsonObject("coordinates" -> geom.coordinates.asJson)
       case geom: MultiLineString => JsonObject("coordinates" -> geom.coordinates.asJson)
       case geom: MultiPolygon => JsonObject("coordinates" -> geom.coordinates.asJson)
-      case geom: GeometryCollection => JsonObject("geometries" -> geom.geometries.asJson)
+      case geom: GeometryCollection => geomCollectionBase(geom)
     }
   }
 
-  implicit val encodeGeometry: Encoder[Geometry] = Encoder.instance {
-    geom => Json.fromJsonObject(geomBase(geom).add("type", Json.fromString(geomType(geom))))
+  def featureBase(f: Feature): JsonObject = {
+    val geom = JsonObject("geometry" -> Json.fromJsonObject(geomBase(f.geometry)))
+    f.properties match {
+      case None => geom
+      case Some(props) => geom.add("properties", Json.fromJsonObject(props))
+    }
   }
 
-  val coreKeys = Set("type", "geometry", "coordinates", "properties")
+  def featureCollectionBase(fc: FeatureCollection): JsonObject = {
+    import io.circe.syntax._
+    JsonObject("features" -> fc.features.map(featureBase).asJson)
+    // val features = JsonObject("features" -> fc.features)
+    // f.bbox match {
+    //   case None => features
+    //   case Some(props) => features.add("bbox", Json.fromJsonObject(props))
+    // }
+  }
 
-  import io.circe.generic.extras.auto._
-  import io.circe.generic.extras.Configuration
-  implicit val geojsonTypeDiscriminator: Configuration =
-    Configuration.default.withDiscriminator("type")
-  implicit val decodeGeom: Decoder[Geometry] = new Decoder[Geometry] {
-    final def apply(c: HCursor): Decoder.Result[Geometry] = {
+  def base(g: GeoJson): JsonObject = {
+    import io.circe.syntax._
+    g match {
+      case geom: Geometry => geomBase(geom)
+      case f: Feature => featureBase(f)
+      case fc: FeatureCollection => featureCollectionBase(fc)
+    }
+  }
+
+  implicit val encodeGeoJson: Encoder[GeoJson] = Encoder.instance {
+    gj => Json.fromJsonObject(base(gj).add("type", Json.fromString(gj.`type`)))
+  }
+
+  val coreKeys = Set("type", "geometry", "coordinates", "properties", "features")
+
+  object Base {
+    import io.circe.generic.extras.auto._
+    import io.circe.generic.extras.Configuration
+    implicit val geojsonTypeDiscriminator: Configuration =
+      Configuration.default.withDiscriminator("type")
+    val decoder: Decoder[GeoJson] = new Decoder[GeoJson] {
+      final def apply(c: HCursor): Decoder.Result[GeoJson] = {
+        import CoordinateSerde._
+        import IdSerde._
+        c.as[GeoJson]
+      }
+    }
+  }
+
+  val decoder: Decoder[GeoJson] = new Decoder[GeoJson] {
+    final def apply(c: HCursor): Decoder.Result[GeoJson] = {
+      println("decode geom")
+      println(c)
+
+      println("as JsonObject res:")
+      println(c.as[JsonObject])
+      println("as GeoJson res:")
+      println(c.as[GeoJson](Base.decoder))
+val base = c.as[GeoJson](Base.decoder)
+
       c.as[JsonObject]
         .flatMap { obj =>
-          val base = Json.fromJsonObject(obj).as[Geometry]
-          val foreignMembers = obj.filterKeys(!coreKeys.contains(_))
+          val base = Json.fromJsonObject(obj).as[GeoJson](Base.decoder)
+          println("got base")
+          println(base)
           // get foreign members: keys other than type, coordinates, geometry
+          val foreignMembers = obj.filterKeys(!coreKeys.contains(_))
+          println("has foreign mebers:")
+          println(foreignMembers)
           base
-        }
-
-      c.as[Array[Double]]
-        .filterOrElse(
-          coords => coords.size > 1 && coords.size < 5,
-          DecodingFailure("Invalid GeoJson Coordinates", c.history)
-        )
-        .map {
-          // case Array(x, y, z, m) => Coordinate(x, y, Some(z), Some(m))
-          // case Array(x, y, z)    => Coordinate(x, y, Some(z), None)
-          // case Array(x, y)       => Coordinate(x, y, None, None)
-          ???
         }
     }
   }
@@ -163,105 +195,128 @@ sealed trait Geometry
 sealed trait GeoJson {
   val foreignMembers: Option[JsonObject]
   val bbox: Option[BBox]
+  def `type`: String
 }
 
 case class Point(
-  `type`: String,
-  coordinates: Coordinate
-) extends GeoJson
-    with Geometry
+  coordinates: Coordinate,
+  bbox: Option[BBox],
+  foreignMembers: Option[JsonObject]
+) extends GeoJson with Geometry {
+  val `type` = "Point"
+}
 case class LineString(
-  `type`: String,
-  coordinates: Vector[Coordinate]
+  coordinates: Vector[Coordinate],
+  bbox: Option[BBox],
+  foreignMembers: Option[JsonObject]
 ) extends GeoJson
-    with Geometry
+    with Geometry {
+  val `type` = "LineString"
+}
 case class Polygon(
-  `type`: String,
-  coordinates: Vector[Vector[Coordinate]]
+  coordinates: Vector[Vector[Coordinate]],
+  bbox: Option[BBox],
+  foreignMembers: Option[JsonObject]
 ) extends GeoJson
-    with Geometry
+    with Geometry {
+  val `type` = "Polygon"
+}
 case class MultiPoint(
-  `type`: String,
-  coordinates: Vector[Coordinate]
+  coordinates: Vector[Coordinate],
+  bbox: Option[BBox],
+  foreignMembers: Option[JsonObject]
 ) extends GeoJson
-    with Geometry
+    with Geometry {
+  val `type` = "MultiPoint"
+}
 case class MultiLineString(
-  `type`: String,
-  coordinates: Vector[Vector[Coordinate]]
+  coordinates: Vector[Vector[Coordinate]],
+  bbox: Option[BBox],
+  foreignMembers: Option[JsonObject]
 ) extends GeoJson
-    with Geometry
+    with Geometry {
+  val `type` = "MultiLineString"
+}
 case class MultiPolygon(
-  `type`: String,
-  coordinates: Vector[Vector[Vector[Coordinate]]]
+  coordinates: Vector[Vector[Vector[Coordinate]]],
+  bbox: Option[BBox],
+  foreignMembers: Option[JsonObject]
 ) extends GeoJson
-    with Geometry
+    with Geometry {
+  val `type` = "MultiPolygon"
+}
 case class GeometryCollection(
-  `type`: String,
-  geometries: Vector[Geometry]
+  geometries: Vector[Geometry],
+  bbox: Option[BBox],
+  foreignMembers: Option[JsonObject]
 ) extends GeoJson
-    with Geometry
+    with Geometry {
+  val `type` = "GeometryCollection"
+}
 case class Feature(
-  `type`: String,
   id: Option[Either[JsonNumber, String]],
   properties: Option[JsonObject],
-  geometry: Geometry
-) extends GeoJson
-case class FeatureCollection(
-  `type`: String,
-  features: Vector[Feature]
-) extends GeoJson
+  geometry: Geometry,
+  bbox: Option[BBox],
+  foreignMembers: Option[JsonObject]
+) extends GeoJson {
+  val `type` = "Feature"
+}
 
-// case class Geometry(
-//   `type`: String,
-//   coordinates: Array[Double]
-// ) extends GeoJson
+case class FeatureCollection(
+  features: Vector[Feature],
+  bbox: Option[BBox],
+  foreignMembers: Option[JsonObject]
+) extends GeoJson {
+  val `type` = "FeatureCollection"
+}
 
 object Point {
-  def apply(coord: Coordinate): Point = Point("Point", coord)
+  def apply(coord: Coordinate): Point = Point(coord, None, None)
   def apply(x: Double, y: Double): Point = Point(Coordinate(x, y))
 }
 
 object LineString {
-  def apply(coords: Seq[Coordinate]): LineString = LineString("LineString", coords.toVector)
+  def apply(coords: Seq[Coordinate]): LineString = LineString(coords.toVector, None, None)
 }
 
 object Polygon {
   def apply(coords: Seq[Seq[Coordinate]]): Polygon =
-    Polygon("Polygon", coords.map(_.toVector).toVector)
+    Polygon(coords.map(_.toVector).toVector, None, None)
 }
 
 object MultiPoint {
-  def apply(coords: Seq[Coordinate]): MultiPoint = MultiPoint("MultiPoint", coords.toVector)
+  def apply(coords: Seq[Coordinate]): MultiPoint = MultiPoint(coords.toVector, None, None)
 }
 
 object MultiLineString {
   def apply(coords: Seq[Seq[Coordinate]]): MultiLineString =
-    MultiLineString("MultiLineString", coords.map(_.toVector).toVector)
+    MultiLineString(coords.map(_.toVector).toVector, None, None)
 }
 
 object MultiPolygon {
   def apply(coords: Seq[Seq[Seq[Coordinate]]]): MultiPolygon =
-    MultiPolygon("MultiPolygon", coords.map(_.map(_.toVector).toVector).toVector)
+    MultiPolygon(coords.map(_.map(_.toVector).toVector).toVector, None, None)
 }
 
 object GeometryCollection {
   def apply(geometries: Seq[Geometry]): GeometryCollection =
-    GeometryCollection("GeometryCollection", geometries.toVector)
+    GeometryCollection(geometries.toVector, None, None)
 }
 
 object Feature {
-  def apply(geometry: Geometry): Feature = Feature("Feature", None, None, geometry)
+  def apply(geometry: Geometry): Feature = Feature(None, None, geometry, None, None)
   def apply(properties: JsonObject, geometry: Geometry): Feature =
-    Feature("Feature", None, Some(properties), geometry)
+    Feature(None, Some(properties), geometry, None, None)
   def apply(id: String, properties: JsonObject, geometry: Geometry): Feature =
-    Feature("Feature", Some(Right(id)), Some(properties), geometry)
+    Feature(Some(Right(id)), Some(properties), geometry, None, None)
   def apply(id: Int, properties: JsonObject, geometry: Geometry): Feature =
-    Feature("Feature", Some(Left(Json.fromInt(id).asNumber.get)), Some(properties), geometry)
+    Feature(Some(Left(Json.fromInt(id).asNumber.get)), Some(properties), geometry, None, None)
 }
 
 object FeatureCollection {
   def apply(features: Seq[Feature]): FeatureCollection =
-    FeatureCollection("FeatureCollection", features.toVector)
+    FeatureCollection(features.toVector, None, None)
 }
 
 // Goals

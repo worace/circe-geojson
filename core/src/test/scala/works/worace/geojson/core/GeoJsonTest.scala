@@ -1,27 +1,48 @@
 package works.worace.geojson.core
 
 import org.scalatest.FeatureSpec
-import io.circe.{Json, JsonObject}
+import io.circe.{Json, JsonObject, Decoder}
 
 class GeoJsonTest extends FeatureSpec {
   feature("example") {
-    scenario("hello world") {
+    scenario("decoding coords") {
+      val xy = "[102.0, 0.5]"
+      val xyz = "[102.0, 0.5, 1.0]"
+      val xyzm = "[102.0, 0.5, 1.0, 2.0]"
+
+      def parseCoord(s: String): Either[io.circe.Error, Coordinate] = {
+        import CoordinateSerde._
+        io.circe.parser.decode[Coordinate](s)
+      }
+
+      assert(parseCoord(xy) == Right(Coordinate(102.0, 0.5, None, None)))
+      assert(parseCoord(xyz) == Right(Coordinate(102.0, 0.5, Some(1.0), None)))
+      assert(parseCoord(xyzm) == Right(Coordinate(102.0, 0.5, Some(1.0), Some(2.0))))
+      // val decXy = io.circe.parser.parse(xy)
+      // val decXy = io.circe.parser.parse(xyz)
+      // println(decXy)
+    }
+
+    scenario("Point") {
       val point = """
       {"type": "Point", "coordinates": [102.0, 0.5]}
       """
       val decodedPoint = GeoJson.parse(point)
-      assert(decodedPoint == Right(Point(Coordinate(102.0, 0.5))))
+      val exp = Right(Point(Coordinate(102.0, 0.5)))
+      assert(decodedPoint == exp)
+    }
 
+    scenario("LineString") {
       val lineString = """
       {"type": "LineString", "coordinates": [[1.0, 2.0], [2.0, 3.0]]}
       """
       val decoded = GeoJson.parse(lineString)
-      assert(
-        decoded == Right(LineString(Vector(Coordinate(1.0, 2.0), Coordinate(2.0, 3.0))))
-      )
+      val expLs = Right(LineString(Vector(Coordinate(1.0, 2.0), Coordinate(2.0, 3.0))))
+      assert(decoded == expLs)
     }
 
     scenario("basic polygon") {
+      println("poly")
       val gj = """
       {"type": "Polygon", "coordinates": [[[100.0, 0.0], [101.0, 0.0], [101.0, 1.0], [100.0, 1.0], [100.0, 0.0]]]}
       """

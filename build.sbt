@@ -15,7 +15,8 @@ lazy val core = project
   .settings(
     organization := "works.worace.geojson.core",
     name := "circe-geojson Core",
-    version := "0.1.0-SNAPSHOT"
+    version := "0.1.0-SNAPSHOT",
+    scalacOptions += "-Xfatal-warnings"
   ).settings(
     libraryDependencies ++= Seq(
       "io.circe" %% "circe-core" % circeVersion,
