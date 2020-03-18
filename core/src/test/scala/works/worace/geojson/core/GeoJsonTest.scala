@@ -1,12 +1,14 @@
 package works.worace.geojson.core
 
 import org.scalatest.FeatureSpec
-import io.circe.{Json, JsonObject, Decoder}
+import io.circe.{Json, JsonObject, Decoder, DecodingFailure}
 
 object TestData {
   val coordXY = "[102.0, 0.5]"
   val coordXYZ = "[102.0, 0.5, 1.0]"
   val coordXYZM = "[102.0, 0.5, 1.0, 2.0]"
+  val coordTooFew = "[102.0]"
+  val coordTooMany = "[102.0, 0.5, 1.0, 2.0, 3.0]"
 
   case class Case(
     encoded: String,
@@ -207,6 +209,8 @@ class GeoJsonTest extends FeatureSpec {
       assert(parseCoord(coordXY) == Right(Coordinate(102.0, 0.5, None, None)))
       assert(parseCoord(coordXYZ) == Right(Coordinate(102.0, 0.5, Some(1.0), None)))
       assert(parseCoord(coordXYZM) == Right(Coordinate(102.0, 0.5, Some(1.0), Some(2.0))))
+      assert(parseCoord(coordTooFew) == Left(DecodingFailure("Invalid GeoJson Coordinates", List())))
+      assert(parseCoord(coordTooMany) == Left(DecodingFailure("Invalid GeoJson Coordinates", List())))
     }
   }
 
