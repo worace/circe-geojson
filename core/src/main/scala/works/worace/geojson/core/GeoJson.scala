@@ -35,33 +35,11 @@ object IdSerde {
   ): Decoder[Either[A, B]] = decoderA.either(decoderB)
 }
 
-case class Coordinate(x: Double, y: Double, z: Option[Double], m: Option[Double]) {
-  def arr: Array[Double] = {
-    this match {
-      case Coordinate(x, y, None, None)       => Array(x, y)
-      case Coordinate(x, y, Some(z), None)    => Array(x, y, z)
-      case Coordinate(x, y, Some(z), Some(m)) => Array(x, y, z, m)
-      // TODO: What is right here? Should ideally prevent constructing Coord with x,y,m but no z
-      case Coordinate(x, y, None, Some(_)) => Array(x, y)
-    }
-  }
-}
-
-object Coordinate {
-  def apply(x: Double, y: Double): Coordinate = {
-    Coordinate(x, y, None, None)
-  }
-
-  def apply(x: Double, y: Double, z: Double): Coordinate = {
-    Coordinate(x, y, Some(z), None)
-  }
-}
-
 object CoordinateSerde {
   implicit val encodeCoord: Encoder[Coordinate] = Encoder.instance {
     // TODO - how does this handle large numbers that circe can't represent as JsonNumber
     coord =>
-      Json.arr(coord.arr.flatMap(Json.fromDouble): _*)
+      Json.arr(coord.array.flatMap(Json.fromDouble): _*)
   }
 
   implicit val decodeCoord: Decoder[Coordinate] = new Decoder[Coordinate] {
@@ -76,6 +54,24 @@ object CoordinateSerde {
           case Array(x, y, z)    => Coordinate(x, y, Some(z), None)
           case Array(x, y)       => Coordinate(x, y, None, None)
         }
+    }
+  }
+}
+
+object BBoxSerde {
+  import io.circe.syntax._
+  implicit val bboxEncoder: Encoder[BBox] = Encoder.instance { bbox =>
+    bbox.flat.asJson
+  }
+
+  implicit val bboxDecoder: Decoder[BBox] = new Decoder[BBox] {
+    final def apply(c: HCursor): Decoder.Result[BBox] = {
+      import CoordinateSerde._
+      c.as[Array[Double]].flatMap {
+        case Array(x1, y1, x2, y2) => Right(BBox(Coordinate(x1, y1), Coordinate(x2, y2)))
+        case Array(x1, y1, z1, x2, y2, z2) => Right(BBox(Coordinate(x1, y1, z1), Coordinate(x2, y2, z2)))
+        case _ => Left(DecodingFailure("Invalid GeoJson BBox", c.history))
+      }
     }
   }
 }
@@ -137,7 +133,8 @@ object GeoJsonSerde {
     Json.fromJsonObject(base(gj).add("type", Json.fromString(gj.`type`)))
   }
 
-  val coreKeys = Set("type", "geometry", "coordinates", "properties", "features", "geometries", "id")
+  val coreKeys =
+    Set("type", "geometry", "coordinates", "properties", "features", "geometries", "id", "bbox")
 
   object Base {
     import io.circe.generic.extras.auto._
@@ -148,6 +145,7 @@ object GeoJsonSerde {
       final def apply(c: HCursor): Decoder.Result[GeoJson] = {
         import CoordinateSerde._
         import IdSerde._
+        import BBoxSerde._
         c.as[GeoJson]
       }
     }
@@ -173,7 +171,33 @@ object GeoJsonSerde {
   }
 }
 
-case class BBox(min: Coordinate, max: Coordinate)
+case class Coordinate(x: Double, y: Double, z: Option[Double], m: Option[Double]) {
+  def array: Array[Double] = {
+    this match {
+      case Coordinate(x, y, None, None)       => Array(x, y)
+      case Coordinate(x, y, Some(z), None)    => Array(x, y, z)
+      case Coordinate(x, y, Some(z), Some(m)) => Array(x, y, z, m)
+      // TODO: What is right here? Should ideally prevent constructing Coord with x,y,m but no z
+      case Coordinate(x, y, None, Some(_)) => Array(x, y)
+    }
+  }
+}
+
+object Coordinate {
+  def apply(x: Double, y: Double): Coordinate = {
+    Coordinate(x, y, None, None)
+  }
+
+  def apply(x: Double, y: Double, z: Double): Coordinate = {
+    Coordinate(x, y, Some(z), None)
+  }
+}
+
+case class BBox(min: Coordinate, max: Coordinate) {
+  def flat: Array[Double] = {
+    min.array ++ max.array
+  }
+}
 
 sealed trait Geometry
 

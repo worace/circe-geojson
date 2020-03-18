@@ -168,6 +168,21 @@ object TestData {
         Point(Coordinate(101.0, 1.0))
       )
     )
+
+    val bbox = Case(
+      """{"type": "Feature",
+        "bbox": [101.0, 1.0, 101.0, 1.0],
+        "geometry": {"type": "Point", "coordinates": [101.0, 1.0]}
+      }
+      """,
+      Feature(
+        None,
+        None,
+        Some(Point(Coordinate(101.0, 1.0))),
+        Some(BBox(Coordinate(101.0, 1.0), Coordinate(101.0, 1.0))),
+        None
+      )
+    )
   }
 
   object FeatureCollectionCases {
@@ -191,6 +206,31 @@ object TestData {
             Point(Coordinate(101.0, 1.0))
           )
         )
+      )
+    )
+    val bbox = Case(
+      """
+      {"type": "FeatureCollection",
+       "bbox": [101.0, 1.0, 101.0, 1.0],
+       "features": [
+         {"type": "Feature",
+          "id": "pizza",
+          "properties": {"a": "b"},
+          "geometry": {"type": "Point", "coordinates": [101.0, 1.0]}
+         }
+        ]
+      }
+      """,
+      FeatureCollection(
+        Vector(
+          Feature(
+            "pizza",
+            JsonObject("a" -> Json.fromString("b")),
+            Point(Coordinate(101.0, 1.0))
+          )
+        ),
+        Some(BBox(Coordinate(101.0, 1.0), Coordinate(101.0, 1.0))),
+        None
       )
     )
   }
@@ -257,6 +297,19 @@ class GeoJsonTest extends FeatureSpec {
       assert(decoded == Right(FeatureCases.noProps.decoded))
     }
 
+    scenario("Null properties") {
+      decodeCase(FeatureCases.nullProps)
+    }
+
+    scenario("Empty feature") {
+      val decoded = GeoJson.parse(FeatureCases.empty.encoded)
+      assert(decoded == Right(FeatureCases.empty.decoded))
+    }
+
+    scenario("Null geometry") {
+      decodeCase(FeatureCases.nullGeom)
+    }
+
     scenario("Properties") {
       val decoded = GeoJson.parse(FeatureCases.props.encoded)
       assert(decoded == Right(FeatureCases.props.decoded))
@@ -271,6 +324,10 @@ class GeoJsonTest extends FeatureSpec {
       val decoded = GeoJson.parse(FeatureCases.intId.encoded)
       assert(decoded == Right(FeatureCases.intId.decoded))
     }
+
+    scenario("BBox") {
+      decodeCase(FeatureCases.bbox)
+    }
   }
 
   feature("FeatureCollection") {
@@ -278,5 +335,13 @@ class GeoJsonTest extends FeatureSpec {
       val decoded = GeoJson.parse(FeatureCollectionCases.noForeignMembers.encoded)
       assert(decoded == Right(FeatureCollectionCases.noForeignMembers.decoded))
     }
+    scenario("BBox") {
+      decodeCase(FeatureCollectionCases.bbox)
+    }
+  }
+
+  def decodeCase(c: Case) = {
+    val decoded = GeoJson.parse(c.encoded)
+    assert(decoded == Right(c.decoded))
   }
 }
