@@ -103,7 +103,10 @@ object GeoJsonSerde {
   }
 
   def featureBase(f: Feature): JsonObject = {
-    val geom = JsonObject("geometry" -> Json.fromJsonObject(geomBase(f.geometry)))
+    val geom = f.geometry match {
+      case None       => JsonObject.empty
+      case Some(geom) => JsonObject("geometry" -> Json.fromJsonObject(geomBase(geom)))
+    }
     f.properties match {
       case None        => geom
       case Some(props) => geom.add("properties", Json.fromJsonObject(props))
@@ -274,7 +277,7 @@ case class GeometryCollection(
 case class Feature(
   id: Option[Either[JsonNumber, String]],
   properties: Option[JsonObject],
-  geometry: Geometry,
+  geometry: Option[Geometry],
   bbox: Option[BBox],
   foreignMembers: Option[JsonObject]
 ) extends GeoJson {
@@ -325,26 +328,25 @@ object GeometryCollection {
 }
 
 object Feature {
-  def apply(geometry: Geometry): Feature = Feature(None, None, geometry, None, None)
+  def apply(geometry: Geometry): Feature = Feature(None, None, Some(geometry), None, None)
   def apply(properties: JsonObject, geometry: Geometry): Feature =
-    Feature(None, Some(properties), geometry, None, None)
+    Feature(None, Some(properties), Some(geometry), None, None)
   def apply(id: String, properties: JsonObject, geometry: Geometry): Feature =
-    Feature(Some(Right(id)), Some(properties), geometry, None, None)
+    Feature(Some(Right(id)), Some(properties), Some(geometry), None, None)
   def apply(id: Int, properties: JsonObject, geometry: Geometry): Feature =
-    Feature(Some(Left(Json.fromInt(id).asNumber.get)), Some(properties), geometry, None, None)
+    Feature(Some(Left(Json.fromInt(id).asNumber.get)), Some(properties), Some(geometry), None, None)
 }
 
 object FeatureCollection {
   def apply(features: Seq[Feature]): FeatureCollection =
     FeatureCollection(features.toVector, None, None)
 }
-
 // Goals
 // Coordinates
 // * [x] 2d
 // * [x] 3d
 // * [x] 4d
-// * [ ] Test: fails with too few and too many dimensions
+// * [x] Test: fails with too few and too many dimensions
 // Basic Geometries
 // * [x] Point
 // * [x] LineString
@@ -358,14 +360,16 @@ object FeatureCollection {
 //     * [x] Nullable
 //     * [x] String
 //     * [x] JsonNumber
-//   * [ ] properties
-//     * [ ] Nullable
-//   * [ ] geometry
-//     * [ ] Nullable
-//   * [ ] BBox
+//   * [x] properties
+//     * [x] Nullable
+//     * [x] Omittable
+//   * [x] geometry
+//     * [x] Nullable
+//     * [x] omittable
+//   * [x] BBox
 // * FeatureCollection
-//   * [ ] Foreign Members
-//   * [ ] BBox
+//   * [x] Foreign Members
+//   * [x] BBox
 //   * [x] Features
 // Basic Geometry XYZM
 // * [ ] Point

@@ -131,6 +131,29 @@ object TestData {
       )
     )
 
+    val nullProps = Case(
+      """
+      { "type": "Feature", "properties": null, "geometry": {"type": "Point", "coordinates": [101.0, 1.0]}}
+      """,
+      Feature(
+        Point(Coordinate(101.0, 1.0))
+      )
+    )
+
+    val empty = Case(
+      """
+      { "type": "Feature"}
+      """,
+      Feature(None, None, None, None, None)
+    )
+
+    val nullGeom = Case(
+      """
+      { "type": "Feature", "geometry": null}
+      """,
+      Feature(None, None, None, None, None)
+    )
+
     val props = Case(
       """
       { "type": "Feature", "properties": {"a": "b", "c": 1}, "geometry": {"type": "Point", "coordinates": [101.0, 1.0]}}
@@ -208,6 +231,33 @@ object TestData {
         )
       )
     )
+
+    val foreignMembers = Case(
+      """
+      {"type": "FeatureCollection",
+       "some": "prop",
+       "features": [
+         {"type": "Feature",
+          "id": "pizza",
+          "properties": {"a": "b"},
+          "geometry": {"type": "Point", "coordinates": [101.0, 1.0]}
+         }
+        ]
+      }
+      """,
+      FeatureCollection(
+        Vector(
+          Feature(
+            "pizza",
+            JsonObject("a" -> Json.fromString("b")),
+            Point(Coordinate(101.0, 1.0))
+          )
+        ),
+        None,
+        Some(JsonObject("some" -> Json.fromString("prop")))
+      )
+    )
+
     val bbox = Case(
       """
       {"type": "FeatureCollection",
@@ -328,6 +378,11 @@ class GeoJsonTest extends FeatureSpec {
     scenario("BBox") {
       decodeCase(FeatureCases.bbox)
     }
+
+    scenario("All attributes") {
+      val decoded = GeoJson.parse(FeatureCases.intId.encoded)
+      assert(decoded == Right(FeatureCases.intId.decoded))
+    }
   }
 
   feature("FeatureCollection") {
@@ -335,6 +390,11 @@ class GeoJsonTest extends FeatureSpec {
       val decoded = GeoJson.parse(FeatureCollectionCases.noForeignMembers.encoded)
       assert(decoded == Right(FeatureCollectionCases.noForeignMembers.decoded))
     }
+
+    scenario("Foreign members") {
+      decodeCase(FeatureCollectionCases.foreignMembers)
+    }
+
     scenario("BBox") {
       decodeCase(FeatureCollectionCases.bbox)
     }
