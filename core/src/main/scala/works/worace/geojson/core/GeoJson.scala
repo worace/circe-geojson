@@ -57,7 +57,6 @@ object CoordinateSerde {
     }
   }
 }
-
 object BBoxSerde {
   import io.circe.syntax._
   implicit val bboxEncoder: Encoder[BBox] = Encoder.instance { bbox =>
@@ -282,6 +281,10 @@ case class Feature(
 ) extends GeoJson {
   val `type` = "Feature"
   def withForeignMembers(fm: JsonObject): GeoJson = copy(foreignMembers = Some(fm))
+  def simpleId: Option[String] = id.map(_.fold(num => num.toString, s => s))
+  def simple: Option[SimpleFeature] = {
+    geometry.map(geom => SimpleFeature(simpleId, properties.getOrElse(JsonObject.empty), geom))
+  }
 }
 
 case class FeatureCollection(
@@ -326,7 +329,15 @@ object GeometryCollection {
     GeometryCollection(geometries.toVector, None, None)
 }
 
+case class SimpleFeature(id: Option[String], properties: JsonObject, geometry: Geometry) {
+  def propsAs[T](implicit decoder: Decoder[T]): Decoder.Result[TypedFeature[T]] = {
+    Json.fromJsonObject(properties).as[T].map(props => TypedFeature(id, props, geometry))
+  }
+}
+case class TypedFeature[T](id: Option[String], properties: T, geometry: Geometry)
+
 object Feature {
+  def empty: Feature = Feature(None, None, None, None, None)
   def apply(geometry: Geometry): Feature = Feature(None, None, Some(geometry), None, None)
   def apply(properties: JsonObject, geometry: Geometry): Feature =
     Feature(None, Some(properties), Some(geometry), None, None)
@@ -395,7 +406,18 @@ object FeatureCollection {
 // * [ ] MultiLineString
 // * [ ] MultiPolygon
 // * [ ] GeometryCollection
+// Misc
+// * [ ] JSNumber overflow case
+// * [ ] XYM Coordinate (no Z) encoding
 
 
 // "Simple" interface
+// * [ ] Feature to SimpleFeature
+//   * [ ] Num ID
+//   * [ ] String ID
+//   * [ ] No ID
+//   * [ ] No geom
+//   * [ ] null props
+//   * [ ] foreign members and props
+// * [ ] SimpleFeature typed conversions
 // JTS Conversions
