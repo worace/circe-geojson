@@ -77,11 +77,6 @@ object BBoxSerde {
 }
 
 object GeoJsonSerde {
-  // TODO:
-  // * [x] Replace this with `type` member on GeoJson trait
-  // * [x] Widen Geometry Serde to GeoJsonSerde and handle all cases here
-  // * [ ] since foreign members + bbox apply to all, this should be OK
-
   def geomCollectionBase(gc: GeometryCollection): JsonObject = {
     import io.circe.syntax._
     val children = gc.geometries.map(child => Json.fromJsonObject(geomBase(child)))
@@ -193,6 +188,10 @@ object Coordinate {
 
   def apply(x: Double, y: Double, z: Double): Coordinate = {
     Coordinate(x, y, Some(z), None)
+  }
+
+  def apply(x: Double, y: Double, z: Double, m: Double): Coordinate = {
+    Coordinate(x, y, Some(z), Some(m))
   }
 }
 
@@ -367,6 +366,7 @@ object FeatureCollection {
 //     * [x] Nullable
 //     * [x] omittable
 //   * [x] BBox
+//   * [x] XYZ / XYZM geometries
 // * FeatureCollection
 //   * [x] Foreign Members
 //   * [x] BBox
@@ -395,3 +395,7 @@ object FeatureCollection {
 // * [ ] MultiLineString
 // * [ ] MultiPolygon
 // * [ ] GeometryCollection
+
+
+// "Simple" interface
+// JTS Conversions
