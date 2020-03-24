@@ -131,6 +131,24 @@ object TestData {
       )
     )
 
+    val xyz = Case(
+      """
+      { "type": "Feature", "geometry": {"type": "Point", "coordinates": [101.0, 1.0, 2.0]}}
+      """,
+      Feature(
+        Point(Coordinate(101.0, 1.0, 2.0))
+      )
+    )
+
+    val xyzm = Case(
+      """
+      { "type": "Feature", "geometry": {"type": "Point", "coordinates": [101.0, 1.0, 2.0, 3.0]}}
+      """,
+      Feature(
+        Point(Coordinate(101.0, 1.0, 2.0, 3.0))
+      )
+    )
+
     val nullProps = Case(
       """
       { "type": "Feature", "properties": null, "geometry": {"type": "Point", "coordinates": [101.0, 1.0]}}
@@ -382,6 +400,14 @@ class GeoJsonTest extends FeatureSpec {
     scenario("All attributes") {
       val decoded = GeoJson.parse(FeatureCases.intId.encoded)
       assert(decoded == Right(FeatureCases.intId.decoded))
+    }
+
+    scenario("xyz geom") {
+      decodeCase(FeatureCases.xyz)
+    }
+
+    scenario("xyzm geom") {
+      decodeCase(FeatureCases.xyzm)
     }
   }
 
