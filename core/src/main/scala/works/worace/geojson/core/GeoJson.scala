@@ -282,8 +282,13 @@ case class Feature(
   val `type` = "Feature"
   def withForeignMembers(fm: JsonObject): GeoJson = copy(foreignMembers = Some(fm))
   def simpleId: Option[String] = id.map(_.fold(num => num.toString, s => s))
+  def simpleProps: JsonObject = {
+    val props = properties.getOrElse(JsonObject.empty)
+    val fm = foreignMembers.getOrElse(JsonObject.empty)
+    fm.deepMerge(props)
+  }
   def simple: Option[SimpleFeature] = {
-    geometry.map(geom => SimpleFeature(simpleId, properties.getOrElse(JsonObject.empty), geom))
+    geometry.map(geom => SimpleFeature(simpleId, simpleProps, geom))
   }
 }
 
@@ -294,6 +299,7 @@ case class FeatureCollection(
 ) extends GeoJson {
   val `type` = "FeatureCollection"
   def withForeignMembers(fm: JsonObject): GeoJson = copy(foreignMembers = Some(fm))
+  def simple: SimpleFeatureCollection = SimpleFeatureCollection(features.flatMap(_.simple))
 }
 
 object Point {
@@ -334,6 +340,8 @@ case class SimpleFeature(id: Option[String], properties: JsonObject, geometry: G
     Json.fromJsonObject(properties).as[T].map(props => TypedFeature(id, props, geometry))
   }
 }
+
+case class SimpleFeatureCollection(features: Vector[SimpleFeature])
 case class TypedFeature[T](id: Option[String], properties: T, geometry: Geometry)
 
 object Feature {
@@ -365,7 +373,7 @@ object FeatureCollection {
 // * [x] MultiLineString
 // * [x] MultiPolygon
 // * [x] GeometryCollection
-// * [ ] Feature
+// * [x] Feature
 //   * [x] id
 //     * [x] Nullable
 //     * [x] String
@@ -412,12 +420,13 @@ object FeatureCollection {
 
 
 // "Simple" interface
-// * [ ] Feature to SimpleFeature
-//   * [ ] Num ID
-//   * [ ] String ID
-//   * [ ] No ID
-//   * [ ] No geom
-//   * [ ] null props
-//   * [ ] foreign members and props
+// * [x] Feature to SimpleFeature
+//   * [x] Num ID
+//   * [x] String ID
+//   * [x] No ID
+//   * [x] No geom (is None)
+//   * [x] null props (filled with empty jsonobject)
+//   * [x] foreign members and props (merged)
+// * [x] FeatureCollection to SimpleFeatureCollection
 // * [ ] SimpleFeature typed conversions
 // JTS Conversions
