@@ -8,7 +8,7 @@ val commonSettings = Seq(
   libraryDependencies ++= Seq(
     "org.scalatest" %% "scalatest" % "3.0.5" % Test
   ),
-  scalacOptions ++= Seq("-Xfatal-warnings", "-feature")
+  scalacOptions ++= Seq("-Xfatal-warnings", "-feature", "-deprecation")
 )
 
 lazy val core = project
@@ -28,13 +28,12 @@ lazy val core = project
 
 
 lazy val jts = project
-  .dependsOn(core)
+  .dependsOn(core % "test->test;compile->compile")
   .settings(commonSettings:_*)
   .settings(
     organization := "works.worace.geojson.jts",
     name := "circe-geojson-jts",
     version := "0.1.0-SNAPSHOT",
-    scalacOptions ++= Seq("-Xfatal-warnings", "-feature")
   ).settings(
     libraryDependencies ++= Seq(
       "org.locationtech.jts" % "jts-core" % "1.16.1"
