@@ -64,6 +64,11 @@ object Conversions {
     }
 
     implicit class ToJts(val geom: Geometry) extends AnyVal {
+      def geometryCollection(gc: GeometryCollection): jts.GeometryCollection = {
+        val children = gc.geometries.map(_.toJts)
+        factory.createGeometryCollection(children.toArray)
+      }
+
       def toJts: jts.Geometry = {
         geom match {
           case g: Point           => factory.createPoint(g.coordinates.toJts)
@@ -72,7 +77,7 @@ object Conversions {
           case g: MultiPoint      => multiPoint(g)
           case g: MultiLineString => multiLineString(g)
           case g: MultiPolygon    => multiPolygon(g)
-          case _                  => throw new RuntimeException("...")
+          case g: GeometryCollection   => geometryCollection(g)
         }
       }
     }

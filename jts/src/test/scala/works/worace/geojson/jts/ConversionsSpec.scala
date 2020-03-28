@@ -42,6 +42,16 @@ class ConversionsSpec extends FeatureSpec {
     }
   }
 
+  def compareMultiLineString(gj: Vector[Vector[core.Coordinate]], jts: MultiLineString) = {
+    gj.zipWithIndex.foreach {
+      case (coords, idx) =>
+        jts.getGeometryN(idx) match {
+          case ls: LineString => compareLineString(coords, ls)
+          case _              => fail("JTS MultiLineString should contain LineString geoms")
+        }
+    }
+  }
+
   feature("Converting geometries") {
     scenario("Point") {
       val p = pointXY
@@ -91,7 +101,7 @@ class ConversionsSpec extends FeatureSpec {
               compareCoord(coord, jts)
           }
         }
-        case _ => fail("should convert to jts polygon")
+        case _ => fail("should convert to jts MultiPoint")
       }
     }
 
@@ -100,13 +110,7 @@ class ConversionsSpec extends FeatureSpec {
       mls.toJts match {
         case geom: MultiLineString => {
           assert(geom.getNumGeometries() == mls.coordinates.size)
-          mls.coordinates.zipWithIndex.foreach {
-            case (coords, idx) =>
-              geom.getGeometryN(idx) match {
-                case ls: LineString => compareLineString(coords, ls)
-                case _              => fail("JTS MultiLineString should contain LineString geoms")
-              }
-          }
+          compareMultiLineString(mls.coordinates, geom)
         }
         case _ => fail("should convert to jts MultiLineString")
       }
@@ -126,6 +130,36 @@ class ConversionsSpec extends FeatureSpec {
           }
         }
         case _ => fail("should convert to jts MultiPolygon")
+      }
+    }
+
+    scenario("GeometryCollection") {
+      val geoms = Vector(
+        pointXY,
+        polygonXY(),
+        multiLineStringXY
+      )
+      val gc = core.GeometryCollection(geoms)
+      gc.toJts match {
+        case geom: GeometryCollection => {
+          assert(geom.getNumGeometries() == 3)
+
+          (geoms(0), geom.getGeometryN(0)) match {
+            case (gj: core.Point, jts: Point) => compareCoord(gj.coordinates, jts.getCoordinate)
+            case _ => fail
+          }
+
+          (geoms(1), geom.getGeometryN(1)) match {
+            case (gj: core.Polygon, jts: Polygon) => comparePolygon(gj.coordinates, jts)
+            case _ => fail
+          }
+
+          (geoms(2), geom.getGeometryN(2)) match {
+            case (gj: core.MultiLineString, jts: MultiLineString) => compareMultiLineString(gj.coordinates, jts)
+            case _ => fail
+          }
+        }
+        case _ => fail("should convert to jts GeometryCollection")
       }
     }
   }
