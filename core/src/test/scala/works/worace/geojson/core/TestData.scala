@@ -10,7 +10,7 @@ object TestData {
   val coordTooMany = "[102.0, 0.5, 1.0, 2.0, 3.0]"
 
   def rand: Double = scala.util.Random.nextDouble * 1000
-  def randInt(i: Int = 10): Int = scala.util.Random.nextInt(i)
+  def randInt(i: Int = 10): Int = scala.util.Random.nextInt(i) + 1
 
   def genCoordXY: Coordinate = Coordinate(rand, rand)
   def genCoordXYZ: Coordinate = Coordinate(rand, rand, rand)
@@ -21,9 +21,17 @@ object TestData {
   def pointXY: Point = Point(genCoordXY)
   def pointXYZ: Point = Point(genCoordXYZ)
   def pointXYZM: Point = Point(genCoordXYZM)
-  def linestringXY: LineString = LineString(coordSeqXY.take(randInt()))
-  def linestringXYZ: LineString = LineString(coordSeqXY.take(randInt()))
-  def linestringXYZM: LineString = LineString(coordSeqXY.take(randInt()))
+  def linestringXY: LineString = LineString(coordSeqXY.take(randInt() + 1))
+  def linestringXYZ: LineString = LineString(coordSeqXY.take(randInt() + 1))
+  def linestringXYZM: LineString = LineString(coordSeqXY.take(randInt() + 1))
+
+  def polygonXY(numRings: Int = 2): Polygon = {
+    val rings: List[List[Coordinate]] = (1 to numRings).toList.map { _ =>
+      val seq: List[Coordinate] = coordSeqXY.take(randInt() + 3).toList
+      seq :+ seq.head
+    }
+    Polygon(rings)
+  }
 
   case class Case(
     encoded: String,

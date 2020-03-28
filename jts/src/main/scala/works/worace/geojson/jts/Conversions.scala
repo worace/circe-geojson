@@ -1,9 +1,9 @@
 package works.worace.geojson.jts
 
-import works.worace.geojson.core.{Geometry, Coordinate, Point}
+import works.worace.geojson.core._
 import org.locationtech.jts.geom.{
   Coordinate => JtsCoord, Geometry => JtsGeometry, GeometryFactory, PrecisionModel,
-  Point => JtsPoint
+  Point => JtsPoint, Polygon => JtsPolygon, LinearRing
 }
 
 object Conversions {
@@ -27,10 +27,30 @@ object Conversions {
       }
     }
 
+    def coordArray(coords: Vector[Coordinate]): Array[JtsCoord] = {
+      coords.map(_.toJts).toArray
+    }
+
+    def polygon(polygon: Polygon): JtsPolygon = {
+      if (polygon.coordinates.isEmpty) {
+        factory.createPolygon()
+      } else {
+        val Vector(outer, inner @ _*) = polygon.coordinates
+        val shell = factory.createLinearRing(coordArray(polygon.coordinates.head))
+        val interiors: Array[LinearRing] = polygon.coordinates.tail
+          .map(coordArray)
+          .map(coords => factory.createLinearRing(coords))
+          .toArray
+        factory.createPolygon(shell, interiors)
+      }
+    }
+
     implicit class ToJts(val geom: Geometry) extends AnyVal {
       def toJts: JtsGeometry = {
         geom match {
           case p: Point => factory.createPoint(p.coordinates.toJts)
+          case ls: LineString => factory.createLineString(coordArray(ls.coordinates))
+          case p: Polygon => polygon(p)
           case _ => throw new RuntimeException("...")
         }
       }
