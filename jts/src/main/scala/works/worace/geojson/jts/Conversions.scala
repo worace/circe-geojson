@@ -1,10 +1,8 @@
 package works.worace.geojson.jts
 
 import works.worace.geojson.core._
-import org.locationtech.jts.geom.{
-  Coordinate => JtsCoord, Geometry => JtsGeometry, GeometryFactory, PrecisionModel,
-  Point => JtsPoint, Polygon => JtsPolygon, LinearRing
-}
+import org.locationtech.jts.{geom => jts}
+import org.locationtech.jts.geom.{GeometryFactory, PrecisionModel}
 
 object Conversions {
   val SRID = 4326
@@ -13,45 +11,68 @@ object Conversions {
 
   object implicits {
     implicit class CoordToJts(val coord: Coordinate) extends AnyVal {
-      def toJts: JtsCoord = {
+      def toJts: jts.Coordinate = {
         coord match {
-          case Coordinate(x,y,None, None) => new JtsCoord(x,y)
-          case Coordinate(x,y,Some(z), None) => new JtsCoord(x,y,z)
-          case Coordinate(x,y,Some(z), Some(m)) => {
-            val c = new JtsCoord(x,y,z)
+          case Coordinate(x, y, None, None)    => new jts.Coordinate(x, y)
+          case Coordinate(x, y, Some(z), None) => new jts.Coordinate(x, y, z)
+          case Coordinate(x, y, Some(z), Some(m)) => {
+            val c = new jts.Coordinate(x, y, z)
             c.setM(m)
             c
           }
-          case Coordinate(x,y,None, Some(m)) => throw new IllegalArgumentException("Can't supply M coordinate without z")
+          case Coordinate(x, y, None, Some(m)) =>
+            throw new IllegalArgumentException("Can't supply M coordinate without z")
         }
       }
     }
 
-    def coordArray(coords: Vector[Coordinate]): Array[JtsCoord] = {
+    def coordArray(coords: Vector[Coordinate]): Array[jts.Coordinate] = {
       coords.map(_.toJts).toArray
     }
 
-    def polygon(polygon: Polygon): JtsPolygon = {
+    def polygonFromCoordRings(rings: Vector[Vector[Coordinate]]): jts.Polygon = {
+      val Vector(outer, inner @ _*) = rings
+      val shell = factory.createLinearRing(coordArray(outer))
+      val interiors: Array[jts.LinearRing] = inner
+        .map(coordArray)
+        .map(coords => factory.createLinearRing(coords))
+        .toArray
+      factory.createPolygon(shell, interiors)
+    }
+
+    def polygon(polygon: Polygon): jts.Polygon = {
       if (polygon.coordinates.isEmpty) {
         factory.createPolygon()
       } else {
-        val Vector(outer, inner @ _*) = polygon.coordinates
-        val shell = factory.createLinearRing(coordArray(polygon.coordinates.head))
-        val interiors: Array[LinearRing] = polygon.coordinates.tail
-          .map(coordArray)
-          .map(coords => factory.createLinearRing(coords))
-          .toArray
-        factory.createPolygon(shell, interiors)
+        polygonFromCoordRings(polygon.coordinates)
       }
     }
 
+    def multiPoint(mp: MultiPoint): jts.MultiPoint = {
+      factory.createMultiPointFromCoords(mp.coordinates.map(_.toJts).toArray)
+    }
+
+    def multiLineString(mls: MultiLineString): jts.MultiLineString = {
+      val coordSeqs = mls.coordinates.map(coordArray(_))
+      val lines = coordSeqs.map(c => factory.createLineString(c)).toArray
+      factory.createMultiLineString(lines)
+    }
+
+    def multiPolygon(mp: MultiPolygon): jts.MultiPolygon = {
+      val polys = mp.coordinates.map(polygonFromCoordRings)
+      factory.createMultiPolygon(polys.toArray)
+    }
+
     implicit class ToJts(val geom: Geometry) extends AnyVal {
-      def toJts: JtsGeometry = {
+      def toJts: jts.Geometry = {
         geom match {
-          case p: Point => factory.createPoint(p.coordinates.toJts)
-          case ls: LineString => factory.createLineString(coordArray(ls.coordinates))
-          case p: Polygon => polygon(p)
-          case _ => throw new RuntimeException("...")
+          case g: Point           => factory.createPoint(g.coordinates.toJts)
+          case g: LineString      => factory.createLineString(coordArray(g.coordinates))
+          case g: Polygon         => polygon(g)
+          case g: MultiPoint      => multiPoint(g)
+          case g: MultiLineString => multiLineString(g)
+          case g: MultiPolygon    => multiPolygon(g)
+          case _                  => throw new RuntimeException("...")
         }
       }
     }

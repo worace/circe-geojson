@@ -25,12 +25,28 @@ object TestData {
   def linestringXYZ: LineString = LineString(coordSeqXY.take(randInt() + 1))
   def linestringXYZM: LineString = LineString(coordSeqXY.take(randInt() + 1))
 
+  def times[A](n: Int, f: => A): Vector[A] = (1 to n).toVector.map(_ => f)
+
+  def multiLineStringXY: MultiLineString =
+    MultiLineString((1 to randInt() + 1).map(_ => coordSeqXY.take(randInt() + 1)))
+
   def polygonXY(numRings: Int = 2): Polygon = {
-    val rings: List[List[Coordinate]] = (1 to numRings).toList.map { _ =>
-      val seq: List[Coordinate] = coordSeqXY.take(randInt() + 3).toList
-      seq :+ seq.head
-    }
+    val rings = (1 to numRings).map { _ =>
+      closedRingXY
+    }.toVector
     Polygon(rings)
+  }
+
+  def closedRingXY: Vector[Coordinate] = {
+    val seq = coordSeqXY.take(randInt() + 3).toVector
+    seq :+ seq.head
+  }
+
+  def multiPolygonXY: MultiPolygon = {
+    val rings = times(randInt(), {
+      times(randInt(), closedRingXY)
+    })
+    MultiPolygon(rings)
   }
 
   case class Case(
