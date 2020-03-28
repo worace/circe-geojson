@@ -430,3 +430,19 @@ object FeatureCollection {
 // * [x] FeatureCollection to SimpleFeatureCollection
 // * [ ] SimpleFeature typed conversions
 // JTS Conversions
+// ToJts
+// * [x] Point
+// * [x] LineString
+// * [x] Polygon
+// * [x] MultiPoint
+// * [x] MultiLineString
+// * [x] MultiPolygon
+// * [x] GeometryCollection
+// FromJts
+// * [ ] Point
+// * [ ] LineString
+// * [ ] Polygon
+// * [ ] MultiPoint
+// * [ ] MultiLineString
+// * [ ] MultiPolygon
+// * [ ] GeometryCollection
