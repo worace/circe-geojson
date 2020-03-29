@@ -1,5 +1,7 @@
 ## circe-geojson
 
+![](https://github.com/worace/circe-geojson/workflows/.github/workflows/ci.yml/badge.svg)
+
 A Scala-friendly GeoJSON ADT for encoding and decoding with Circe. Includes optional JTS conversions.
 
 Work in progress!
