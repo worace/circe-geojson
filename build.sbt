@@ -5,7 +5,7 @@ val CIRCE_VERSION = "0.13.0"
 
 val commonSettings = Seq(
   organization := "works.worace",
-  publishMavenStyle := true,
+  homepage := Some(url("https://github.com/worace/circe-geojson")),
   scalaVersion := SCALA_VERSION,
   libraryDependencies ++= Seq(
     "org.scalatest" %% "scalatest" % "3.0.5" % Test
@@ -13,14 +13,21 @@ val commonSettings = Seq(
   scalacOptions ++= Seq("-Xfatal-warnings", "-feature", "-deprecation"),
   licenses := Seq("APL2" -> url("https://www.apache.org/licenses/LICENSE-2.0.txt")),
   publishTo := sonatypePublishTo.value,
-  sonatypeProjectHosting := Some(GitHubHosting("worace", "circe-geojson", "horace@worace.works"))
+  sonatypeProjectHosting := Some(GitHubHosting("worace", "circe-geojson", "horace@worace.works")),
+  developers := List(
+    Developer(
+      "worace",
+      "Horace Williams",
+      "horace@worace.works",
+      url("https://worace.works")
+    )
+  )
 )
 
 lazy val core = project
   .settings(commonSettings:_*)
   .settings(
     name := "circe-geojson-core",
-    version := "0.1.0-SNAPSHOT",
     description := "GeoJSON ADT and Circe encoders/decoders"
   ).settings(
     libraryDependencies ++= Seq(
@@ -36,7 +43,6 @@ lazy val jts = project
   .settings(commonSettings:_*)
   .settings(
     name := "circe-geojson-jts",
-    version := "0.1.0-SNAPSHOT",
     description := "Conversions to and from circe-geojson-core types for JTS Geometries"
   ).settings(
     libraryDependencies ++= Seq(
