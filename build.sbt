@@ -29,8 +29,7 @@ lazy val root = Project(
   base = file(".")
 ).aggregate(core, jts)
   .settings(
-    publishLocal := {},
-    publish := {}
+    publishArtifact := false
   )
 
 lazy val core = project

@@ -1,6 +1,8 @@
 ## circe-geojson
 
-![](https://github.com/worace/circe-geojson/workflows/CI/badge.svg)
+![Build Status](https://github.com/worace/circe-geojson/workflows/CI/badge.svg)
+[![Sonatype Nexus (Snapshots)](https://img.shields.io/nexus/s/https/oss.sonatype.org/works.worace/circe-geojson-core_2.12.svg)](https://oss.sonatype.org/content/repositories/snapshots/works/worace/circe-geojson-core_2.12/)
+[![Sonatype Nexus (Snapshots)](https://img.shields.io/nexus/s/https/oss.sonatype.org/works.worace/circe-geojson-jts.12.svg)](https://oss.sonatype.org/content/repositories/snapshots/works/worace/circe-geojson-jts_2.12/)
 
 A Scala-friendly GeoJSON ADT for encoding and decoding with Circe. Includes optional JTS conversions.
 
