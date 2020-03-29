@@ -13,6 +13,10 @@ object GeoJson {
   def parse(rawJson: String): Either[io.circe.Error, GeoJson] = {
     decode[GeoJson](rawJson)(GeoJsonSerde.decoder)
   }
+
+  def fromJson(json: Json): Either[io.circe.Error, GeoJson] = {
+    json.as[GeoJson](GeoJsonSerde.decoder)
+  }
 }
 
 object IdSerde {
@@ -78,58 +82,66 @@ object BBoxSerde {
 }
 
 object GeoJsonSerde {
-  def geomCollectionBase(gc: GeometryCollection): JsonObject = {
+  def geometryCollection(gc: GeometryCollection): JsonObject = {
     import io.circe.syntax._
-    val children = gc.geometries.map(child => Json.fromJsonObject(geomBase(child)))
-    JsonObject("geometries" -> children.asJson)
+    val children = gc.geometries.map(child => Json.fromJsonObject(geometry(child)))
+    JsonObject("type" -> "GeometryCollection".asJson, "geometries" -> children.asJson)
   }
 
-  def geomBase(g: Geometry): JsonObject = {
+  def geometry(g: Geometry): JsonObject = {
     import io.circe.syntax._
     import CoordinateSerde._
     g match {
-      case geom: Point              => JsonObject("coordinates" -> geom.coordinates.asJson)
-      case geom: LineString         => JsonObject("coordinates" -> geom.coordinates.asJson)
-      case geom: Polygon            => JsonObject("coordinates" -> geom.coordinates.asJson)
-      case geom: MultiPoint         => JsonObject("coordinates" -> geom.coordinates.asJson)
-      case geom: MultiLineString    => JsonObject("coordinates" -> geom.coordinates.asJson)
-      case geom: MultiPolygon       => JsonObject("coordinates" -> geom.coordinates.asJson)
-      case geom: GeometryCollection => geomCollectionBase(geom)
+      case geom: Point              => JsonObject("type" -> geom.`type`.asJson,"coordinates" -> geom.coordinates.asJson)
+      case geom: LineString         => JsonObject("type" -> geom.`type`.asJson,"coordinates" -> geom.coordinates.asJson)
+      case geom: Polygon            => JsonObject("type" -> geom.`type`.asJson,"coordinates" -> geom.coordinates.asJson)
+      case geom: MultiPoint         => JsonObject("type" -> geom.`type`.asJson,"coordinates" -> geom.coordinates.asJson)
+      case geom: MultiLineString    => JsonObject("type" -> geom.`type`.asJson,"coordinates" -> geom.coordinates.asJson)
+      case geom: MultiPolygon       => JsonObject("type" -> geom.`type`.asJson,"coordinates" -> geom.coordinates.asJson)
+      case geom: GeometryCollection => geometryCollection(geom)
     }
   }
 
-  def featureBase(f: Feature): JsonObject = {
-    val geom = f.geometry match {
-      case None       => JsonObject.empty
-      case Some(geom) => JsonObject("geometry" -> Json.fromJsonObject(geomBase(geom)))
-    }
-    f.properties match {
-      case None        => geom
-      case Some(props) => geom.add("properties", Json.fromJsonObject(props))
-    }
+  val featureBase = JsonObject("type" -> Json.fromString("Feature"))
+  def feature(f: Feature): JsonObject = {
+    import io.circe.syntax._
+    List(
+      f.geometry.map(g => ("geometry", geometry(g).asJson)),
+      f.properties.map(p => ("properties", p.asJson)),
+      f.bbox.map(bb => ("bbox", bb.asJson(BBoxSerde.bboxEncoder))),
+      f.id.map(id => ("id", id.asJson(IdSerde.encodeEither)))
+    ).flatten
+      .foldLeft(featureBase)((feature: JsonObject, pair: (String, Json)) => feature.add(pair._1, pair._2))
   }
 
+  val fcBase = JsonObject("type" -> Json.fromString("FeatureCollection"))
   def featureCollectionBase(fc: FeatureCollection): JsonObject = {
     import io.circe.syntax._
-    JsonObject("features" -> fc.features.map(featureBase).asJson)
+    val withFeatures = fcBase.add("features", fc.features.map(_.asJson(featureEncoder)).asJson)
     // val features = JsonObject("features" -> fc.features)
-    // f.bbox match {
-    //   case None => features
-    //   case Some(props) => features.add("bbox", Json.fromJsonObject(props))
-    // }
+    fc.bbox match {
+      case None => withFeatures
+      case Some(bbox) => withFeatures.add("bbox", bbox.asJson(BBoxSerde.bboxEncoder))
+    }
   }
 
   def base(g: GeoJson): JsonObject = {
     import io.circe.syntax._
     g match {
-      case geom: Geometry        => geomBase(geom)
-      case f: Feature            => featureBase(f)
+      case geom: Geometry        => geometry(geom)
+      case f: Feature            => feature(f)
       case fc: FeatureCollection => featureCollectionBase(fc)
     }
   }
 
-  implicit val encodeGeoJson: Encoder[GeoJson] = Encoder.instance { gj =>
-    Json.fromJsonObject(base(gj).add("type", Json.fromString(gj.`type`)))
+  implicit val featureEncoder: Encoder[Feature] = Encoder.instance { gj =>
+    import io.circe.syntax._
+    feature(gj).asJson
+  }
+
+  implicit val encoder: Encoder[GeoJson] = Encoder.instance { gj =>
+    import io.circe.syntax._
+    base(gj).asJson
   }
 
   val coreKeys =
@@ -209,6 +221,11 @@ sealed trait GeoJson {
   val bbox: Option[BBox]
   def `type`: String
   def withForeignMembers(fm: JsonObject): GeoJson
+  def encode: Json = {
+    import GeoJsonSerde.encoder
+    import io.circe.syntax._
+    this.asJson
+  }
 }
 
 case class Point(

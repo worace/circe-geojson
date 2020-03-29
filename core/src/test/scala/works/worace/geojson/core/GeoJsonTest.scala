@@ -122,11 +122,17 @@ class GeoJsonTest extends FeatureSpec {
 
     scenario("BBox") {
       decodeCase(FeatureCollectionCases.bbox)
+      encodeCase(FeatureCollectionCases.bbox)
     }
   }
 
   def decodeCase(c: Case) = {
     val decoded = GeoJson.parse(c.encoded)
     assert(decoded == Right(c.decoded))
+  }
+
+  def encodeCase(c: Case) = {
+    val rt = GeoJson.fromJson(c.decoded.encode)
+    assert(rt == Right(c.decoded))
   }
 }
