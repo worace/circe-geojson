@@ -12,13 +12,16 @@ https://docs.scala-lang.org/overviews/contributors/index.html
 
 * [ ] Readme
   * [ ] Install instructions
-  * [ ] Usage examples (tut/md - compile check)
   * [ ] Background / Description
 * [x] License
 * [ ] Maven Central / Sonatype
-  * [ ] Make account - https://central.sonatype.org/pages/ossrh-guide.html
+  * [x] Make account - https://central.sonatype.org/pages/ossrh-guide.html
   * [ ] Claim domain? - https://issues.sonatype.org/browse/OSSRH-56244
 * [ ] CI / CD
-  * [ ] Github Actions? (https://github.com/olafurpg/setup-scala)
-  * [ ] https://github.com/olafurpg/sbt-ci-release
-
+  * [X] Testing: Github Actions (https://github.com/olafurpg/setup-scala)
+  * [ ] Publishing: Github Actions (https://github.com/olafurpg/setup-scala)
+    * [ ] https://github.com/olafurpg/sbt-ci-release
+* [ ] Docs
+  * [ ] Readme Usage examples (tut/md - compile-time check)
+  * [ ] Scaladoc
+  * [ ] Publish scaladoc to github pages somehow?
