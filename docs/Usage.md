@@ -43,5 +43,6 @@ val feature = Feature(
   bbox=Some(BBox(Coordinate(101,1.0),Coordinate(101,1.0))),
   foreignMembers=Some(JsonObject("topLevel" -> Json.fromString("properties")))
 )
-feature.asJson
+feature.encode
+feature.encode.spaces2
 ```

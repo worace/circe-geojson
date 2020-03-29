@@ -106,10 +106,10 @@ object GeoJsonSerde {
   def feature(f: Feature): JsonObject = {
     import io.circe.syntax._
     List(
-      f.geometry.map(g => ("geometry", geometry(g).asJson)),
+      f.id.map(id => ("id", id.asJson(IdSerde.encodeEither))),
       f.properties.map(p => ("properties", p.asJson)),
       f.bbox.map(bb => ("bbox", bb.asJson(BBoxSerde.bboxEncoder))),
-      f.id.map(id => ("id", id.asJson(IdSerde.encodeEither)))
+      f.geometry.map(g => ("geometry", geometry(g).asJson))
     ).flatten
       .foldLeft(featureBase)((feature: JsonObject, pair: (String, Json)) => feature.add(pair._1, pair._2))
   }
