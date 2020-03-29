@@ -57,3 +57,13 @@ lazy val jts = project
       "org.locationtech.jts" % "jts-core" % "1.16.1"
     )
   )
+
+lazy val docs = project
+  .dependsOn(core, jts)
+  .in(file("circe-geojson-docs"))
+  .enablePlugins(MdocPlugin)
+  .settings(
+    mdocVariables := Map(
+      "VERSION" -> version.value
+    )
+  )

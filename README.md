@@ -16,20 +16,21 @@ https://docs.scala-lang.org/overviews/contributors/index.html
   * [ ] Install instructions
   * [ ] Background / Description
 * [x] License
-* [ ] Maven Central / Sonatype
+* [x] Maven Central / Sonatype
   * [x] Make account - https://central.sonatype.org/pages/ossrh-guide.html
-  * [ ] Claim domain? - https://issues.sonatype.org/browse/OSSRH-56244
+  * [x] Claim domain? - https://issues.sonatype.org/browse/OSSRH-56244
     * [x] Show ownership via TXT record
-* [ ] CI / CD
+* [x] CI / CD
   * [X] Testing: Github Actions (https://github.com/olafurpg/setup-scala)
-  * [ ] Publishing: Github Actions (https://github.com/olafurpg/setup-scala)
-    * [ ] https://github.com/olafurpg/sbt-ci-release
-    * [ ] Configure Credentials in GitHub Action: - https://help.github.com/en/actions/configuring-and-managing-workflows/creating-and-storing-encrypted-secrets
+  * [x] Publishing: Github Actions (https://github.com/olafurpg/setup-scala)
+    * [x] https://github.com/olafurpg/sbt-ci-release
+    * [x] Configure Credentials in GitHub Action: - https://help.github.com/en/actions/configuring-and-managing-workflows/creating-and-storing-encrypted-secrets
       * (Add them under settings > secrets in the github repo menu)
       * [x] sonatype user token - https://github.com/olafurpg/sbt-ci-release#optional-create-user-tokens
-      * [ ] gpg pubring.asc
-      * [ ] gpg secring.asc
+      * [x] gpg pubring.asc
+      * [x] gpg secring.asc
 * [ ] Docs
   * [ ] Readme Usage examples (tut/md - compile-time check)
   * [ ] Scaladoc
   * [ ] Publish scaladoc to github pages somehow?
+* [ ] Cross-build (2.11, 2.12, 2.13? Will these even work?)
