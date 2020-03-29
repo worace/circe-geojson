@@ -71,13 +71,13 @@ object Conversions {
 
       def toJts: jts.Geometry = {
         geom match {
-          case g: Point           => factory.createPoint(g.coordinates.toJts)
-          case g: LineString      => factory.createLineString(coordArray(g.coordinates))
-          case g: Polygon         => polygon(g)
-          case g: MultiPoint      => multiPoint(g)
-          case g: MultiLineString => multiLineString(g)
-          case g: MultiPolygon    => multiPolygon(g)
-          case g: GeometryCollection   => geometryCollection(g)
+          case g: Point              => factory.createPoint(g.coordinates.toJts)
+          case g: LineString         => factory.createLineString(coordArray(g.coordinates))
+          case g: Polygon            => polygon(g)
+          case g: MultiPoint         => multiPoint(g)
+          case g: MultiLineString    => multiLineString(g)
+          case g: MultiPolygon       => multiPolygon(g)
+          case g: GeometryCollection => geometryCollection(g)
         }
       }
     }
