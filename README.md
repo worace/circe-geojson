@@ -15,7 +15,7 @@ https://docs.scala-lang.org/overviews/contributors/index.html
 * [x] License
 * [ ] Maven Central / Sonatype
   * [ ] Make account - https://central.sonatype.org/pages/ossrh-guide.html
-  * [ ] Claim domain?
+  * [ ] Claim domain? - https://issues.sonatype.org/browse/OSSRH-56244
 * [ ] CI / CD
   * [ ] Github Actions? (https://github.com/olafurpg/setup-scala)
   * [ ] https://github.com/olafurpg/sbt-ci-release
