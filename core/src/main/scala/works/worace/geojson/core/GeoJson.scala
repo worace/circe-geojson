@@ -25,7 +25,8 @@ object IdSerde {
     encoderB: Encoder[B]
   ): Encoder[Either[A, B]] = {
     import io.circe.syntax._
-    o: Either[A, B] => o.fold(_.asJson, _.asJson)
+    o: Either[A, B] =>
+      o.fold(_.asJson, _.asJson)
   }
 
   implicit def decodeEither[A, B](
@@ -68,7 +69,8 @@ object BBoxSerde {
       import CoordinateSerde._
       c.as[Array[Double]].flatMap {
         case Array(x1, y1, x2, y2) => Right(BBox(Coordinate(x1, y1), Coordinate(x2, y2)))
-        case Array(x1, y1, z1, x2, y2, z2) => Right(BBox(Coordinate(x1, y1, z1), Coordinate(x2, y2, z2)))
+        case Array(x1, y1, z1, x2, y2, z2) =>
+          Right(BBox(Coordinate(x1, y1, z1), Coordinate(x2, y2, z2)))
         case _ => Left(DecodingFailure("Invalid GeoJson BBox", c.history))
       }
     }
@@ -417,8 +419,6 @@ object FeatureCollection {
 // Misc
 // * [ ] JSNumber overflow case
 // * [ ] XYM Coordinate (no Z) encoding
-
-
 // "Simple" interface
 // * [x] Feature to SimpleFeature
 //   * [x] Num ID
