@@ -1,5 +1,9 @@
 ## circe-geojson
 
+A Scala-friendly GeoJSON ADT for encoding and decoding with Circe. Includes optional JTS conversions.
+
+Work in progress!
+
 ### Publishing
 
 https://docs.scala-lang.org/overviews/contributors/index.html
@@ -10,7 +14,7 @@ https://docs.scala-lang.org/overviews/contributors/index.html
   * [ ] Background / Description
 * [x] License
 * [ ] Maven Central / Sonatype
-  * [ ] Make account
+  * [ ] Make account - https://central.sonatype.org/pages/ossrh-guide.html
   * [ ] Claim domain?
 * [ ] CI / CD
   * [ ] Github Actions? (https://github.com/olafurpg/setup-scala)
