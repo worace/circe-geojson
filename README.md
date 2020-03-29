@@ -21,6 +21,11 @@ https://docs.scala-lang.org/overviews/contributors/index.html
   * [X] Testing: Github Actions (https://github.com/olafurpg/setup-scala)
   * [ ] Publishing: Github Actions (https://github.com/olafurpg/setup-scala)
     * [ ] https://github.com/olafurpg/sbt-ci-release
+    * [ ] Configure Credentials in GitHub Action:
+      * [ ] sonatype username
+      * [ ] sonatype password
+      * [ ] gpg pubring.asc
+      * [ ] gpg secring.asc
 * [ ] Docs
   * [ ] Readme Usage examples (tut/md - compile-time check)
   * [ ] Scaladoc

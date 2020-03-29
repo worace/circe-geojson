@@ -9,3 +9,5 @@ jobs:
     - uses: olafurpg/setup-scala@v5
     - name: Test
       run: sbt test
+    - name: Format Check
+      run: sbt scalafmtCheck

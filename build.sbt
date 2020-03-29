@@ -24,10 +24,10 @@ lazy val core = project
     description := "GeoJSON ADT and Circe encoders/decoders"
   ).settings(
     libraryDependencies ++= Seq(
-      "io.circe" %% "circe-core" % circeVersion,
-      "io.circe" %% "circe-generic" % circeVersion,
-      "io.circe" %% "circe-generic-extras" % circeVersion,
-      "io.circe" %% "circe-parser" % circeVersion
+      "io.circe" %% "circe-core" % CIRCE_VERSION,
+      "io.circe" %% "circe-generic" % CIRCE_VERSION,
+      "io.circe" %% "circe-generic-extras" % CIRCE_VERSION,
+      "io.circe" %% "circe-parser" % CIRCE_VERSION
     )
   )
 
