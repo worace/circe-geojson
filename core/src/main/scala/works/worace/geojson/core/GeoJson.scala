@@ -29,8 +29,7 @@ object IdSerde {
     encoderB: Encoder[B]
   ): Encoder[Either[A, B]] = {
     import io.circe.syntax._
-    o: Either[A, B] =>
-      o.fold(_.asJson, _.asJson)
+    o: Either[A, B] => o.fold(_.asJson, _.asJson)
   }
 
   implicit def decodeEither[A, B](
@@ -92,12 +91,18 @@ object GeoJsonSerde {
     import io.circe.syntax._
     import CoordinateSerde._
     g match {
-      case geom: Point              => JsonObject("type" -> geom.`type`.asJson,"coordinates" -> geom.coordinates.asJson)
-      case geom: LineString         => JsonObject("type" -> geom.`type`.asJson,"coordinates" -> geom.coordinates.asJson)
-      case geom: Polygon            => JsonObject("type" -> geom.`type`.asJson,"coordinates" -> geom.coordinates.asJson)
-      case geom: MultiPoint         => JsonObject("type" -> geom.`type`.asJson,"coordinates" -> geom.coordinates.asJson)
-      case geom: MultiLineString    => JsonObject("type" -> geom.`type`.asJson,"coordinates" -> geom.coordinates.asJson)
-      case geom: MultiPolygon       => JsonObject("type" -> geom.`type`.asJson,"coordinates" -> geom.coordinates.asJson)
+      case geom: Point =>
+        JsonObject("type" -> geom.`type`.asJson, "coordinates" -> geom.coordinates.asJson)
+      case geom: LineString =>
+        JsonObject("type" -> geom.`type`.asJson, "coordinates" -> geom.coordinates.asJson)
+      case geom: Polygon =>
+        JsonObject("type" -> geom.`type`.asJson, "coordinates" -> geom.coordinates.asJson)
+      case geom: MultiPoint =>
+        JsonObject("type" -> geom.`type`.asJson, "coordinates" -> geom.coordinates.asJson)
+      case geom: MultiLineString =>
+        JsonObject("type" -> geom.`type`.asJson, "coordinates" -> geom.coordinates.asJson)
+      case geom: MultiPolygon =>
+        JsonObject("type" -> geom.`type`.asJson, "coordinates" -> geom.coordinates.asJson)
       case geom: GeometryCollection => geometryCollection(geom)
     }
   }
@@ -111,7 +116,9 @@ object GeoJsonSerde {
       f.bbox.map(bb => ("bbox", bb.asJson(BBoxSerde.bboxEncoder))),
       f.geometry.map(g => ("geometry", geometry(g).asJson))
     ).flatten
-      .foldLeft(featureBase)((feature: JsonObject, pair: (String, Json)) => feature.add(pair._1, pair._2))
+      .foldLeft(featureBase)(
+        (feature: JsonObject, pair: (String, Json)) => feature.add(pair._1, pair._2)
+      )
   }
 
   val fcBase = JsonObject("type" -> Json.fromString("FeatureCollection"))
@@ -120,7 +127,7 @@ object GeoJsonSerde {
     val withFeatures = fcBase.add("features", fc.features.map(_.asJson(featureEncoder)).asJson)
     // val features = JsonObject("features" -> fc.features)
     fc.bbox match {
-      case None => withFeatures
+      case None       => withFeatures
       case Some(bbox) => withFeatures.add("bbox", bbox.asJson(BBoxSerde.bboxEncoder))
     }
   }
