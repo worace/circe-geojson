@@ -24,6 +24,15 @@ val commonSettings = Seq(
   )
 )
 
+lazy val root = Project(
+  id = "root",
+  base = file(".")
+).aggregate(core, jts)
+  .settings(
+    publishLocal := {},
+    publish := {}
+  )
+
 lazy val core = project
   .settings(commonSettings:_*)
   .settings(
