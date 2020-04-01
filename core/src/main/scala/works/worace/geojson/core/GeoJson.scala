@@ -370,3 +370,31 @@ object FeatureCollection {
 // * [ ] MultiLineString
 // * [ ] MultiPolygon
 // * [ ] GeometryCollection
+
+// Test Permutations
+// Geometries
+// - Each geom type
+// Bbox / no bbox
+// - XY/XYZ/XYZM
+// - Foreign Members / no foreign members
+// Feature
+// bbox / no bbox
+// no id / string id / int id
+// properties / no properties
+// foreign members / no foreign member
+// geometry / no geometry
+// FeatureCollection
+// 0 to N features
+// bbox / no bbox
+// foreign members / no foreign members
+
+// JsonObjectGenerator (optional JSON obj excluding keywords)
+// ForeignMembersGenerator (json obj)
+// BBoxGenerator -> Non, XY, XYZ
+// PropertiesGenerator (json obj)
+// Point/LS/Poly/MP/MLS/MPoly generators
+// GeomCollection generator( 1 to N base geoms repeated )
+// Geometry generator (1 of geom generators + BBox + Foreign Members)
+// FeatureIDGenerator
+// Feature Generator ( geometry generator + bbox + props + foreign members + Id)
+// FCGenerator ( foreign members + 1 to N Features repeated )
