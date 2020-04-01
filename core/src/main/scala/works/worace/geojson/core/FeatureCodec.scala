@@ -8,11 +8,15 @@ import TypeDiscriminator._
 import CoordinateSerde._
 import IdSerde._
 import GeometryCodec._
-import BBoxSerde._
+import BBoxCodec.Implicits._
 
 object FeatureCodec {
-  implicit val decoder: Decoder[Feature] = deriveConfiguredDecoder[Feature]
-  implicit val encoder: Encoder[Feature] = Encoder.instance { f =>
+  object Implicits {
+    implicit val featureEncoder = encoder
+    implicit val featureDecoder = decoder
+  }
+  val decoder: Decoder[Feature] = deriveConfiguredDecoder[Feature]
+  val encoder: Encoder[Feature] = Encoder.instance { f =>
     import io.circe.syntax._
     asJsonObj(f).asJson
   }
@@ -22,7 +26,7 @@ object FeatureCodec {
     List(
       f.id.map(id => ("id", id.asJson(IdSerde.encodeEither))),
       f.properties.map(p => ("properties", p.asJson)),
-      f.bbox.map(bb => ("bbox", bb.asJson(BBoxSerde.bboxEncoder))),
+      f.bbox.map(bb => ("bbox", bb.asJson)),
       f.geometry.map((g: Geometry) => ("geometry", g.asJson))
     ).flatten
       .foldLeft(featureBase)(

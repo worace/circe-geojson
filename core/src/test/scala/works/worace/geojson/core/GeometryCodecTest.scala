@@ -7,7 +7,7 @@ import scala.reflect.ClassTag
 
 class GeometryCodecTest extends FeatureSpec {
   import TestData._
-  import GeometryCodec._
+  import GeometryCodec.Implicits._
 
   def codecCase[G <: GeoJson : ClassTag](c: Case)(implicit decoder: Decoder[G]) = {
     c.decoded match {

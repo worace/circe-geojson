@@ -61,33 +61,13 @@ object CoordinateSerde {
     }
   }
 }
-object BBoxSerde {
-  import io.circe.syntax._
-  implicit val bboxEncoder: Encoder[BBox] = Encoder.instance { bbox =>
-    bbox.flat.asJson
-  }
-
-  implicit val bboxDecoder: Decoder[BBox] = new Decoder[BBox] {
-    final def apply(c: HCursor): Decoder.Result[BBox] = {
-      import CoordinateSerde._
-      c.as[Array[Double]].flatMap {
-        case Array(x1, y1, x2, y2) => Right(BBox(Coordinate(x1, y1), Coordinate(x2, y2)))
-        case Array(x1, y1, z1, x2, y2, z2) =>
-          Right(BBox(Coordinate(x1, y1, z1), Coordinate(x2, y2, z2)))
-        case _ => Left(DecodingFailure("Invalid GeoJson BBox", c.history))
-      }
-    }
-  }
-}
 
 object GeoJsonSerde {
   import io.circe.syntax._
-  implicit val geomEncoder: Encoder[Geometry] = GeometryCodec.encoder
-  implicit val geomDecoder: Decoder[Geometry] = GeometryCodec.decoder
-  implicit val featureEncoder: Encoder[Feature] = FeatureCodec.encoder
-  implicit val featureDecoder: Decoder[Feature] = FeatureCodec.decoder
-  implicit val fcEncoder: Encoder[FeatureCollection] = FeatureCollectionCodec.encoder
-  implicit val fcDecoder: Decoder[FeatureCollection] = FeatureCollectionCodec.decoder
+  import BBoxCodec.Implicits._
+  import GeometryCodec.Implicits._
+  import FeatureCodec.Implicits._
+  import FeatureCollectionCodec.Implicits._
 
   implicit val encoder: Encoder[GeoJson] = Encoder.instance { gj =>
     import io.circe.syntax._
@@ -136,7 +116,6 @@ object GeoJsonSerde {
       final def apply(c: HCursor): Decoder.Result[GeoJson] = {
         import CoordinateSerde._
         import IdSerde._
-        import BBoxSerde._
         c.as[GeoJson]
       }
     }

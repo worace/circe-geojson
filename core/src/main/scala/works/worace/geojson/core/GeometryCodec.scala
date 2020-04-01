@@ -9,8 +9,12 @@ import CoordinateSerde._
 import IdSerde._
 
 object GeometryCodec {
-  implicit val decoder: Decoder[Geometry] = deriveConfiguredDecoder[Geometry]
-  implicit val encoder: Encoder[Geometry] = Encoder.instance { geom =>
+  object Implicits {
+    implicit val geometryEncoder = encoder
+    implicit val geometryDecoder = decoder
+  }
+  val decoder: Decoder[Geometry] = deriveConfiguredDecoder[Geometry]
+  val encoder: Encoder[Geometry] = Encoder.instance { geom =>
     geometry(geom).asJson
   }
 
