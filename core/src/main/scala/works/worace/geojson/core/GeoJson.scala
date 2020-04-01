@@ -84,47 +84,44 @@ object GeoJsonSerde {
   import io.circe.syntax._
   implicit val geomEncoder: Encoder[Geometry] = GeometryCodec.encoder
   implicit val geomDecoder: Decoder[Geometry] = GeometryCodec.decoder
+  implicit val featureEncoder: Encoder[Feature] = FeatureCodec.encoder
+  implicit val featureDecoder: Decoder[Feature] = FeatureCodec.decoder
+  implicit val fcEncoder: Encoder[FeatureCollection] = FeatureCollectionCodec.encoder
+  implicit val fcDecoder: Decoder[FeatureCollection] = FeatureCollectionCodec.decoder
 
-  val featureBase = JsonObject("type" -> Json.fromString("Feature"))
-  def feature(f: Feature): JsonObject = {
-    List(
-      f.id.map(id => ("id", id.asJson(IdSerde.encodeEither))),
-      f.properties.map(p => ("properties", p.asJson)),
-      f.bbox.map(bb => ("bbox", bb.asJson(BBoxSerde.bboxEncoder))),
-      f.geometry.map((g: Geometry) => ("geometry", g.asJson))
-    ).flatten
-      .foldLeft(featureBase)(
-        (feature: JsonObject, pair: (String, Json)) => feature.add(pair._1, pair._2)
-      )
+  implicit val encoder: Encoder[GeoJson] = Encoder.instance { gj =>
+    import io.circe.syntax._
+    base(gj).asJson
   }
 
-  val fcBase = JsonObject("type" -> Json.fromString("FeatureCollection"))
-  def featureCollectionBase(fc: FeatureCollection): JsonObject = {
-    import io.circe.syntax._
-    val withFeatures = fcBase.add("features", fc.features.map(_.asJson(featureEncoder)).asJson)
-    fc.bbox match {
-      case None       => withFeatures
-      case Some(bbox) => withFeatures.add("bbox", bbox.asJson(BBoxSerde.bboxEncoder))
+  implicit val decoder: Decoder[GeoJson] = new Decoder[GeoJson] {
+    final def apply(c: HCursor): Decoder.Result[GeoJson] = {
+      c.as[JsonObject]
+        .flatMap { obj =>
+          Json
+            .fromJsonObject(obj)
+            .as[GeoJson](Base.decoder)
+            .map { base =>
+              val foreignMembers = obj.filterKeys(!coreKeys.contains(_))
+              if (foreignMembers.nonEmpty) {
+                base.withForeignMembers(foreignMembers)
+              } else {
+                base
+              }
+            }
+        }
     }
   }
 
   def base(g: GeoJson): Json = {
     import io.circe.syntax._
     g match {
-      case geom: Geometry        => geom.asJson
-      case f: Feature            => feature(f).asJson
-      case fc: FeatureCollection => featureCollectionBase(fc).asJson
+      case geom: Geometry => geom.asJson
+      case f: Feature     => f.asJson
+      case fc: FeatureCollection => {
+        fc.asJson
+      }
     }
-  }
-
-  implicit val featureEncoder: Encoder[Feature] = Encoder.instance { gj =>
-    import io.circe.syntax._
-    feature(gj).asJson
-  }
-
-  implicit val encoder: Encoder[GeoJson] = Encoder.instance { gj =>
-    import io.circe.syntax._
-    base(gj).asJson
   }
 
   val coreKeys =
@@ -142,25 +139,6 @@ object GeoJsonSerde {
         import BBoxSerde._
         c.as[GeoJson]
       }
-    }
-  }
-
-  val decoder: Decoder[GeoJson] = new Decoder[GeoJson] {
-    final def apply(c: HCursor): Decoder.Result[GeoJson] = {
-      c.as[JsonObject]
-        .flatMap { obj =>
-          Json
-            .fromJsonObject(obj)
-            .as[GeoJson](Base.decoder)
-            .map { base =>
-              val foreignMembers = obj.filterKeys(!coreKeys.contains(_))
-              if (foreignMembers.nonEmpty) {
-                base.withForeignMembers(foreignMembers)
-              } else {
-                base
-              }
-            }
-        }
     }
   }
 }
@@ -197,12 +175,13 @@ case class BBox(min: Coordinate, max: Coordinate) {
   }
 }
 
-sealed trait Geometry extends GeoJson
+sealed trait Geometry extends GeoJson {
+  def `type`: String
+}
 
 sealed trait GeoJson {
   val foreignMembers: Option[JsonObject]
   val bbox: Option[BBox]
-  def `type`: String
   def withForeignMembers(fm: JsonObject): GeoJson
   def encode: Json = {
     import GeoJsonSerde.encoder
@@ -281,7 +260,6 @@ case class Feature(
   bbox: Option[BBox],
   foreignMembers: Option[JsonObject]
 ) extends GeoJson {
-  val `type` = "Feature"
   def withForeignMembers(fm: JsonObject): GeoJson = copy(foreignMembers = Some(fm))
   def simpleId: Option[String] = id.map(_.fold(num => num.toString, s => s))
   def simpleProps: JsonObject = {
@@ -299,7 +277,6 @@ case class FeatureCollection(
   bbox: Option[BBox],
   foreignMembers: Option[JsonObject]
 ) extends GeoJson {
-  val `type` = "FeatureCollection"
   def withForeignMembers(fm: JsonObject): GeoJson = copy(foreignMembers = Some(fm))
   def simple: SimpleFeatureCollection = SimpleFeatureCollection(features.flatMap(_.simple))
 }

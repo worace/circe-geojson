@@ -2,14 +2,13 @@ package works.worace.geojson.core
 
 import io.circe._
 import io.circe.syntax._
+import io.circe.generic.extras.auto._
+import io.circe.generic.extras.semiauto._
+import TypeDiscriminator._
 import CoordinateSerde._
 import IdSerde._
 
 object GeometryCodec {
-  import io.circe.generic.extras.auto._
-  import io.circe.generic.extras.semiauto._
-  import TypeDiscriminator._
-
   implicit val decoder: Decoder[Geometry] = deriveConfiguredDecoder[Geometry]
   implicit val encoder: Encoder[Geometry] = Encoder.instance { geom =>
     geometry(geom).asJson
