@@ -1,4 +1,4 @@
-package works.worace.geojson.core.codecs
+package works.worace.geojson.core
 
 import io.circe.generic.extras.Configuration
 

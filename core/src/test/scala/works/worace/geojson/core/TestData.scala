@@ -158,6 +158,16 @@ object TestData {
         )
       )
     )
+
+    val all: List[Case] = List(
+      point,
+      lineString,
+      polygon,
+      multiPoint,
+      multiLineString,
+      multiPolygon,
+      geometryCollection
+    )
   }
 
   object FeatureCases {

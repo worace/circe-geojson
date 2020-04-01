@@ -82,13 +82,11 @@ object BBoxSerde {
 
 object GeoJsonSerde {
   import io.circe.syntax._
-  import works.worace.geojson.core.codecs.{Geometry => GeometryCodec}
   implicit val geomEncoder: Encoder[Geometry] = GeometryCodec.encoder
   implicit val geomDecoder: Decoder[Geometry] = GeometryCodec.decoder
 
   val featureBase = JsonObject("type" -> Json.fromString("Feature"))
   def feature(f: Feature): JsonObject = {
-    import works.worace.geojson.core.codecs.Geometry._
     List(
       f.id.map(id => ("id", id.asJson(IdSerde.encodeEither))),
       f.properties.map(p => ("properties", p.asJson)),
@@ -104,7 +102,6 @@ object GeoJsonSerde {
   def featureCollectionBase(fc: FeatureCollection): JsonObject = {
     import io.circe.syntax._
     val withFeatures = fcBase.add("features", fc.features.map(_.asJson(featureEncoder)).asJson)
-    // val features = JsonObject("features" -> fc.features)
     fc.bbox match {
       case None       => withFeatures
       case Some(bbox) => withFeatures.add("bbox", bbox.asJson(BBoxSerde.bboxEncoder))

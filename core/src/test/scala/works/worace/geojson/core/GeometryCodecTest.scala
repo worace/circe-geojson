@@ -1,14 +1,13 @@
-package works.worace.geojson.core.codecs
+package works.worace.geojson.core
 
-import works.worace.geojson.core._
 import org.scalatest.FeatureSpec
 import io.circe.{Json, JsonObject, Decoder, DecodingFailure}
 import io.circe.parser.decode
 import scala.reflect.ClassTag
 
-class GeometryTest extends FeatureSpec {
+class GeometryCodecTest extends FeatureSpec {
   import TestData._
-  import Geometry.decoder
+  import GeometryCodec._
 
   def codecCase[G <: GeoJson : ClassTag](c: Case)(implicit decoder: Decoder[G]) = {
     c.decoded match {
@@ -23,7 +22,9 @@ class GeometryTest extends FeatureSpec {
 
   feature("Decoding geometries") {
     scenario("") {
-      codecCase[Geometry](BaseGeomCases.point)
+      BaseGeomCases.all.foreach { c =>
+        codecCase[Geometry](c)
+      }
     }
   }
 }

@@ -1,12 +1,11 @@
-package works.worace.geojson.core.codecs
+package works.worace.geojson.core
 
-import works.worace.geojson.core._
 import io.circe._
 import io.circe.syntax._
 import CoordinateSerde._
 import IdSerde._
 
-object Geometry {
+object GeometryCodec {
   import io.circe.generic.extras.auto._
   import io.circe.generic.extras.semiauto._
   import TypeDiscriminator._
