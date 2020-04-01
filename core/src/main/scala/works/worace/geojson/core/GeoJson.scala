@@ -148,8 +148,7 @@ case class Point(
   coordinates: Coordinate,
   bbox: Option[BBox],
   foreignMembers: Option[JsonObject]
-) extends GeoJson
-    with Geometry {
+) extends Geometry {
   val `type` = "Point"
   def withForeignMembers(fm: JsonObject): GeoJson = copy(foreignMembers = Some(fm))
 }
@@ -157,8 +156,7 @@ case class LineString(
   coordinates: Vector[Coordinate],
   bbox: Option[BBox],
   foreignMembers: Option[JsonObject]
-) extends GeoJson
-    with Geometry {
+) extends Geometry {
   val `type` = "LineString"
   def withForeignMembers(fm: JsonObject): GeoJson = copy(foreignMembers = Some(fm))
 }
@@ -166,8 +164,7 @@ case class Polygon(
   coordinates: Vector[Vector[Coordinate]],
   bbox: Option[BBox],
   foreignMembers: Option[JsonObject]
-) extends GeoJson
-    with Geometry {
+) extends Geometry {
   val `type` = "Polygon"
   def withForeignMembers(fm: JsonObject): GeoJson = copy(foreignMembers = Some(fm))
 }
@@ -175,8 +172,7 @@ case class MultiPoint(
   coordinates: Vector[Coordinate],
   bbox: Option[BBox],
   foreignMembers: Option[JsonObject]
-) extends GeoJson
-    with Geometry {
+) extends Geometry {
   val `type` = "MultiPoint"
   def withForeignMembers(fm: JsonObject): GeoJson = copy(foreignMembers = Some(fm))
 }
@@ -184,8 +180,7 @@ case class MultiLineString(
   coordinates: Vector[Vector[Coordinate]],
   bbox: Option[BBox],
   foreignMembers: Option[JsonObject]
-) extends GeoJson
-    with Geometry {
+) extends Geometry {
   val `type` = "MultiLineString"
   def withForeignMembers(fm: JsonObject): GeoJson = copy(foreignMembers = Some(fm))
 }
@@ -193,8 +188,7 @@ case class MultiPolygon(
   coordinates: Vector[Vector[Vector[Coordinate]]],
   bbox: Option[BBox],
   foreignMembers: Option[JsonObject]
-) extends GeoJson
-    with Geometry {
+) extends Geometry {
   val `type` = "MultiPolygon"
   def withForeignMembers(fm: JsonObject): GeoJson = copy(foreignMembers = Some(fm))
 }
@@ -202,8 +196,7 @@ case class GeometryCollection(
   geometries: Vector[Geometry],
   bbox: Option[BBox],
   foreignMembers: Option[JsonObject]
-) extends GeoJson
-    with Geometry {
+) extends Geometry {
   val `type` = "GeometryCollection"
   def withForeignMembers(fm: JsonObject): GeoJson = copy(foreignMembers = Some(fm))
 }
