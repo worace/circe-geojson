@@ -2,7 +2,7 @@ package works.worace.geojson.core
 
 import io.circe._
 import io.circe.syntax._
-import CoordinateSerde._
+import CoordinateCodec.implicits._
 
 object BBoxCodec {
   object Implicits {

@@ -7,7 +7,7 @@ import io.circe.generic.extras.semiauto._
 import TypeDiscriminator._
 import FeatureCodec._
 import BBoxCodec.Implicits._
-import CoordinateSerde._
+import CoordinateCodec.implicits._
 import IdSerde._
 
 object FeatureCollectionCodec {

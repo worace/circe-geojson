@@ -9,7 +9,7 @@ class GeoJsonTest extends FeatureSpec {
   feature("Variable length coordinates") {
     scenario("Decodes with appropriate Option value") {
       def parseCoord(s: String): Either[io.circe.Error, Coordinate] = {
-        import CoordinateSerde._
+        import CoordinateCodec.implicits._
         io.circe.parser.decode[Coordinate](s)
       }
 
