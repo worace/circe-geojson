@@ -49,6 +49,31 @@ object TestData {
     MultiPolygon(rings)
   }
 
+  def bboxXY: BBox = BBox(genCoordXY, genCoordXY)
+  def bboxXYZ: BBox = BBox(genCoordXYZ, genCoordXYZ)
+
+  def bboxOpts: List[Option[BBox]] = {
+    List(None, Some(bboxXY), Some(bboxXYZ))
+  }
+
+  def coordSeqOpts: List[Stream[Coordinate]] = {
+    List(coordSeqXY, coordSeqXYZ, coordSeqXYZM)
+  }
+
+  def fmemberOpts: List[Option[JsonObject]] = {
+    List(None, Some(JsonObject("a" -> Json.fromString("b"))))
+  }
+
+  object Permutations {
+    def points: List[Point] = {
+      for {
+        bbox <- bboxOpts
+        coords <- coordSeqOpts
+        fmember <- fmemberOpts
+      } yield Point(coords.head, bbox, fmember)
+    }
+  }
+
   case class Case(
     encoded: String,
     decoded: GeoJson

@@ -8,7 +8,7 @@ import TypeDiscriminator._
 import CoordinateCodec.implicits._
 import IdSerde._
 import GeometryCodec._
-import BBoxCodec.Implicits._
+import BBoxCodec.implicits._
 
 object FeatureCodec {
   object Implicits {

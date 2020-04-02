@@ -40,10 +40,21 @@ object IdSerde {
 object GeoJsonSerde {
   import io.circe.syntax._
   import CoordinateCodec.implicits._
-  import BBoxCodec.Implicits._
+  import BBoxCodec.implicits._
   import GeometryCodec.Implicits._
   import FeatureCodec.Implicits._
   import FeatureCollectionCodec.Implicits._
+
+  def base(g: GeoJson): Json = {
+    import io.circe.syntax._
+    g match {
+      case geom: Geometry => geom.asJson
+      case f: Feature     => f.asJson
+      case fc: FeatureCollection => {
+        fc.asJson
+      }
+    }
+  }
 
   implicit val encoder: Encoder[GeoJson] = Encoder.instance { gj =>
     import io.circe.syntax._
@@ -66,17 +77,6 @@ object GeoJsonSerde {
               }
             }
         }
-    }
-  }
-
-  def base(g: GeoJson): Json = {
-    import io.circe.syntax._
-    g match {
-      case geom: Geometry => geom.asJson
-      case f: Feature     => f.asJson
-      case fc: FeatureCollection => {
-        fc.asJson
-      }
     }
   }
 

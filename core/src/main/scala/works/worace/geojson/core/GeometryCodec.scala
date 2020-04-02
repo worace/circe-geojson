@@ -8,14 +8,14 @@ import TypeDiscriminator._
 import CoordinateCodec.implicits._
 import IdSerde._
 
-object GeometryCodec {
+object GeometryCodec extends Codec[Geometry] {
   object Implicits {
     implicit val geometryEncoder = encoder
     implicit val geometryDecoder = decoder
   }
   val decoder: Decoder[Geometry] = deriveConfiguredDecoder[Geometry]
-  val encoder: Encoder[Geometry] = Encoder.instance { geom =>
-    geometry(geom).asJson
+  def asJsonObject(gj: Geometry): JsonObject = {
+    geometry(gj)
   }
 
   private def geometryCollection(gc: GeometryCollection): JsonObject = {

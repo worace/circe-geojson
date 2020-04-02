@@ -6,7 +6,7 @@ import io.circe.generic.extras.auto._
 import io.circe.generic.extras.semiauto._
 import TypeDiscriminator._
 import FeatureCodec._
-import BBoxCodec.Implicits._
+import BBoxCodec.implicits._
 import CoordinateCodec.implicits._
 import IdSerde._
 
