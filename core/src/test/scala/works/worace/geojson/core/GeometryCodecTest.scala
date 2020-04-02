@@ -9,7 +9,7 @@ class GeometryCodecTest extends FeatureSpec {
   import TestData._
   import GeometryCodec.Implicits._
 
-  def codecCase[G <: GeoJson : ClassTag](c: Case)(implicit decoder: Decoder[G]) = {
+  def codecCase[G <: GeoJson: ClassTag](c: Case)(implicit decoder: Decoder[G]) = {
     c.decoded match {
       case g: G => {
         decode[G](c.encoded)
@@ -22,9 +22,7 @@ class GeometryCodecTest extends FeatureSpec {
 
   feature("Decoding geometries") {
     scenario("") {
-      BaseGeomCases.all.foreach { c =>
-        codecCase[Geometry](c)
-      }
+      BaseGeomCases.all.foreach { c => codecCase[Geometry](c) }
     }
   }
 }

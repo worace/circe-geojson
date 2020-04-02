@@ -9,9 +9,7 @@ object BBoxCodec {
     implicit val bboxEncoder = encoder
     implicit val bboxDecoder = decoder
   }
-  val encoder: Encoder[BBox] = Encoder.instance { bbox =>
-    bbox.flat.asJson
-  }
+  val encoder: Encoder[BBox] = Encoder.instance { bbox => bbox.flat.asJson }
 
   val decoder: Decoder[BBox] = new Decoder[BBox] {
     final def apply(c: HCursor): Decoder.Result[BBox] = {

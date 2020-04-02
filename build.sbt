@@ -33,11 +33,12 @@ lazy val root = Project(
   )
 
 lazy val core = project
-  .settings(commonSettings:_*)
+  .settings(commonSettings: _*)
   .settings(
     name := "circe-geojson-core",
     description := "GeoJSON ADT and Circe encoders/decoders"
-  ).settings(
+  )
+  .settings(
     libraryDependencies ++= Seq(
       "io.circe" %% "circe-core" % CIRCE_VERSION,
       "io.circe" %% "circe-generic" % CIRCE_VERSION,
@@ -48,11 +49,12 @@ lazy val core = project
 
 lazy val jts = project
   .dependsOn(core % "test->test;compile->compile")
-  .settings(commonSettings:_*)
+  .settings(commonSettings: _*)
   .settings(
     name := "circe-geojson-jts",
     description := "Conversions to and from circe-geojson-core types for JTS Geometries"
-  ).settings(
+  )
+  .settings(
     libraryDependencies ++= Seq(
       "org.locationtech.jts" % "jts-core" % "1.16.1"
     )

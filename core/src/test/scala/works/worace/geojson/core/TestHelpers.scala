@@ -7,10 +7,9 @@ trait TestHelpers extends FeatureSpec {
   import GeoJsonSerde._
   def roundTripCase(gj: GeoJson) {
     val encoded = gj.asJson
-    GeoJson.fromJson(encoded)
-      .map { decoded =>
-        assert(decoded == gj)
-      }
+    GeoJson
+      .fromJson(encoded)
+      .map { decoded => assert(decoded == gj) }
       .toOption
       .getOrElse(fail(s"Failed round-trip: ${gj}"))
   }

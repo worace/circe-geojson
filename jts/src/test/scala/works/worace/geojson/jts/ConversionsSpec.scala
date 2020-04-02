@@ -146,16 +146,17 @@ class ConversionsSpec extends FeatureSpec {
 
           (geoms(0), geom.getGeometryN(0)) match {
             case (gj: core.Point, jts: Point) => compareCoord(gj.coordinates, jts.getCoordinate)
-            case _ => fail
+            case _                            => fail
           }
 
           (geoms(1), geom.getGeometryN(1)) match {
             case (gj: core.Polygon, jts: Polygon) => comparePolygon(gj.coordinates, jts)
-            case _ => fail
+            case _                                => fail
           }
 
           (geoms(2), geom.getGeometryN(2)) match {
-            case (gj: core.MultiLineString, jts: MultiLineString) => compareMultiLineString(gj.coordinates, jts)
+            case (gj: core.MultiLineString, jts: MultiLineString) =>
+              compareMultiLineString(gj.coordinates, jts)
             case _ => fail
           }
         }

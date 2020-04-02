@@ -16,8 +16,12 @@ class GeoJsonTest extends FeatureSpec {
       assert(parseCoord(coordXY) == Right(Coordinate(102.0, 0.5, None, None)))
       assert(parseCoord(coordXYZ) == Right(Coordinate(102.0, 0.5, Some(1.0), None)))
       assert(parseCoord(coordXYZM) == Right(Coordinate(102.0, 0.5, Some(1.0), Some(2.0))))
-      assert(parseCoord(coordTooFew) == Left(DecodingFailure("Invalid GeoJson Coordinates", List())))
-      assert(parseCoord(coordTooMany) == Left(DecodingFailure("Invalid GeoJson Coordinates", List())))
+      assert(
+        parseCoord(coordTooFew) == Left(DecodingFailure("Invalid GeoJson Coordinates", List()))
+      )
+      assert(
+        parseCoord(coordTooMany) == Left(DecodingFailure("Invalid GeoJson Coordinates", List()))
+      )
     }
   }
 

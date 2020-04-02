@@ -11,8 +11,7 @@ object CoordinateCodec {
 
   val encoder: Encoder[Coordinate] = Encoder.instance {
     // TODO - how does this handle large numbers that circe can't represent as JsonNumber
-    coord =>
-      Json.arr(coord.array.flatMap(Json.fromDouble): _*)
+    coord => Json.arr(coord.array.flatMap(Json.fromDouble): _*)
   }
 
   val decoder: Decoder[Coordinate] = new Decoder[Coordinate] {

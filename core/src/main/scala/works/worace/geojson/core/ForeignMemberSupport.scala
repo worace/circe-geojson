@@ -14,15 +14,14 @@ trait Codec[T <: GeoJson] {
 
   def withForeignMembers(encoded: JsonObject, fm: Option[JsonObject]): JsonObject = {
     fm.map { obj =>
-      val foreignMembers = obj.filterKeys(!coreKeys.contains(_))
-      encoded.deepMerge(foreignMembers)
-    }.getOrElse(encoded)
+        val foreignMembers = obj.filterKeys(!coreKeys.contains(_))
+        encoded.deepMerge(foreignMembers)
+      }
+      .getOrElse(encoded)
   }
 
   def withBBox(encoded: JsonObject, bbox: Option[BBox]): JsonObject = {
     import BBoxCodec.implicits._
-    bbox.map { bbox =>
-      encoded.add("bbox", bbox.asJson)
-    }.getOrElse(encoded)
+    bbox.map { bbox => encoded.add("bbox", bbox.asJson) }.getOrElse(encoded)
   }
 }

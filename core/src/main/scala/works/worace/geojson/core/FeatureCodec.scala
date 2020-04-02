@@ -29,8 +29,8 @@ object FeatureCodec {
       f.bbox.map(bb => ("bbox", bb.asJson)),
       f.geometry.map((g: Geometry) => ("geometry", g.asJson))
     ).flatten
-      .foldLeft(featureBase)(
-        (feature: JsonObject, pair: (String, Json)) => feature.add(pair._1, pair._2)
+      .foldLeft(featureBase)((feature: JsonObject, pair: (String, Json)) =>
+        feature.add(pair._1, pair._2)
       )
   }
 }

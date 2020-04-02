@@ -31,9 +31,7 @@ object TestData {
     MultiLineString((1 to randInt() + 1).map(_ => coordSeqXY.take(randInt() + 1)))
 
   def polygonXY(numRings: Int = 2): Polygon = {
-    val rings = (1 to numRings).map { _ =>
-      closedRingXY
-    }.toVector
+    val rings = (1 to numRings).map { _ => closedRingXY }.toVector
     Polygon(rings)
   }
 
