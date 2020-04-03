@@ -42,5 +42,11 @@ class PermutationsTest extends FeatureSpec with TestHelpers {
         roundTripCase(mp)
       }
     }
+
+    scenario("Features") {
+      for (f <- Permutations.features) {
+        roundTripCase(f)
+      }
+    }
   }
 }

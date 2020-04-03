@@ -1,6 +1,7 @@
 package works.worace.geojson.core
 
 import io.circe.{Json, JsonObject, Decoder, DecodingFailure}
+import io.circe.JsonNumber
 
 object TestData {
   val coordXY = "[102.0, 0.5]"
@@ -56,8 +57,8 @@ object TestData {
   def bboxXY: BBox = BBox(genCoordXY, genCoordXY)
   def bboxXYZ: BBox = BBox(genCoordXYZ, genCoordXYZ)
 
-  def bboxOpts: List[Option[BBox]] = {
-    List(None, Some(bboxXY), Some(bboxXYZ))
+  def bboxOpts: Vector[Option[BBox]] = {
+    Vector(None, Some(bboxXY), Some(bboxXYZ))
   }
 
   def coordSeqOpts: Vector[Vector[Coordinate]] = {
@@ -87,12 +88,16 @@ object TestData {
     )
   }
 
+  def jsonObject: JsonObject = {
+    JsonObject("a" -> Json.fromString("b"))
+  }
+
   def fmemberOpts: List[Option[JsonObject]] = {
-    List(None, Some(JsonObject("a" -> Json.fromString("b"))))
+    List(None, Some(jsonObject))
   }
 
   object Permutations {
-    def points: List[Point] = {
+    def points: Vector[Point] = {
       for {
         bbox <- bboxOpts
         coords <- coordSeqOpts
@@ -100,7 +105,7 @@ object TestData {
       } yield Point(coords.head, bbox, fmember)
     }
 
-    def lineStrings: List[LineString] = {
+    def lineStrings: Vector[LineString] = {
       for {
         bbox <- bboxOpts
         coords <- coordSeqOpts
@@ -108,7 +113,7 @@ object TestData {
       } yield LineString(coords, bbox, fmember)
     }
 
-    def polygons: List[Polygon] = {
+    def polygons: Vector[Polygon] = {
       for {
         bbox <- bboxOpts
         outer <- closedRingOpts
@@ -139,6 +144,33 @@ object TestData {
         bbox <- bboxOpts
         fmember <- fmemberOpts
       } yield MultiPolygon(coords, bbox, fmember)
+    }
+
+    def allGeomOpts: Vector[Geometry] = {
+      (points ++ lineStrings ++ polygons ++ multiPoints ++ multiLineStrings ++ multiPolygons)
+        .sortBy(_ => rand)
+    }
+
+    def idOpts: Vector[Option[Either[JsonNumber, String]]] = {
+      Vector(
+        None,
+        Some(Left(JsonNumber.fromString(randInt().toString).get)),
+        Some(Right(randInt().toString))
+      )
+    }
+
+    def propOpts: Vector[Option[JsonObject]] = {
+      Vector(None, Some(jsonObject))
+    }
+
+    def features: Vector[Feature] = {
+      for {
+        id <- idOpts
+        properties <- propOpts
+        geom <- allGeomOpts.take(randInt(5)).map(Some(_)) :+ None
+        bbox <- bboxOpts
+        fmembers <- fmemberOpts
+      } yield Feature(id, properties, geom, bbox, fmembers)
     }
   }
 
