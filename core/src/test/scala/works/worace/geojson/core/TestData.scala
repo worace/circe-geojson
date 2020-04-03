@@ -15,9 +15,10 @@ object TestData {
   def genCoordXY: Coordinate = Coordinate(rand, rand)
   def genCoordXYZ: Coordinate = Coordinate(rand, rand, rand)
   def genCoordXYZM: Coordinate = Coordinate(rand, rand, rand, rand)
-  def coordSeqXY: Stream[Coordinate] = genCoordXY #:: coordSeqXY
-  def coordSeqXYZ: Stream[Coordinate] = genCoordXYZ #:: coordSeqXYZ
-  def coordSeqXYZM: Stream[Coordinate] = genCoordXYZM #:: coordSeqXYZM
+  def streamOf[T](f: => T): Stream[T] = f #:: streamOf(f)
+  def coordSeqXY: Stream[Coordinate] = streamOf(genCoordXY) //genCoordXY #:: coordSeqXY
+  def coordSeqXYZ: Stream[Coordinate] = streamOf(genCoordXYZ)
+  def coordSeqXYZM: Stream[Coordinate] = streamOf(genCoordXYZM)
   def pointXY: Point = Point(genCoordXY)
   def pointXYZ: Point = Point(genCoordXYZ)
   def pointXYZM: Point = Point(genCoordXYZM)
@@ -35,10 +36,14 @@ object TestData {
     Polygon(rings)
   }
 
-  def closedRingXY: Vector[Coordinate] = {
-    val seq = coordSeqXY.take(randInt() + 3).toVector
+  def closedRing(coords: Stream[Coordinate]): Vector[Coordinate] = {
+    val seq = coords.take(randInt() + 3).toVector
     seq :+ seq.head
   }
+
+  def closedRingXY: Vector[Coordinate] = closedRing(coordSeqXY)
+  def closedRingXYZ: Vector[Coordinate] = closedRing(coordSeqXYZ)
+  def closedRingXYZM: Vector[Coordinate] = closedRing(coordSeqXYZM)
 
   def multiPolygonXY: MultiPolygon = {
     val rings = times(randInt(), {
@@ -54,8 +59,12 @@ object TestData {
     List(None, Some(bboxXY), Some(bboxXYZ))
   }
 
-  def coordSeqOpts: List[Stream[Coordinate]] = {
-    List(coordSeqXY, coordSeqXYZ, coordSeqXYZM)
+  def coordSeqOpts: Vector[Vector[Coordinate]] = {
+    Vector(coordSeqXY, coordSeqXYZ, coordSeqXYZM).map(s => s.take(randInt() + 1).toVector)
+  }
+
+  def closedRingOpts: Vector[Vector[Coordinate]] = {
+    Vector(closedRingXY, closedRingXYZ, closedRingXYZM)
   }
 
   def fmemberOpts: List[Option[JsonObject]] = {
@@ -69,6 +78,31 @@ object TestData {
         coords <- coordSeqOpts
         fmember <- fmemberOpts
       } yield Point(coords.head, bbox, fmember)
+    }
+
+    def lineStrings: List[LineString] = {
+      for {
+        bbox <- bboxOpts
+        coords <- coordSeqOpts
+        fmember <- fmemberOpts
+      } yield LineString(coords, bbox, fmember)
+    }
+
+    def polygons: List[Polygon] = {
+      for {
+        bbox <- bboxOpts
+        outer <- closedRingOpts
+        fmember <- fmemberOpts
+      } yield Polygon(Vector(outer), bbox, fmember)
+    }
+
+    def multiPoints: Vector[MultiPoint] = {
+      val numPoints = randInt(5)
+      for {
+        coords <- coordSeqOpts
+        bbox <- bboxOpts
+        fmember <- fmemberOpts
+      } yield MultiPoint(coords, bbox, fmember)
     }
   }
 
