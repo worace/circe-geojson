@@ -23,13 +23,14 @@ object FeatureCodec {
 
   private val featureBase = JsonObject("type" -> Json.fromString("Feature"))
   private def asJsonObj(f: Feature): JsonObject = {
+    val start = f.foreignMembers.getOrElse(JsonObject()).deepMerge(featureBase)
     List(
       f.id.map(id => ("id", id.asJson(IdSerde.encodeEither))),
       f.properties.map(p => ("properties", p.asJson)),
       f.bbox.map(bb => ("bbox", bb.asJson)),
       f.geometry.map((g: Geometry) => ("geometry", g.asJson))
     ).flatten
-      .foldLeft(featureBase)((feature: JsonObject, pair: (String, Json)) =>
+      .foldLeft(start)((feature: JsonObject, pair: (String, Json)) =>
         feature.add(pair._1, pair._2)
       )
   }

@@ -1,15 +1,13 @@
 package works.worace.geojson.core
 
-import org.scalatest.FeatureSpec
-
-trait TestHelpers extends FeatureSpec {
+trait TestHelpers extends munit.FunSuite {
   import io.circe.syntax._
   import GeoJsonSerde._
   def roundTripCase(gj: GeoJson) {
     val encoded = gj.asJson
     GeoJson
       .fromJson(encoded)
-      .map { decoded => assert(decoded == gj) }
+      .map { decoded => assertEquals(decoded, gj) }
       .toOption
       .getOrElse(fail(s"Failed round-trip: ${gj}"))
   }

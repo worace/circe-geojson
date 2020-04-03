@@ -3,50 +3,48 @@ package works.worace.geojson.core
 import org.scalatest.FeatureSpec
 import io.circe.{Json, JsonObject, Decoder, DecodingFailure}
 
-class PermutationsTest extends FeatureSpec with TestHelpers {
+class PermutationsTest extends munit.FunSuite with TestHelpers {
   import TestData._
 
-  feature("Round Trip Permutations") {
-    scenario("Points") {
-      for (p <- Permutations.points) {
-        roundTripCase(p)
-      }
+  test("Points") {
+    for (p <- Permutations.points) {
+      roundTripCase(p)
     }
+  }
 
-    scenario("LineStrings") {
-      for (ls <- Permutations.lineStrings) {
-        roundTripCase(ls)
-      }
+  test("LineStrings") {
+    for (ls <- Permutations.lineStrings) {
+      roundTripCase(ls)
     }
+  }
 
-    scenario("Polygons") {
-      for (p <- Permutations.polygons) {
-        roundTripCase(p)
-      }
+  test("Polygons") {
+    for (p <- Permutations.polygons) {
+      roundTripCase(p)
     }
+  }
 
-    scenario("MultiPoints") {
-      for (mp <- Permutations.multiPoints) {
-        roundTripCase(mp)
-      }
+  test("MultiPoints") {
+    for (mp <- Permutations.multiPoints) {
+      roundTripCase(mp)
     }
+  }
 
-    scenario("MultiLineStrings") {
-      for (mls <- Permutations.multiLineStrings) {
-        roundTripCase(mls)
-      }
+  test("MultiLineStrings") {
+    for (mls <- Permutations.multiLineStrings) {
+      roundTripCase(mls)
     }
+  }
 
-    scenario("MultiPolygons") {
-      for (mp <- Permutations.multiPolygons) {
-        roundTripCase(mp)
-      }
+  test("MultiPolygons") {
+    for (mp <- Permutations.multiPolygons) {
+      roundTripCase(mp)
     }
+  }
 
-    scenario("Features") {
-      for (f <- Permutations.features) {
-        roundTripCase(f)
-      }
+  test("Features") {
+    for (f <- Permutations.features) {
+      roundTripCase(f)
     }
   }
 }
