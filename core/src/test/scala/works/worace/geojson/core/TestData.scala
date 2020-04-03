@@ -16,6 +16,7 @@ object TestData {
   def genCoordXYZ: Coordinate = Coordinate(rand, rand, rand)
   def genCoordXYZM: Coordinate = Coordinate(rand, rand, rand, rand)
   def streamOf[T](f: => T): Stream[T] = f #:: streamOf(f)
+  def nOf[T](f: => T, n: Int): Vector[T] = streamOf(f).take(n).toVector
   def coordSeqXY: Stream[Coordinate] = streamOf(genCoordXY) //genCoordXY #:: coordSeqXY
   def coordSeqXYZ: Stream[Coordinate] = streamOf(genCoordXYZ)
   def coordSeqXYZM: Stream[Coordinate] = streamOf(genCoordXYZM)
@@ -63,8 +64,27 @@ object TestData {
     Vector(coordSeqXY, coordSeqXYZ, coordSeqXYZM).map(s => s.take(randInt() + 1).toVector)
   }
 
+  def coordSeqSeqOpts: Vector[Vector[Vector[Coordinate]]] = {
+    val numPoints = randInt() + 1
+    val numLines = randInt()
+    Vector(
+      nOf(coordSeqXY.take(numPoints).toVector, numLines),
+      nOf(coordSeqXYZ.take(numPoints).toVector, numLines),
+      nOf(coordSeqXYZM.take(numPoints).toVector, numLines)
+    )
+  }
+
   def closedRingOpts: Vector[Vector[Coordinate]] = {
     Vector(closedRingXY, closedRingXYZ, closedRingXYZM)
+  }
+
+  def closedRingSeqOpts: Vector[Vector[Vector[Vector[Coordinate]]]] = {
+    Vector(
+      //     outer                       , ... inner
+      Vector(nOf(closedRingXY, randInt()), nOf(closedRingXY, randInt())),
+      Vector(nOf(closedRingXYZ, randInt()), nOf(closedRingXYZ, randInt())),
+      Vector(nOf(closedRingXYZM, randInt()), nOf(closedRingXYZM, randInt()))
+    )
   }
 
   def fmemberOpts: List[Option[JsonObject]] = {
@@ -103,6 +123,22 @@ object TestData {
         bbox <- bboxOpts
         fmember <- fmemberOpts
       } yield MultiPoint(coords, bbox, fmember)
+    }
+
+    def multiLineStrings: Vector[MultiLineString] = {
+      for {
+        coords <- coordSeqSeqOpts
+        bbox <- bboxOpts
+        fmember <- fmemberOpts
+      } yield MultiLineString(coords, bbox, fmember)
+    }
+
+    def multiPolygons: Vector[MultiPolygon] = {
+      for {
+        coords <- closedRingSeqOpts
+        bbox <- bboxOpts
+        fmember <- fmemberOpts
+      } yield MultiPolygon(coords, bbox, fmember)
     }
   }
 
