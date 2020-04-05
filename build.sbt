@@ -8,7 +8,6 @@ val commonSettings = Seq(
   homepage := Some(url("https://github.com/worace/circe-geojson")),
   scalaVersion := SCALA_VERSION,
   libraryDependencies ++= Seq(
-    "org.scalatest" %% "scalatest" % "3.0.5" % Test,
     "org.scalameta" %% "munit" % "0.7.1" % Test
   ),
   testFrameworks += new TestFramework("munit.Framework"),

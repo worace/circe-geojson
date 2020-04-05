@@ -1,6 +1,5 @@
 package works.worace.geojson.core
 
-import org.scalatest.FeatureSpec
 import io.circe.{Json, JsonObject, Decoder, DecodingFailure}
 
 class PermutationsTest extends munit.FunSuite with TestHelpers {

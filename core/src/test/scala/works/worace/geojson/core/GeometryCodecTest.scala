@@ -1,11 +1,10 @@
 package works.worace.geojson.core
 
-import org.scalatest.FeatureSpec
 import io.circe.{Json, JsonObject, Decoder, DecodingFailure}
 import io.circe.parser.decode
 import scala.reflect.ClassTag
 
-class GeometryCodecTest extends FeatureSpec {
+class GeometryCodecTest extends munit.FunSuite {
   import TestData._
   import GeometryCodec.Implicits._
 
@@ -20,9 +19,7 @@ class GeometryCodecTest extends FeatureSpec {
     }
   }
 
-  feature("Decoding geometries") {
-    scenario("") {
-      BaseGeomCases.all.foreach { c => codecCase[Geometry](c) }
-    }
+  test("round-tripping base cases") {
+    BaseGeomCases.all.foreach { c => codecCase[Geometry](c) }
   }
 }

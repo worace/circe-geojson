@@ -1,134 +1,131 @@
 package works.worace.geojson.core
 
-import org.scalatest.FeatureSpec
 import io.circe.{Json, JsonObject, Decoder, DecodingFailure}
 
-class GeoJsonTest extends FeatureSpec {
+class GeoJsonTest extends munit.FunSuite {
   import TestData._
 
-  feature("Variable length coordinates") {
-    scenario("Decodes with appropriate Option value") {
-      def parseCoord(s: String): Either[io.circe.Error, Coordinate] = {
-        import CoordinateCodec.implicits._
-        io.circe.parser.decode[Coordinate](s)
-      }
-
-      assert(parseCoord(coordXY) == Right(Coordinate(102.0, 0.5, None, None)))
-      assert(parseCoord(coordXYZ) == Right(Coordinate(102.0, 0.5, Some(1.0), None)))
-      assert(parseCoord(coordXYZM) == Right(Coordinate(102.0, 0.5, Some(1.0), Some(2.0))))
-      assert(
-        parseCoord(coordTooFew) == Left(DecodingFailure("Invalid GeoJson Coordinates", List()))
-      )
-      assert(
-        parseCoord(coordTooMany) == Left(DecodingFailure("Invalid GeoJson Coordinates", List()))
-      )
+  test("Decodes with appropriate Option value") {
+    def parseCoord(s: String): Either[io.circe.Error, Coordinate] = {
+      import CoordinateCodec.implicits._
+      io.circe.parser.decode[Coordinate](s)
     }
+
+    assert(parseCoord(coordXY) == Right(Coordinate(102.0, 0.5, None, None)))
+    assert(parseCoord(coordXYZ) == Right(Coordinate(102.0, 0.5, Some(1.0), None)))
+    assert(parseCoord(coordXYZM) == Right(Coordinate(102.0, 0.5, Some(1.0), Some(2.0))))
+    assert(
+      parseCoord(coordTooFew) == Left(DecodingFailure("Invalid GeoJson Coordinates", List()))
+    )
+    assert(
+      parseCoord(coordTooMany) == Left(DecodingFailure("Invalid GeoJson Coordinates", List()))
+    )
   }
 
-  feature("2-D Basic Geometries") {
-    scenario("Point") {
-      val decodedPoint = GeoJson.parse(BaseGeomCases.point.encoded)
-      assert(decodedPoint == Right(BaseGeomCases.point.decoded))
-    }
-
-    scenario("LineString") {
-      val decoded = GeoJson.parse(BaseGeomCases.lineString.encoded)
-      assert(decoded == Right(BaseGeomCases.lineString.decoded))
-    }
-
-    scenario("Polygon") {
-      val decoded = GeoJson.parse(BaseGeomCases.polygon.encoded)
-      assert(decoded == Right(BaseGeomCases.polygon.decoded))
-    }
-
-    scenario("MultiPoint") {
-      val decoded = GeoJson.parse(BaseGeomCases.multiPoint.encoded)
-      assert(decoded == Right(BaseGeomCases.multiPoint.decoded))
-    }
-
-    scenario("MultiLineString") {
-      val decoded = GeoJson.parse(BaseGeomCases.multiLineString.encoded)
-      assert(decoded == Right(BaseGeomCases.multiLineString.decoded))
-    }
-
-    scenario("MultiPolygon") {
-      val decoded = GeoJson.parse(BaseGeomCases.multiPolygon.encoded)
-      assert(decoded == Right(BaseGeomCases.multiPolygon.decoded))
-    }
-
-    scenario("GeometryCollection") {
-      val decoded = GeoJson.parse(BaseGeomCases.geometryCollection.encoded)
-      assert(decoded == Right(BaseGeomCases.geometryCollection.decoded))
-    }
+  // feature("2-D Basic Geometries") {
+  test("Point") {
+    val decodedPoint = GeoJson.parse(BaseGeomCases.point.encoded)
+    assert(decodedPoint == Right(BaseGeomCases.point.decoded))
   }
 
-  feature("Feature") {
-    scenario("No Properties") {
-      val decoded = GeoJson.parse(FeatureCases.noProps.encoded)
-      assert(decoded == Right(FeatureCases.noProps.decoded))
-    }
-
-    scenario("Null properties") {
-      decodeCase(FeatureCases.nullProps)
-    }
-
-    scenario("Empty feature") {
-      val decoded = GeoJson.parse(FeatureCases.empty.encoded)
-      assert(decoded == Right(FeatureCases.empty.decoded))
-    }
-
-    scenario("Null geometry") {
-      decodeCase(FeatureCases.nullGeom)
-    }
-
-    scenario("Properties") {
-      val decoded = GeoJson.parse(FeatureCases.props.encoded)
-      assert(decoded == Right(FeatureCases.props.decoded))
-    }
-
-    scenario("String ID") {
-      val decoded = GeoJson.parse(FeatureCases.stringId.encoded)
-      assert(decoded == Right(FeatureCases.stringId.decoded))
-    }
-
-    scenario("Numeric ID") {
-      val decoded = GeoJson.parse(FeatureCases.intId.encoded)
-      assert(decoded == Right(FeatureCases.intId.decoded))
-    }
-
-    scenario("BBox") {
-      decodeCase(FeatureCases.bbox)
-    }
-
-    scenario("All attributes") {
-      val decoded = GeoJson.parse(FeatureCases.intId.encoded)
-      assert(decoded == Right(FeatureCases.intId.decoded))
-    }
-
-    scenario("xyz geom") {
-      decodeCase(FeatureCases.xyz)
-    }
-
-    scenario("xyzm geom") {
-      decodeCase(FeatureCases.xyzm)
-    }
+  test("LineString") {
+    val decoded = GeoJson.parse(BaseGeomCases.lineString.encoded)
+    assert(decoded == Right(BaseGeomCases.lineString.decoded))
   }
 
-  feature("FeatureCollection") {
-    scenario("1 Feature, no Foreign Members") {
-      val decoded = GeoJson.parse(FeatureCollectionCases.noForeignMembers.encoded)
-      assert(decoded == Right(FeatureCollectionCases.noForeignMembers.decoded))
-    }
-
-    scenario("Foreign members") {
-      decodeCase(FeatureCollectionCases.foreignMembers)
-    }
-
-    scenario("BBox") {
-      decodeCase(FeatureCollectionCases.bbox)
-      encodeCase(FeatureCollectionCases.bbox)
-    }
+  test("Polygon") {
+    val decoded = GeoJson.parse(BaseGeomCases.polygon.encoded)
+    assert(decoded == Right(BaseGeomCases.polygon.decoded))
   }
+
+  test("MultiPoint") {
+    val decoded = GeoJson.parse(BaseGeomCases.multiPoint.encoded)
+    assert(decoded == Right(BaseGeomCases.multiPoint.decoded))
+  }
+
+  test("MultiLineString") {
+    val decoded = GeoJson.parse(BaseGeomCases.multiLineString.encoded)
+    assert(decoded == Right(BaseGeomCases.multiLineString.decoded))
+  }
+
+  test("MultiPolygon") {
+    val decoded = GeoJson.parse(BaseGeomCases.multiPolygon.encoded)
+    assert(decoded == Right(BaseGeomCases.multiPolygon.decoded))
+  }
+
+  test("GeometryCollection") {
+    val decoded = GeoJson.parse(BaseGeomCases.geometryCollection.encoded)
+    assert(decoded == Right(BaseGeomCases.geometryCollection.decoded))
+  }
+  // }
+
+  // feature("Feature") {
+  test("No Properties") {
+    val decoded = GeoJson.parse(FeatureCases.noProps.encoded)
+    assert(decoded == Right(FeatureCases.noProps.decoded))
+  }
+
+  test("Null properties") {
+    decodeCase(FeatureCases.nullProps)
+  }
+
+  test("Empty feature") {
+    val decoded = GeoJson.parse(FeatureCases.empty.encoded)
+    assert(decoded == Right(FeatureCases.empty.decoded))
+  }
+
+  test("Null geometry") {
+    decodeCase(FeatureCases.nullGeom)
+  }
+
+  test("Properties") {
+    val decoded = GeoJson.parse(FeatureCases.props.encoded)
+    assert(decoded == Right(FeatureCases.props.decoded))
+  }
+
+  test("String ID") {
+    val decoded = GeoJson.parse(FeatureCases.stringId.encoded)
+    assert(decoded == Right(FeatureCases.stringId.decoded))
+  }
+
+  test("Numeric ID") {
+    val decoded = GeoJson.parse(FeatureCases.intId.encoded)
+    assert(decoded == Right(FeatureCases.intId.decoded))
+  }
+
+  test("BBox") {
+    decodeCase(FeatureCases.bbox)
+  }
+
+  test("All attributes") {
+    val decoded = GeoJson.parse(FeatureCases.intId.encoded)
+    assert(decoded == Right(FeatureCases.intId.decoded))
+  }
+
+  test("xyz geom") {
+    decodeCase(FeatureCases.xyz)
+  }
+
+  test("xyzm geom") {
+    decodeCase(FeatureCases.xyzm)
+  }
+  // }
+
+  // feature("FeatureCollection") {
+  test("1 Feature, no Foreign Members") {
+    val decoded = GeoJson.parse(FeatureCollectionCases.noForeignMembers.encoded)
+    assert(decoded == Right(FeatureCollectionCases.noForeignMembers.decoded))
+  }
+
+  test("Foreign members") {
+    decodeCase(FeatureCollectionCases.foreignMembers)
+  }
+
+  test("BBox") {
+    decodeCase(FeatureCollectionCases.bbox)
+    encodeCase(FeatureCollectionCases.bbox)
+  }
+  // }
 
   def decodeCase(c: Case) = {
     val decoded = GeoJson.parse(c.encoded)
