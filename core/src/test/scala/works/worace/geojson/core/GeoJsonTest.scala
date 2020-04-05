@@ -97,7 +97,7 @@ class GeoJsonTest extends munit.FunSuite {
   }
 
   test("All attributes") {
-    decodeCase(FeatureCases.all)
+    decodeCase(FeatureCases.allFields)
   }
 
   test("xyz geom") {

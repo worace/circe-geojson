@@ -384,7 +384,7 @@ object TestData {
       )
     )
 
-    val all = Case(
+    val allFields = Case(
       """ {"type": "Feature",
         "id": "pizza",
         "bbox": [101.0, 1.0, 101.0, 1.0],
@@ -416,6 +416,8 @@ object TestData {
         None
       )
     )
+
+    val all = Vector(bbox, allFields, intId, stringId, props, nullGeom, noProps, xyz, xyzm, empty)
   }
 
   object FeatureCollectionCases {
@@ -493,5 +495,6 @@ object TestData {
         None
       )
     )
+    val all = Vector(bbox, noForeignMembers, foreignMembers)
   }
 }
