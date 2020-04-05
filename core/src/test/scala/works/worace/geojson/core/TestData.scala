@@ -384,6 +384,24 @@ object TestData {
       )
     )
 
+    val all = Case(
+      """ {"type": "Feature",
+        "id": "pizza",
+        "bbox": [101.0, 1.0, 101.0, 1.0],
+        "foreign":"member",
+        "properties": {"a": "b"},
+        "geometry": {"type": "Point", "coordinates": [101.0, 1.0]}
+      }
+      """,
+      Feature(
+        Some(Right("pizza")),
+        Some(JsonObject("a" -> Json.fromString("b"))),
+        Some(Point(Coordinate(101.0, 1.0))),
+        Some(BBox(Coordinate(101.0, 1.0), Coordinate(101.0, 1.0))),
+        Some(JsonObject("foreign" -> Json.fromString("member")))
+      )
+    )
+
     val bbox = Case(
       """{"type": "Feature",
         "bbox": [101.0, 1.0, 101.0, 1.0],

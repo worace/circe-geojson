@@ -11,58 +11,58 @@ class GeoJsonTest extends munit.FunSuite {
       io.circe.parser.decode[Coordinate](s)
     }
 
-    assert(parseCoord(coordXY) == Right(Coordinate(102.0, 0.5, None, None)))
-    assert(parseCoord(coordXYZ) == Right(Coordinate(102.0, 0.5, Some(1.0), None)))
-    assert(parseCoord(coordXYZM) == Right(Coordinate(102.0, 0.5, Some(1.0), Some(2.0))))
-    assert(
-      parseCoord(coordTooFew) == Left(DecodingFailure("Invalid GeoJson Coordinates", List()))
+    assertEquals(parseCoord(coordXY), Right(Coordinate(102.0, 0.5, None, None)))
+    assertEquals(parseCoord(coordXYZ), Right(Coordinate(102.0, 0.5, Some(1.0), None)))
+    assertEquals(parseCoord(coordXYZM), Right(Coordinate(102.0, 0.5, Some(1.0), Some(2.0))))
+    assertEquals(
+      parseCoord(coordTooFew), Left(DecodingFailure("Invalid GeoJson Coordinates", List()))
     )
-    assert(
-      parseCoord(coordTooMany) == Left(DecodingFailure("Invalid GeoJson Coordinates", List()))
+    assertEquals(
+      parseCoord(coordTooMany), Left(DecodingFailure("Invalid GeoJson Coordinates", List()))
     )
   }
 
   // feature("2-D Basic Geometries") {
   test("Point") {
     val decodedPoint = GeoJson.parse(BaseGeomCases.point.encoded)
-    assert(decodedPoint == Right(BaseGeomCases.point.decoded))
+    assertEquals(decodedPoint, Right(BaseGeomCases.point.decoded))
   }
 
   test("LineString") {
     val decoded = GeoJson.parse(BaseGeomCases.lineString.encoded)
-    assert(decoded == Right(BaseGeomCases.lineString.decoded))
+    assertEquals(decoded, Right(BaseGeomCases.lineString.decoded))
   }
 
   test("Polygon") {
     val decoded = GeoJson.parse(BaseGeomCases.polygon.encoded)
-    assert(decoded == Right(BaseGeomCases.polygon.decoded))
+    assertEquals(decoded, Right(BaseGeomCases.polygon.decoded))
   }
 
   test("MultiPoint") {
     val decoded = GeoJson.parse(BaseGeomCases.multiPoint.encoded)
-    assert(decoded == Right(BaseGeomCases.multiPoint.decoded))
+    assertEquals(decoded, Right(BaseGeomCases.multiPoint.decoded))
   }
 
   test("MultiLineString") {
     val decoded = GeoJson.parse(BaseGeomCases.multiLineString.encoded)
-    assert(decoded == Right(BaseGeomCases.multiLineString.decoded))
+    assertEquals(decoded, Right(BaseGeomCases.multiLineString.decoded))
   }
 
   test("MultiPolygon") {
     val decoded = GeoJson.parse(BaseGeomCases.multiPolygon.encoded)
-    assert(decoded == Right(BaseGeomCases.multiPolygon.decoded))
+    assertEquals(decoded, Right(BaseGeomCases.multiPolygon.decoded))
   }
 
   test("GeometryCollection") {
     val decoded = GeoJson.parse(BaseGeomCases.geometryCollection.encoded)
-    assert(decoded == Right(BaseGeomCases.geometryCollection.decoded))
+    assertEquals(decoded, Right(BaseGeomCases.geometryCollection.decoded))
   }
   // }
 
   // feature("Feature") {
   test("No Properties") {
     val decoded = GeoJson.parse(FeatureCases.noProps.encoded)
-    assert(decoded == Right(FeatureCases.noProps.decoded))
+    assertEquals(decoded, Right(FeatureCases.noProps.decoded))
   }
 
   test("Null properties") {
@@ -71,7 +71,7 @@ class GeoJsonTest extends munit.FunSuite {
 
   test("Empty feature") {
     val decoded = GeoJson.parse(FeatureCases.empty.encoded)
-    assert(decoded == Right(FeatureCases.empty.decoded))
+    assertEquals(decoded, Right(FeatureCases.empty.decoded))
   }
 
   test("Null geometry") {
@@ -80,17 +80,16 @@ class GeoJsonTest extends munit.FunSuite {
 
   test("Properties") {
     val decoded = GeoJson.parse(FeatureCases.props.encoded)
-    assert(decoded == Right(FeatureCases.props.decoded))
+    assertEquals(decoded, Right(FeatureCases.props.decoded))
   }
 
   test("String ID") {
     val decoded = GeoJson.parse(FeatureCases.stringId.encoded)
-    assert(decoded == Right(FeatureCases.stringId.decoded))
+    assertEquals(decoded, Right(FeatureCases.stringId.decoded))
   }
 
   test("Numeric ID") {
-    val decoded = GeoJson.parse(FeatureCases.intId.encoded)
-    assert(decoded == Right(FeatureCases.intId.decoded))
+    decodeCase(FeatureCases.intId)
   }
 
   test("BBox") {
@@ -98,8 +97,7 @@ class GeoJsonTest extends munit.FunSuite {
   }
 
   test("All attributes") {
-    val decoded = GeoJson.parse(FeatureCases.intId.encoded)
-    assert(decoded == Right(FeatureCases.intId.decoded))
+    decodeCase(FeatureCases.all)
   }
 
   test("xyz geom") {
@@ -113,8 +111,9 @@ class GeoJsonTest extends munit.FunSuite {
 
   // feature("FeatureCollection") {
   test("1 Feature, no Foreign Members") {
-    val decoded = GeoJson.parse(FeatureCollectionCases.noForeignMembers.encoded)
-    assert(decoded == Right(FeatureCollectionCases.noForeignMembers.decoded))
+    decodeCase(FeatureCollectionCases.noForeignMembers)
+    // val decoded = GeoJson.parse(.encoded)
+    // assert(decoded == Right(FeatureCollectionCases.noForeignMembers.decoded))
   }
 
   test("Foreign members") {
@@ -129,11 +128,11 @@ class GeoJsonTest extends munit.FunSuite {
 
   def decodeCase(c: Case) = {
     val decoded = GeoJson.parse(c.encoded)
-    assert(decoded == Right(c.decoded))
+    assertEquals(decoded, Right(c.decoded))
   }
 
   def encodeCase(c: Case) = {
     val rt = GeoJson.fromJson(c.decoded.encode)
-    assert(rt == Right(c.decoded))
+    assertEquals(rt,  Right(c.decoded))
   }
 }
