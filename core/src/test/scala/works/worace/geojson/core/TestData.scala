@@ -147,8 +147,7 @@ object TestData {
     }
 
     def allGeomOpts: Vector[Geometry] = {
-      (points ++ lineStrings ++ polygons ++ multiPoints ++ multiLineStrings ++ multiPolygons)
-        .sortBy(_ => rand)
+      scala.util.Random.shuffle(points ++ lineStrings ++ polygons ++ multiPoints ++ multiLineStrings ++ multiPolygons)
     }
 
     def idOpts: Vector[Option[Either[JsonNumber, String]]] = {
@@ -164,10 +163,11 @@ object TestData {
     }
 
     def features: Vector[Feature] = {
+      val geoms = allGeomOpts.take(randInt(5)).map(Some(_)) :+ None
       for {
         id <- idOpts
         properties <- propOpts
-        geom <- allGeomOpts.take(randInt(5)).map(Some(_)) :+ None
+        geom <- geoms
         bbox <- bboxOpts
         fmembers <- fmemberOpts
       } yield Feature(id, properties, geom, bbox, fmembers)
