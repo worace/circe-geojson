@@ -6,7 +6,7 @@ import scala.reflect.ClassTag
 
 class GeometryCodecTest extends munit.FunSuite {
   import TestData._
-  import GeometryCodec.Implicits._
+  import GeometryCodec.implicits._
 
   def codecCase[G <: GeoJson: ClassTag](c: Case)(implicit decoder: Decoder[G]) = {
     c.decoded match {

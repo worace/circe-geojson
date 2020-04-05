@@ -6,7 +6,7 @@ import io.circe.generic.extras.auto._
 import io.circe.generic.extras.semiauto._
 import TypeDiscriminator._
 import CoordinateCodec.implicits._
-import IdSerde._
+import IdCodec.implicits._
 import GeometryCodec._
 import BBoxCodec.implicits._
 
@@ -25,7 +25,7 @@ object FeatureCodec {
   private def asJsonObj(f: Feature): JsonObject = {
     val start = f.foreignMembers.getOrElse(JsonObject()).deepMerge(featureBase)
     List(
-      f.id.map(id => ("id", id.asJson(IdSerde.encodeEither))),
+      f.id.map(id => ("id", id.asJson)),
       f.properties.map(p => ("properties", p.asJson)),
       f.bbox.map(bb => ("bbox", bb.asJson)),
       f.geometry.map((g: Geometry) => ("geometry", g.asJson))

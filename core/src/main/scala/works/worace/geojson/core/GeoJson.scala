@@ -17,31 +17,11 @@ object GeoJson {
   }
 }
 
-object IdSerde {
-  type ID = Either[Long, String]
-
-  // https://github.com/circe/circe/issues/672
-  implicit def encodeEither[A, B](
-    implicit
-    encoderA: Encoder[A],
-    encoderB: Encoder[B]
-  ): Encoder[Either[A, B]] = {
-    import io.circe.syntax._
-    o: Either[A, B] => o.fold(_.asJson, _.asJson)
-  }
-
-  implicit def decodeEither[A, B](
-    implicit
-    decoderA: Decoder[A],
-    decoderB: Decoder[B]
-  ): Decoder[Either[A, B]] = decoderA.either(decoderB)
-}
-
 object GeoJsonSerde {
   import io.circe.syntax._
   import CoordinateCodec.implicits._
   import BBoxCodec.implicits._
-  import GeometryCodec.Implicits._
+  import GeometryCodec.implicits._
   import FeatureCodec.Implicits._
   import FeatureCollectionCodec.Implicits._
 
@@ -90,7 +70,7 @@ object GeoJsonSerde {
       Configuration.default.withDiscriminator("type")
     val decoder: Decoder[GeoJson] = new Decoder[GeoJson] {
       final def apply(c: HCursor): Decoder.Result[GeoJson] = {
-        import IdSerde._
+        import IdCodec.implicits._
         c.as[GeoJson]
       }
     }

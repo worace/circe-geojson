@@ -6,10 +6,9 @@ import io.circe.generic.extras.auto._
 import io.circe.generic.extras.semiauto._
 import TypeDiscriminator._
 import CoordinateCodec.implicits._
-import IdSerde._
 
 object GeometryCodec extends Codec[Geometry] {
-  object Implicits {
+  object implicits {
     implicit val geometryEncoder = encoder
     implicit val geometryDecoder = decoder
   }
