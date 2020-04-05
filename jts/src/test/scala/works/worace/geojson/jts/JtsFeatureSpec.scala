@@ -41,9 +41,3 @@ class JtsFeatureSpec extends munit.FunSuite {
     assertEquals(f.toJts, Some(jts))
   }
 }
-
-// Feature Variants
-// SimpleFeature
-// TypedFeature
-// JTS Feature
-// Typed JTS Feature
