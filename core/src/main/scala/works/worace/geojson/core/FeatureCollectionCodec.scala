@@ -10,20 +10,15 @@ import BBoxCodec.implicits._
 import CoordinateCodec.implicits._
 import IdCodec.implicits._
 
-object FeatureCollectionCodec {
+object FeatureCollectionCodec extends Codec[FeatureCollection] {
   object Implicits {
     implicit val featureCollectionEncoder = encoder
     implicit val featureCollectionDecoder = decoder
   }
-
   val decoder: Decoder[FeatureCollection] = deriveConfiguredDecoder[FeatureCollection]
-  val encoder: Encoder[FeatureCollection] = Encoder.instance { fc =>
-    import io.circe.syntax._
-    asJsonObj(fc).asJson
-  }
 
   private val fcBase = JsonObject("type" -> Json.fromString("FeatureCollection"))
-  private def asJsonObj(fc: FeatureCollection): JsonObject = {
+  def asJsonObject(fc: FeatureCollection): JsonObject = {
     import io.circe.syntax._
     val withFeatures = fcBase.add("features", fc.features.asJson)
     fc.bbox match {

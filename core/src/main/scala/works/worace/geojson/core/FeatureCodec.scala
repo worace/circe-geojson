@@ -10,19 +10,15 @@ import IdCodec.implicits._
 import GeometryCodec._
 import BBoxCodec.implicits._
 
-object FeatureCodec {
+object FeatureCodec extends Codec[Feature] {
   object Implicits {
     implicit val featureEncoder = encoder
     implicit val featureDecoder = decoder
   }
   val decoder: Decoder[Feature] = deriveConfiguredDecoder[Feature]
-  val encoder: Encoder[Feature] = Encoder.instance { f =>
-    import io.circe.syntax._
-    asJsonObj(f).asJson
-  }
 
   private val featureBase = JsonObject("type" -> Json.fromString("Feature"))
-  private def asJsonObj(f: Feature): JsonObject = {
+  def asJsonObject(f: Feature): JsonObject = {
     val start = f.foreignMembers.getOrElse(JsonObject()).deepMerge(featureBase)
     List(
       f.id.map(id => ("id", id.asJson)),
