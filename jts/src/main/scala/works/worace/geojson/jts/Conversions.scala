@@ -82,9 +82,7 @@ object Conversions {
     }
     implicit class FeatureToJts(val f: Feature) extends AnyVal {
       def toJts: Option[JtsFeature] = {
-        f.simple.map { sf =>
-          JtsFeature(sf.id, sf.properties, Conversions.toJts(sf.geometry))
-        }
+        f.simple.map { sf => JtsFeature(sf.id, sf.properties, Conversions.toJts(sf.geometry)) }
       }
     }
   }
