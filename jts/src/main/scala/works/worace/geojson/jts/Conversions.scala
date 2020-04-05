@@ -5,8 +5,8 @@ import org.locationtech.jts.{geom => jts}
 import org.locationtech.jts.geom.{GeometryFactory, PrecisionModel}
 
 object Conversions {
-  private val SRID = 4326
-  private val pm = new PrecisionModel(PrecisionModel.FLOATING)
+  protected val SRID = 4326
+  protected val pm = new PrecisionModel(PrecisionModel.FLOATING)
   private val factory = new GeometryFactory(pm, SRID)
   private def coordArray(coords: Vector[Coordinate]): Array[jts.Coordinate] = {
     coords.map(coordinate).toArray
