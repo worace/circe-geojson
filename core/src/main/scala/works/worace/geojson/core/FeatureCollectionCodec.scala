@@ -15,7 +15,10 @@ object FeatureCollectionCodec extends Codec[FeatureCollection] {
     implicit val featureCollectionEncoder = encoder
     implicit val featureCollectionDecoder = decoder
   }
-  val decoder: Decoder[FeatureCollection] = deriveConfiguredDecoder[FeatureCollection]
+  private val base = deriveConfiguredDecoder[FeatureCollection]
+  val decoder: Decoder[FeatureCollection] = Decoder.instance { cursor =>
+    decodeWithForeignMembers(cursor, base, (f, fMembers) => f.copy(foreignMembers=fMembers))
+  }
 
   private val fcBase = JsonObject("type" -> Json.fromString("FeatureCollection"))
   def asJsonObject(fc: FeatureCollection): JsonObject = {

@@ -109,14 +109,17 @@ case class BBox(min: Coordinate, max: Coordinate) {
   }
 }
 
-sealed trait Geometry extends GeoJson {
+trait ForeignMembers[A] {
+  def withForeignMembers(foreignMembers: Option[JsonObject]): A
+}
+
+sealed trait Geometry extends GeoJson with ForeignMembers[Geometry] {
   def `type`: String
 }
 
 sealed trait GeoJson {
   val foreignMembers: Option[JsonObject]
   val bbox: Option[BBox]
-  def withForeignMembers(fm: JsonObject): GeoJson
   def encode: Json = {
     import GeoJsonSerde.encoder
     import io.circe.syntax._
@@ -130,7 +133,7 @@ case class Point(
   foreignMembers: Option[JsonObject]
 ) extends Geometry {
   val `type` = "Point"
-  def withForeignMembers(fm: JsonObject): GeoJson = copy(foreignMembers = Some(fm))
+  def withForeignMembers(fm: Option[JsonObject]): Geometry = copy(foreignMembers = fm)
 }
 case class LineString(
   coordinates: Vector[Coordinate],
@@ -138,7 +141,7 @@ case class LineString(
   foreignMembers: Option[JsonObject]
 ) extends Geometry {
   val `type` = "LineString"
-  def withForeignMembers(fm: JsonObject): GeoJson = copy(foreignMembers = Some(fm))
+  def withForeignMembers(fm: Option[JsonObject]): LineString = copy(foreignMembers = fm)
 }
 case class Polygon(
   coordinates: Vector[Vector[Coordinate]],
@@ -146,7 +149,7 @@ case class Polygon(
   foreignMembers: Option[JsonObject]
 ) extends Geometry {
   val `type` = "Polygon"
-  def withForeignMembers(fm: JsonObject): GeoJson = copy(foreignMembers = Some(fm))
+  def withForeignMembers(fm: Option[JsonObject]): Polygon = copy(foreignMembers = fm)
 }
 case class MultiPoint(
   coordinates: Vector[Coordinate],
@@ -154,7 +157,7 @@ case class MultiPoint(
   foreignMembers: Option[JsonObject]
 ) extends Geometry {
   val `type` = "MultiPoint"
-  def withForeignMembers(fm: JsonObject): GeoJson = copy(foreignMembers = Some(fm))
+  def withForeignMembers(fm: Option[JsonObject]): MultiPoint = copy(foreignMembers = fm)
 }
 case class MultiLineString(
   coordinates: Vector[Vector[Coordinate]],
@@ -162,7 +165,7 @@ case class MultiLineString(
   foreignMembers: Option[JsonObject]
 ) extends Geometry {
   val `type` = "MultiLineString"
-  def withForeignMembers(fm: JsonObject): GeoJson = copy(foreignMembers = Some(fm))
+  def withForeignMembers(fm: Option[JsonObject]): MultiLineString = copy(foreignMembers = fm)
 }
 case class MultiPolygon(
   coordinates: Vector[Vector[Vector[Coordinate]]],
@@ -170,7 +173,7 @@ case class MultiPolygon(
   foreignMembers: Option[JsonObject]
 ) extends Geometry {
   val `type` = "MultiPolygon"
-  def withForeignMembers(fm: JsonObject): GeoJson = copy(foreignMembers = Some(fm))
+  def withForeignMembers(fm: Option[JsonObject]): MultiPolygon = copy(foreignMembers = fm)
 }
 case class GeometryCollection(
   geometries: Vector[Geometry],
@@ -178,7 +181,7 @@ case class GeometryCollection(
   foreignMembers: Option[JsonObject]
 ) extends Geometry {
   val `type` = "GeometryCollection"
-  def withForeignMembers(fm: JsonObject): GeoJson = copy(foreignMembers = Some(fm))
+  def withForeignMembers(fm: Option[JsonObject]): GeometryCollection = copy(foreignMembers = fm)
 }
 case class Feature(
   id: Option[Either[JsonNumber, String]],
@@ -186,8 +189,8 @@ case class Feature(
   geometry: Option[Geometry],
   bbox: Option[BBox],
   foreignMembers: Option[JsonObject]
-) extends GeoJson {
-  def withForeignMembers(fm: JsonObject): GeoJson = copy(foreignMembers = Some(fm))
+) extends GeoJson with ForeignMembers[Feature] {
+  def withForeignMembers(fm: Option[JsonObject]): Feature = copy(foreignMembers = fm)
   def simpleId: Option[String] = id.map(_.fold(num => num.toString, s => s))
   def simpleProps: JsonObject = {
     val props = properties.getOrElse(JsonObject.empty)
@@ -203,8 +206,8 @@ case class FeatureCollection(
   features: Vector[Feature],
   bbox: Option[BBox],
   foreignMembers: Option[JsonObject]
-) extends GeoJson {
-  def withForeignMembers(fm: JsonObject): GeoJson = copy(foreignMembers = Some(fm))
+) extends GeoJson with ForeignMembers[FeatureCollection] {
+  def withForeignMembers(fm: Option[JsonObject]): FeatureCollection = copy(foreignMembers = fm)
   def simple: SimpleFeatureCollection = SimpleFeatureCollection(features.flatMap(_.simple))
 }
 

@@ -15,7 +15,10 @@ object FeatureCodec extends Codec[Feature] {
     implicit val featureEncoder = encoder
     implicit val featureDecoder = decoder
   }
-  val decoder: Decoder[Feature] = deriveConfiguredDecoder[Feature]
+  private val base = deriveConfiguredDecoder[Feature]
+  val decoder: Decoder[Feature] = Decoder.instance { cursor =>
+    decodeWithForeignMembers(cursor, base, (f, fMembers) => f.copy(foreignMembers=fMembers))
+  }
 
   private val featureBase = JsonObject("type" -> Json.fromString("Feature"))
   def asJsonObject(f: Feature): JsonObject = {

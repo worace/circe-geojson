@@ -6,13 +6,22 @@ import io.circe.generic.extras.auto._
 import io.circe.generic.extras.semiauto._
 import TypeDiscriminator._
 import CoordinateCodec.implicits._
+import BBoxCodec.implicits._
 
 object GeometryCodec extends Codec[Geometry] {
   object implicits {
     implicit val geometryEncoder = encoder
     implicit val geometryDecoder = decoder
   }
-  val decoder: Decoder[Geometry] = deriveConfiguredDecoder[Geometry]
+  private val base: Decoder[Geometry] = deriveConfiguredDecoder[Geometry]
+  val decoder: Decoder[Geometry] = Decoder.instance { cursor =>
+    decodeWithForeignMembers(cursor, base, (geom, fMembers) => {
+      geom match {
+        case geom: ForeignMembers[Geometry] => geom.withForeignMembers(fMembers)
+        case other => other
+      }
+    })
+  }
   def asJsonObject(gj: Geometry): JsonObject = {
     geometry(gj)
   }
