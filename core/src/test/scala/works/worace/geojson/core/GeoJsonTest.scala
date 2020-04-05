@@ -15,10 +15,12 @@ class GeoJsonTest extends munit.FunSuite {
     assertEquals(parseCoord(coordXYZ), Right(Coordinate(102.0, 0.5, Some(1.0), None)))
     assertEquals(parseCoord(coordXYZM), Right(Coordinate(102.0, 0.5, Some(1.0), Some(2.0))))
     assertEquals(
-      parseCoord(coordTooFew), Left(DecodingFailure("Invalid GeoJson Coordinates", List()))
+      parseCoord(coordTooFew),
+      Left(DecodingFailure("Invalid GeoJson Coordinates", List()))
     )
     assertEquals(
-      parseCoord(coordTooMany), Left(DecodingFailure("Invalid GeoJson Coordinates", List()))
+      parseCoord(coordTooMany),
+      Left(DecodingFailure("Invalid GeoJson Coordinates", List()))
     )
   }
 
@@ -133,6 +135,6 @@ class GeoJsonTest extends munit.FunSuite {
 
   def encodeCase(c: Case) = {
     val rt = GeoJson.fromJson(c.decoded.encode)
-    assertEquals(rt,  Right(c.decoded))
+    assertEquals(rt, Right(c.decoded))
   }
 }

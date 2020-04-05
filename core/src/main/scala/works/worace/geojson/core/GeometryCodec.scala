@@ -18,7 +18,7 @@ object GeometryCodec extends Codec[Geometry] {
     decodeWithForeignMembers(cursor, base, (geom, fMembers) => {
       geom match {
         case geom: ForeignMembers[Geometry] => geom.withForeignMembers(fMembers)
-        case other => other
+        case other                          => other
       }
     })
   }

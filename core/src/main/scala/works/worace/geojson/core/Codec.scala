@@ -11,13 +11,16 @@ trait Codec[T <: GeoJson] {
   }
   val decoder: Decoder[T]
 
-  def decodeWithForeignMembers[T <: GeoJson](cursor: HCursor, baseDecoder: Decoder[T], handler: (T, Option[JsonObject]) => T): Result[T] = {
+  def decodeWithForeignMembers[T <: GeoJson](
+    cursor: HCursor,
+    baseDecoder: Decoder[T],
+    handler: (T, Option[JsonObject]) => T
+  ): Result[T] = {
     cursor.as[JsonObject].flatMap { obj =>
-      Json.fromJsonObject(obj)
+      Json
+        .fromJsonObject(obj)
         .as[T](baseDecoder)
-        .map { base =>
-          handler(base, foreignMembers(obj))
-        }
+        .map { base => handler(base, foreignMembers(obj)) }
     }
   }
 

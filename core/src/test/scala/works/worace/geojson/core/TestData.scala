@@ -147,7 +147,9 @@ object TestData {
     }
 
     def allGeomOpts: Vector[Geometry] = {
-      scala.util.Random.shuffle(points ++ lineStrings ++ polygons ++ multiPoints ++ multiLineStrings ++ multiPolygons)
+      scala.util.Random.shuffle(
+        points ++ lineStrings ++ polygons ++ multiPoints ++ multiLineStrings ++ multiPolygons
+      )
     }
 
     def idOpts: Vector[Option[Either[JsonNumber, String]]] = {

@@ -124,7 +124,8 @@ case class Feature(
   geometry: Option[Geometry],
   bbox: Option[BBox],
   foreignMembers: Option[JsonObject]
-) extends GeoJson with ForeignMembers[Feature] {
+) extends GeoJson
+    with ForeignMembers[Feature] {
   def withForeignMembers(fm: Option[JsonObject]): Feature = copy(foreignMembers = fm)
   def simpleId: Option[String] = id.map(_.fold(num => num.toString, s => s))
   def simpleProps: JsonObject = {
@@ -141,7 +142,8 @@ case class FeatureCollection(
   features: Vector[Feature],
   bbox: Option[BBox],
   foreignMembers: Option[JsonObject]
-) extends GeoJson with ForeignMembers[FeatureCollection] {
+) extends GeoJson
+    with ForeignMembers[FeatureCollection] {
   def withForeignMembers(fm: Option[JsonObject]): FeatureCollection = copy(foreignMembers = fm)
   def simple: SimpleFeatureCollection = SimpleFeatureCollection(features.flatMap(_.simple))
 }

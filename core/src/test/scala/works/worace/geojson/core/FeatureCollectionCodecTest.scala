@@ -1,6 +1,6 @@
 package works.worace.geojson.core
 
-class FeatureCollectionCodecTest extends munit.FunSuite with TestHelpers{
+class FeatureCollectionCodecTest extends munit.FunSuite with TestHelpers {
   import TestData._
   import FeatureCollectionCodec.Implicits._
 
