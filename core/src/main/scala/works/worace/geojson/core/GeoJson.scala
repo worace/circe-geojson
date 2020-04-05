@@ -4,76 +4,12 @@ import io.circe._
 import io.circe.parser._
 
 object GeoJson {
-  import io.circe.syntax._
-  import io.circe.generic.extras.Configuration
-  import GeoJsonSerde._
-
   def parse(rawJson: String): Either[io.circe.Error, GeoJson] = {
-    decode[GeoJson](rawJson)(GeoJsonSerde.decoder)
+    decode[GeoJson](rawJson)(GeoJsonCodec.decoder)
   }
 
   def fromJson(json: Json): Either[io.circe.Error, GeoJson] = {
-    json.as[GeoJson](GeoJsonSerde.decoder)
-  }
-}
-
-object GeoJsonSerde {
-  import io.circe.syntax._
-  import CoordinateCodec.implicits._
-  import BBoxCodec.implicits._
-  import GeometryCodec.implicits._
-  import FeatureCodec.Implicits._
-  import FeatureCollectionCodec.Implicits._
-
-  def base(g: GeoJson): Json = {
-    import io.circe.syntax._
-    g match {
-      case geom: Geometry => geom.asJson
-      case f: Feature     => f.asJson
-      case fc: FeatureCollection => {
-        fc.asJson
-      }
-    }
-  }
-
-  implicit val encoder: Encoder[GeoJson] = Encoder.instance { gj =>
-    import io.circe.syntax._
-    base(gj).asJson
-  }
-
-  implicit val decoder: Decoder[GeoJson] = new Decoder[GeoJson] {
-    final def apply(c: HCursor): Decoder.Result[GeoJson] = {
-      c.as[JsonObject]
-        .flatMap { obj =>
-          Json
-            .fromJsonObject(obj)
-            .as[GeoJson](Base.decoder)
-            .map { base =>
-              val foreignMembers = obj.filterKeys(!coreKeys.contains(_))
-              if (foreignMembers.nonEmpty) {
-                base.withForeignMembers(foreignMembers)
-              } else {
-                base
-              }
-            }
-        }
-    }
-  }
-
-  val coreKeys =
-    Set("type", "geometry", "coordinates", "properties", "features", "geometries", "id", "bbox")
-
-  object Base {
-    import io.circe.generic.extras.auto._
-    import io.circe.generic.extras.Configuration
-    implicit val geojsonTypeDiscriminator: Configuration =
-      Configuration.default.withDiscriminator("type")
-    val decoder: Decoder[GeoJson] = new Decoder[GeoJson] {
-      final def apply(c: HCursor): Decoder.Result[GeoJson] = {
-        import IdCodec.implicits._
-        c.as[GeoJson]
-      }
-    }
+    json.as[GeoJson](GeoJsonCodec.decoder)
   }
 }
 
@@ -121,9 +57,8 @@ sealed trait GeoJson {
   val foreignMembers: Option[JsonObject]
   val bbox: Option[BBox]
   def encode: Json = {
-    import GeoJsonSerde.encoder
     import io.circe.syntax._
-    this.asJson
+    this.asJson(GeoJsonCodec.encoder)
   }
 }
 

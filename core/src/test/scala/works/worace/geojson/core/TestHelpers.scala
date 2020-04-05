@@ -7,7 +7,7 @@ import io.circe.{Json, JsonObject, Decoder, DecodingFailure}
 trait TestHelpers extends munit.FunSuite {
   import TestData.Case
   import io.circe.syntax._
-  import GeoJsonSerde._
+  import GeoJsonCodec.implicits._
   def roundTripCase(gj: GeoJson) {
     val encoded = gj.asJson
     GeoJson
