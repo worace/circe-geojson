@@ -77,8 +77,15 @@ object Conversions {
   }
 
   object implicits {
-    implicit class ToJts(val geom: Geometry) extends AnyVal {
+    implicit class GeometryToJts(val geom: Geometry) extends AnyVal {
       def toJts: jts.Geometry = Conversions.toJts(geom)
+    }
+    implicit class FeatureToJts(val f: Feature) extends AnyVal {
+      def toJts: Option[JtsFeature] = {
+        f.simple.map { sf =>
+          JtsFeature(sf.id, sf.properties, Conversions.toJts(sf.geometry))
+        }
+      }
     }
   }
 }

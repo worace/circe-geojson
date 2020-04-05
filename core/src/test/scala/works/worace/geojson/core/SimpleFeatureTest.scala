@@ -61,6 +61,5 @@ class SimpleFeatureSpec extends munit.FunSuite {
     val fc = FeatureCollection(List(Feature.empty, f))
     assert(fc.simple.features.size == 1)
     assert(fc.simple.features == List(f.simple.get))
-
   }
 }
