@@ -46,4 +46,10 @@ class PermutationsTest extends munit.FunSuite with TestHelpers {
       roundTripCase(f)
     }
   }
+
+  test("FeatureCollections") {
+    for (f <- Permutations.featureCollections) {
+      roundTripCase(f)
+    }
+  }
 }
