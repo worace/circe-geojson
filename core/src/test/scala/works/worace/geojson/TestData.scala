@@ -286,6 +286,16 @@ object TestData {
       )
     )
 
+    val bboxPoint = Case(
+      """{"type": "Point", "bbox": [102.0, 0.5, 102.0, 0.5], "coordinates": [102.0, 0.5]}""",
+      Point(Coordinate(102.0, 0.5), Some(BBox(Coordinate(102.0, 0.5), Coordinate(102.0, 0.5))), None)
+    )
+
+    val fMemberPoint = Case(
+      """{"type": "Point", "foreign":"member", "coordinates": [102.0, 0.5]}""",
+      Point(Coordinate(102.0, 0.5), None, Some(JsonObject("foreign" -> Json.fromString("member"))))
+    )
+
     val all: List[Case] = List(
       point,
       lineString,
@@ -293,7 +303,9 @@ object TestData {
       multiPoint,
       multiLineString,
       multiPolygon,
-      geometryCollection
+      geometryCollection,
+      bboxPoint,
+      fMemberPoint
     )
   }
 
