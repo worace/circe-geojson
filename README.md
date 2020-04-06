@@ -17,7 +17,7 @@ Includes:
 ### Usage
 
 ```scala
-import works.worace.geojson.core.{GeoJson, Point}
+import works.worace.geojson.{GeoJson, Point}
 
 val point: Either[io.circe.Error, GeoJson] = GeoJson.parse("""{"type":"Point","coordinates":[1.0,-1.0]}""")
 
@@ -58,7 +58,7 @@ Organizing Imports
 
 
 ```scala
-import works.worace.geojson.core.{GeoJson, Point, Geometry}
+import works.worace.geojson.{GeoJson, Point, Geometry}
 import org.locationtech.jts.geom.{Geometry => JtsGeom}
 import works.worace.geojson.jts.Conversions.implicits.GeometryToJts
 

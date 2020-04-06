@@ -9,7 +9,7 @@ libraryDependencies += "works.worace" % "circe-geojson-core" % "@VERSION@"
 ### Decoding GeoJSON
 
 ```scala mdoc
-import works.worace.geojson.core.GeoJson
+import works.worace.geojson.GeoJson
 
 val encodedPoint = """{"type":"Point","coordinates":[1.0,-1.0]}"""
 GeoJson.parse(encodedPoint)
@@ -33,7 +33,7 @@ GeoJson.parse(encodedComplexFeature)
 ### Creating and Encoding GeoJSON
 
 ```scala mdoc
-import works.worace.geojson.core.{BBox, Coordinate, Feature, Point}
+import works.worace.geojson.{BBox, Coordinate, Feature, Point}
 import io.circe.{Json, JsonObject}
 
 val feature = Feature(
