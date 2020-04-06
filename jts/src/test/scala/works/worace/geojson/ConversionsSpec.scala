@@ -7,7 +7,7 @@ class ConversionsSpec extends munit.FunSuite {
   import works.worace.geojson.TestData._
   import Conversions.implicits._
 
-  def compareLineString(coords: Vector[core.Coordinate], jts: LineString) = {
+  def compareLineString(coords: Vector[geojson.Coordinate], jts: LineString) = {
     assert(jts.getCoordinates().size == coords.size)
     coords.zipWithIndex.foreach {
       case (c, i) =>
@@ -15,7 +15,7 @@ class ConversionsSpec extends munit.FunSuite {
     }
   }
 
-  def comparePolygon(coords: Vector[Vector[core.Coordinate]], jts: Polygon) = {
+  def comparePolygon(coords: Vector[Vector[geojson.Coordinate]], jts: Polygon) = {
     coords.zipWithIndex.foreach {
       case (c, i) =>
         if (i == 0) {
@@ -28,7 +28,7 @@ class ConversionsSpec extends munit.FunSuite {
     }
   }
 
-  def compareCoord(coord: core.Coordinate, jts: Coordinate) = {
+  def compareCoord(coord: geojson.Coordinate, jts: Coordinate) = {
     assert(coord.x == jts.getX)
     assert(coord.y == jts.getY)
     coord.z match {
@@ -41,7 +41,7 @@ class ConversionsSpec extends munit.FunSuite {
     }
   }
 
-  def compareMultiLineString(gj: Vector[Vector[core.Coordinate]], jts: MultiLineString) = {
+  def compareMultiLineString(gj: Vector[Vector[geojson.Coordinate]], jts: MultiLineString) = {
     gj.zipWithIndex.foreach {
       case (coords, idx) =>
         jts.getGeometryN(idx) match {
@@ -90,7 +90,7 @@ class ConversionsSpec extends munit.FunSuite {
   }
 
   test("multi point") {
-    val mp = core.MultiPoint(coordSeqXY.take(3))
+    val mp = geojson.MultiPoint(coordSeqXY.take(3))
     mp.toJts match {
       case geom: MultiPoint => {
         assert(geom.getNumPoints() == 3)
@@ -137,23 +137,23 @@ class ConversionsSpec extends munit.FunSuite {
       polygonXY(),
       multiLineStringXY
     )
-    val gc = core.GeometryCollection(geoms)
+    val gc = geojson.GeometryCollection(geoms)
     gc.toJts match {
       case geom: GeometryCollection => {
         assert(geom.getNumGeometries() == 3)
 
         (geoms(0), geom.getGeometryN(0)) match {
-          case (gj: core.Point, jts: Point) => compareCoord(gj.coordinates, jts.getCoordinate)
+          case (gj: geojson.Point, jts: Point) => compareCoord(gj.coordinates, jts.getCoordinate)
           case _                            => fail("expecting 2 points to compare")
         }
 
         (geoms(1), geom.getGeometryN(1)) match {
-          case (gj: core.Polygon, jts: Polygon) => comparePolygon(gj.coordinates, jts)
+          case (gj: geojson.Polygon, jts: Polygon) => comparePolygon(gj.coordinates, jts)
           case _                                => fail("expecting 2 polygons to compare")
         }
 
         (geoms(2), geom.getGeometryN(2)) match {
-          case (gj: core.MultiLineString, jts: MultiLineString) =>
+          case (gj: geojson.MultiLineString, jts: MultiLineString) =>
             compareMultiLineString(gj.coordinates, jts)
           case _ => fail("expecting 2 multilinestrings to compare")
         }
