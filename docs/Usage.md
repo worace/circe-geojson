@@ -1,6 +1,6 @@
 # Circe GeoJSON
 
-To install my project
+Installation:
 
 ```scala
 libraryDependencies += "works.worace" % "circe-geojson-core" % "@VERSION@"

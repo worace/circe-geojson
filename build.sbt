@@ -63,7 +63,7 @@ lazy val jts = project
 
 lazy val docs = project
   .dependsOn(core, jts)
-  .in(file("circe-geojson-docs"))
+  .in(file("usage"))
   .enablePlugins(MdocPlugin)
   .settings(
     mdocVariables := Map(
