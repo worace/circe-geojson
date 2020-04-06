@@ -1,4 +1,4 @@
-package works.worace.geojson.core
+package works.worace.geojson
 
 import io.circe.{Json, JsonObject, Decoder, DecodingFailure}
 import io.circe.JsonNumber

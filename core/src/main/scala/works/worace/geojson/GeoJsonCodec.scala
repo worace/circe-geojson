@@ -1,4 +1,4 @@
-package works.worace.geojson.core
+package works.worace.geojson
 
 import io.circe._
 import io.circe.generic.extras.auto._

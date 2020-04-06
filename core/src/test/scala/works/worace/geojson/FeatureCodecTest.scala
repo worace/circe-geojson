@@ -1,4 +1,4 @@
-package works.worace.geojson.core
+package works.worace.geojson
 
 class FeatureCodecTest extends munit.FunSuite with TestHelpers {
   import TestData._
