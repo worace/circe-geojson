@@ -181,6 +181,13 @@ object TestData {
         fmembers <- fmemberOpts
       } yield Feature(id, properties, geom, bbox, fmembers)
     }
+
+    def featureCollections: Vector[FeatureCollection] = {
+      for {
+        bbox <- bboxOpts
+        fmembers <- fmemberOpts
+      } yield FeatureCollection(scala.util.Random.shuffle(features).take(randInt()), bbox, fmembers)
+    }
   }
 
   case class Case(

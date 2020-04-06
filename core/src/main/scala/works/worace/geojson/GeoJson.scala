@@ -5,26 +5,10 @@ import io.circe.parser._
 import io.circe.syntax._
 import CoordinateCodec.implicits._
 
-object GeoJson {
+object GeoJson extends Codable[GeoJson]{
+  val codec = GeoJsonCodec
   val coreKeys =
     Set("type", "geometry", "coordinates", "properties", "features", "geometries", "id", "bbox")
-  def parse(rawJson: String): Either[io.circe.Error, GeoJson] = {
-    decode[GeoJson](rawJson)(GeoJsonCodec.decoder)
-  }
-
-  def fromJson(json: Json): Either[io.circe.Error, GeoJson] = {
-    json.as[GeoJson](GeoJsonCodec.decoder)
-  }
-
-  def asJson(gj: GeoJson): Json = {
-    gj.asJson(GeoJsonCodec.encoder)
-  }
-}
-
-case class BBox(min: Coordinate, max: Coordinate) {
-  def flat: Array[Double] = {
-    min.array ++ max.array
-  }
 }
 
 trait ForeignMembers[A] {
@@ -181,35 +165,42 @@ case class FeatureCollection(
   def baseJsonObject: JsonObject = JsonObject("features" -> features.map(_.asJsonObject).asJson)
 }
 
-object Point {
+object Point extends Codable[Point] {
+  val codec = PointCodec
   def apply(coord: Coordinate): Point = Point(coord, None, None)
   def apply(x: Double, y: Double): Point = Point(Coordinate(x, y))
 }
 
-object LineString {
+object LineString extends Codable[LineString] {
+  val codec = LineStringCodec
   def apply(coords: Seq[Coordinate]): LineString = LineString(coords.toVector, None, None)
 }
 
-object Polygon {
+object Polygon extends Codable[Polygon] {
+  val codec = PolygonCodec
   def apply(coords: Seq[Seq[Coordinate]]): Polygon =
     Polygon(coords.map(_.toVector).toVector, None, None)
 }
 
-object MultiPoint {
+object MultiPoint extends Codable[MultiPoint] {
+  val codec = MultiPointCodec
   def apply(coords: Seq[Coordinate]): MultiPoint = MultiPoint(coords.toVector, None, None)
 }
 
-object MultiLineString {
+object MultiLineString extends Codable[MultiLineString] {
+  val codec = MultiLineStringCodec
   def apply(coords: Seq[Seq[Coordinate]]): MultiLineString =
     MultiLineString(coords.map(_.toVector).toVector, None, None)
 }
 
-object MultiPolygon {
+object MultiPolygon extends Codable[MultiPolygon] {
+  val codec = MultiPolygonCodec
   def apply(coords: Seq[Seq[Seq[Coordinate]]]): MultiPolygon =
     MultiPolygon(coords.map(_.map(_.toVector).toVector).toVector, None, None)
 }
 
-object GeometryCollection {
+object GeometryCollection extends Codable[GeometryCollection] {
+  val codec = GeometryCollectionCodec
   def apply(geometries: Seq[Geometry]): GeometryCollection =
     GeometryCollection(geometries.toVector, None, None)
 }
@@ -223,7 +214,8 @@ case class SimpleFeature(id: Option[String], properties: JsonObject, geometry: G
 case class SimpleFeatureCollection(features: Vector[SimpleFeature])
 case class TypedFeature[T](id: Option[String], properties: T, geometry: Geometry)
 
-object Feature {
+object Feature extends Codable[Feature] {
+  val codec = FeatureCodec
   def empty: Feature = Feature(None, None, None, None, None)
   def apply(geometry: Geometry): Feature = Feature(None, None, Some(geometry), None, None)
   def apply(properties: JsonObject, geometry: Geometry): Feature =
@@ -232,24 +224,12 @@ object Feature {
     Feature(Some(Right(id)), Some(properties), Some(geometry), None, None)
   def apply(id: Int, properties: JsonObject, geometry: Geometry): Feature =
     Feature(Some(Left(Json.fromInt(id).asNumber.get)), Some(properties), Some(geometry), None, None)
-
-  object Codec {
-    implicit val featureEncoder = FeatureCodec.encoder
-    implicit val featureDecoder = FeatureCodec.decoder
-  }
-
-  def parse(rawJson: String): Either[io.circe.Error, Feature] = {
-    decode[Feature](rawJson)(FeatureCodec.decoder)
-  }
 }
 
-object FeatureCollection {
+object FeatureCollection extends Codable[FeatureCollection] {
+  val codec = FeatureCollectionCodec
   def apply(features: Seq[Feature]): FeatureCollection =
     FeatureCollection(features.toVector, None, None)
-
-  def parse(rawJson: String): Either[io.circe.Error, FeatureCollection] = {
-    decode[FeatureCollection](rawJson)(FeatureCollectionCodec.decoder)
-  }
 }
 // Goals
 // Coordinates
