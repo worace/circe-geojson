@@ -49,3 +49,118 @@ object GeometryCodec extends Codec[Geometry] {
     }
   }
 }
+
+// object GeometryCollectionCodec extends Codec[GeometryCollection] {
+//   object implicits {
+//     implicit val geometryCollectionEncoder = encoder
+//     implicit val geometryCollectionDecoder = decoder
+//   }
+//   private val base: Decoder[GeometryCollection] = deriveConfiguredDecoder[GeometryCollection]
+//   val decoder: Decoder[GeometryCollection] = Decoder.instance { cursor =>
+//     decodeWithForeignMembers(cursor, base, (geom, fMembers) => {
+//       geom.withForeignMembers(fMembers)
+//     })
+//   }
+// }
+
+object PointCodec extends Codec[Point] {
+  object implicits {
+    implicit val pointEncoder = encoder
+    implicit val pointDecoder = decoder
+  }
+  private val base: Decoder[Point] = deriveConfiguredDecoder[Point]
+  val decoder: Decoder[Point] = Decoder.instance { cursor =>
+    decodeWithForeignMembers(cursor, base, (geom, fMembers) => {
+      geom.withForeignMembers(fMembers)
+    })
+  }
+
+  def asJsonObject(point: Point): JsonObject = {
+    JsonObject("type" -> "Point".asJson, "coordinates" -> point.coordinates.asJson)
+  }
+}
+
+object LineStringCodec extends Codec[LineString] {
+  object implicits {
+    implicit val lineStringEncoder = encoder
+    implicit val lineStringDecoder = decoder
+  }
+  private val base: Decoder[LineString] = deriveConfiguredDecoder[LineString]
+  val decoder: Decoder[LineString] = Decoder.instance { cursor =>
+    decodeWithForeignMembers(cursor, base, (geom, fMembers) => {
+      geom.withForeignMembers(fMembers)
+    })
+  }
+
+  def asJsonObject(geom: LineString): JsonObject = {
+    JsonObject("type" -> "LineString".asJson, "coordinates" -> geom.coordinates.asJson)
+  }
+}
+
+object PolygonCodec extends Codec[Polygon] {
+  object implicits {
+    implicit val polyonEncoder = encoder
+    implicit val polyonDecoder = decoder
+  }
+  private val base: Decoder[Polygon] = deriveConfiguredDecoder[Polygon]
+  val decoder: Decoder[Polygon] = Decoder.instance { cursor =>
+    decodeWithForeignMembers(cursor, base, (geom, fMembers) => {
+      geom.withForeignMembers(fMembers)
+    })
+  }
+
+  def asJsonObject(geom: Polygon): JsonObject = {
+    JsonObject("type" -> "Polygon".asJson, "coordinates" -> geom.coordinates.asJson)
+  }
+}
+
+object MultiPointCodec extends Codec[MultiPoint] {
+  object implicits {
+    implicit val multiPointEncoder = encoder
+    implicit val multiPointDecoder = decoder
+  }
+  private val base: Decoder[MultiPoint] = deriveConfiguredDecoder[MultiPoint]
+  val decoder: Decoder[MultiPoint] = Decoder.instance { cursor =>
+    decodeWithForeignMembers(cursor, base, (geom, fMembers) => {
+      geom.withForeignMembers(fMembers)
+    })
+  }
+
+  def asJsonObject(geom: MultiPoint): JsonObject = {
+    JsonObject("type" -> "MultiPoint".asJson, "coordinates" -> geom.coordinates.asJson)
+  }
+}
+
+object MultiLineStringCodec extends Codec[MultiLineString] {
+  object implicits {
+    implicit val multiLineStringEncoder = encoder
+    implicit val multiLineStringDecoder = decoder
+  }
+  private val base: Decoder[MultiLineString] = deriveConfiguredDecoder[MultiLineString]
+  val decoder: Decoder[MultiLineString] = Decoder.instance { cursor =>
+    decodeWithForeignMembers(cursor, base, (geom, fMembers) => {
+      geom.withForeignMembers(fMembers)
+    })
+  }
+
+  def asJsonObject(geom: MultiLineString): JsonObject = {
+    JsonObject("type" -> "MultiLineString".asJson, "coordinates" -> geom.coordinates.asJson)
+  }
+}
+
+object MultiPolygonCodec extends Codec[MultiPolygon] {
+  object implicits {
+    implicit val multiPolygonEncoder = encoder
+    implicit val multiPolygonDecoder = decoder
+  }
+  private val base: Decoder[MultiPolygon] = deriveConfiguredDecoder[MultiPolygon]
+  val decoder: Decoder[MultiPolygon] = Decoder.instance { cursor =>
+    decodeWithForeignMembers(cursor, base, (geom, fMembers) => {
+      geom.withForeignMembers(fMembers)
+    })
+  }
+
+  def asJsonObject(geom: MultiPolygon): JsonObject = {
+    JsonObject("type" -> "MultiPolygon".asJson, "coordinates" -> geom.coordinates.asJson)
+  }
+}
