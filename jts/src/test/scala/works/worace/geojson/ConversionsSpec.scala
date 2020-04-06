@@ -1,10 +1,10 @@
 package works.worace.geojson.jts
 
-import works.worace.geojson.core
+import works.worace.geojson
 import org.locationtech.jts.geom._
 
 class ConversionsSpec extends munit.FunSuite {
-  import works.worace.geojson.core.TestData._
+  import works.worace.geojson.TestData._
   import Conversions.implicits._
 
   def compareLineString(coords: Vector[core.Coordinate], jts: LineString) = {

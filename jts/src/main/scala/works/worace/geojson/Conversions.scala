@@ -1,6 +1,6 @@
 package works.worace.geojson.jts
 
-import works.worace.geojson.core._
+import works.worace.geojson._
 import org.locationtech.jts.{geom => jts}
 import org.locationtech.jts.geom.{GeometryFactory, PrecisionModel}
 

@@ -1,7 +1,7 @@
 package works.worace.geojson.jts
 
 import io.circe.{Json, JsonObject}
-import works.worace.geojson.core.{TestData, Feature, Point}
+import works.worace.geojson.{TestData, Feature, Point}
 
 class JtsFeatureSpec extends munit.FunSuite {
   import scala.language.implicitConversions
