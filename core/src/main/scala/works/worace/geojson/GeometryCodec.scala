@@ -22,46 +22,7 @@ object GeometryCodec extends Codec[Geometry] {
       }
     })
   }
-  def asJsonObject(gj: Geometry): JsonObject = {
-    geometry(gj)
-  }
-
-  private def geometryCollection(gc: GeometryCollection): JsonObject = {
-    val children = gc.geometries.map(child => Json.fromJsonObject(geometry(child)))
-    JsonObject("type" -> "GeometryCollection".asJson, "geometries" -> children.asJson)
-  }
-
-  private def geometry(g: Geometry): JsonObject = {
-    g match {
-      case geom: Point =>
-        JsonObject("type" -> geom.`type`.asJson, "coordinates" -> geom.coordinates.asJson)
-      case geom: LineString =>
-        JsonObject("type" -> geom.`type`.asJson, "coordinates" -> geom.coordinates.asJson)
-      case geom: Polygon =>
-        JsonObject("type" -> geom.`type`.asJson, "coordinates" -> geom.coordinates.asJson)
-      case geom: MultiPoint =>
-        JsonObject("type" -> geom.`type`.asJson, "coordinates" -> geom.coordinates.asJson)
-      case geom: MultiLineString =>
-        JsonObject("type" -> geom.`type`.asJson, "coordinates" -> geom.coordinates.asJson)
-      case geom: MultiPolygon =>
-        JsonObject("type" -> geom.`type`.asJson, "coordinates" -> geom.coordinates.asJson)
-      case geom: GeometryCollection => geometryCollection(geom)
-    }
-  }
 }
-
-// object GeometryCollectionCodec extends Codec[GeometryCollection] {
-//   object implicits {
-//     implicit val geometryCollectionEncoder = encoder
-//     implicit val geometryCollectionDecoder = decoder
-//   }
-//   private val base: Decoder[GeometryCollection] = deriveConfiguredDecoder[GeometryCollection]
-//   val decoder: Decoder[GeometryCollection] = Decoder.instance { cursor =>
-//     decodeWithForeignMembers(cursor, base, (geom, fMembers) => {
-//       geom.withForeignMembers(fMembers)
-//     })
-//   }
-// }
 
 object PointCodec extends Codec[Point] {
   object implicits {
@@ -73,10 +34,6 @@ object PointCodec extends Codec[Point] {
     decodeWithForeignMembers(cursor, base, (geom, fMembers) => {
       geom.withForeignMembers(fMembers)
     })
-  }
-
-  def asJsonObject(point: Point): JsonObject = {
-    JsonObject("type" -> "Point".asJson, "coordinates" -> point.coordinates.asJson)
   }
 }
 
@@ -91,10 +48,6 @@ object LineStringCodec extends Codec[LineString] {
       geom.withForeignMembers(fMembers)
     })
   }
-
-  def asJsonObject(geom: LineString): JsonObject = {
-    JsonObject("type" -> "LineString".asJson, "coordinates" -> geom.coordinates.asJson)
-  }
 }
 
 object PolygonCodec extends Codec[Polygon] {
@@ -107,10 +60,6 @@ object PolygonCodec extends Codec[Polygon] {
     decodeWithForeignMembers(cursor, base, (geom, fMembers) => {
       geom.withForeignMembers(fMembers)
     })
-  }
-
-  def asJsonObject(geom: Polygon): JsonObject = {
-    JsonObject("type" -> "Polygon".asJson, "coordinates" -> geom.coordinates.asJson)
   }
 }
 
@@ -125,10 +74,6 @@ object MultiPointCodec extends Codec[MultiPoint] {
       geom.withForeignMembers(fMembers)
     })
   }
-
-  def asJsonObject(geom: MultiPoint): JsonObject = {
-    JsonObject("type" -> "MultiPoint".asJson, "coordinates" -> geom.coordinates.asJson)
-  }
 }
 
 object MultiLineStringCodec extends Codec[MultiLineString] {
@@ -142,10 +87,6 @@ object MultiLineStringCodec extends Codec[MultiLineString] {
       geom.withForeignMembers(fMembers)
     })
   }
-
-  def asJsonObject(geom: MultiLineString): JsonObject = {
-    JsonObject("type" -> "MultiLineString".asJson, "coordinates" -> geom.coordinates.asJson)
-  }
 }
 
 object MultiPolygonCodec extends Codec[MultiPolygon] {
@@ -158,9 +99,5 @@ object MultiPolygonCodec extends Codec[MultiPolygon] {
     decodeWithForeignMembers(cursor, base, (geom, fMembers) => {
       geom.withForeignMembers(fMembers)
     })
-  }
-
-  def asJsonObject(geom: MultiPolygon): JsonObject = {
-    JsonObject("type" -> "MultiPolygon".asJson, "coordinates" -> geom.coordinates.asJson)
   }
 }

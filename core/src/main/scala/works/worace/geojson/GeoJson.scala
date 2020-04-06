@@ -6,6 +6,8 @@ import io.circe.syntax._
 import CoordinateCodec.implicits._
 
 object GeoJson {
+  val coreKeys =
+    Set("type", "geometry", "coordinates", "properties", "features", "geometries", "id", "bbox")
   def parse(rawJson: String): Either[io.circe.Error, GeoJson] = {
     decode[GeoJson](rawJson)(GeoJsonCodec.decoder)
   }
@@ -38,8 +40,6 @@ sealed trait GeoJson {
     this.asJson(GeoJsonCodec.encoder)
   }
   def `type`: String
-  val coreKeys =
-    Set("type", "geometry", "coordinates", "properties", "features", "geometries", "id", "bbox")
   def asJsonObject: JsonObject = {
     addTypeKey(addBBox(addForeignMembers(baseJsonObject, foreignMembers), bbox))
   }
@@ -52,10 +52,9 @@ sealed trait GeoJson {
 
   private def addForeignMembers(encoded: JsonObject, fm: Option[JsonObject]): JsonObject = {
     fm.map { obj =>
-        val foreignMembers = obj.filterKeys(!coreKeys.contains(_))
-        encoded.deepMerge(foreignMembers)
-      }
-      .getOrElse(encoded)
+      val foreignMembers = obj.filterKeys(!GeoJson.coreKeys.contains(_))
+      encoded.deepMerge(foreignMembers)
+    }.getOrElse(encoded)
   }
 
   private def addBBox(encoded: JsonObject, bbox: Option[BBox]): JsonObject = {

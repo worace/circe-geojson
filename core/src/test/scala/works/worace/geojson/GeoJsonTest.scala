@@ -2,7 +2,7 @@ package works.worace.geojson
 
 import io.circe.{Json, JsonObject, Decoder, DecodingFailure}
 
-class GeoJsonTest extends munit.FunSuite {
+class GeoJsonTest extends munit.FunSuite with TestHelpers {
   import TestData._
 
   test("Decodes with appropriate Option value") {
@@ -100,6 +100,8 @@ class GeoJsonTest extends munit.FunSuite {
 
   test("All attributes") {
     decodeCase(FeatureCases.allFields)
+    encodeCase(FeatureCases.allFields)
+    roundTripCase(FeatureCases.allFields.decoded)
   }
 
   test("xyz geom") {

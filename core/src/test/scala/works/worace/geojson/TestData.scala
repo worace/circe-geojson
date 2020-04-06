@@ -152,6 +152,13 @@ object TestData {
       )
     }
 
+    def geometryCollections: Vector[GeometryCollection] = {
+      for {
+        bbox <- bboxOpts
+        fmember <- fmemberOpts
+      } yield GeometryCollection(allGeomOpts.take(5), bbox, fmember)
+    }
+
     def idOpts: Vector[Option[Either[JsonNumber, String]]] = {
       Vector(
         None,
@@ -404,13 +411,13 @@ object TestData {
         "bbox": [101.0, 1.0, 101.0, 1.0],
         "foreign":"member",
         "properties": {"a": "b"},
-        "geometry": {"type": "Point", "coordinates": [101.0, 1.0]}
+        "geometry": {"type": "Point", "other":"nested", "coordinates": [101.0, 1.0]}
       }
       """,
       Feature(
         Some(Right("pizza")),
         Some(JsonObject("a" -> Json.fromString("b"))),
-        Some(Point(Coordinate(101.0, 1.0))),
+        Some(Point(Coordinate(101.0, 1.0), None, Some(JsonObject("other" -> Json.fromString("nested"))))),
         Some(BBox(Coordinate(101.0, 1.0), Coordinate(101.0, 1.0))),
         Some(JsonObject("foreign" -> Json.fromString("member")))
       )
