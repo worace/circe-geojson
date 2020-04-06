@@ -152,6 +152,13 @@ object TestData {
       )
     }
 
+    def geometryCollections: Vector[GeometryCollection] = {
+      for {
+        bbox <- bboxOpts
+        fmember <- fmemberOpts
+      } yield GeometryCollection(allGeomOpts.take(5), bbox, fmember)
+    }
+
     def idOpts: Vector[Option[Either[JsonNumber, String]]] = {
       Vector(
         None,
@@ -173,6 +180,13 @@ object TestData {
         bbox <- bboxOpts
         fmembers <- fmemberOpts
       } yield Feature(id, properties, geom, bbox, fmembers)
+    }
+
+    def featureCollections: Vector[FeatureCollection] = {
+      for {
+        bbox <- bboxOpts
+        fmembers <- fmemberOpts
+      } yield FeatureCollection(scala.util.Random.shuffle(features).take(randInt()), bbox, fmembers)
     }
   }
 
@@ -286,6 +300,20 @@ object TestData {
       )
     )
 
+    val bboxPoint = Case(
+      """{"type": "Point", "bbox": [102.0, 0.5, 102.0, 0.5], "coordinates": [102.0, 0.5]}""",
+      Point(
+        Coordinate(102.0, 0.5),
+        Some(BBox(Coordinate(102.0, 0.5), Coordinate(102.0, 0.5))),
+        None
+      )
+    )
+
+    val fMemberPoint = Case(
+      """{"type": "Point", "foreign":"member", "coordinates": [102.0, 0.5]}""",
+      Point(Coordinate(102.0, 0.5), None, Some(JsonObject("foreign" -> Json.fromString("member"))))
+    )
+
     val all: List[Case] = List(
       point,
       lineString,
@@ -293,7 +321,9 @@ object TestData {
       multiPoint,
       multiLineString,
       multiPolygon,
-      geometryCollection
+      geometryCollection,
+      bboxPoint,
+      fMemberPoint
     )
   }
 
@@ -392,13 +422,19 @@ object TestData {
         "bbox": [101.0, 1.0, 101.0, 1.0],
         "foreign":"member",
         "properties": {"a": "b"},
-        "geometry": {"type": "Point", "coordinates": [101.0, 1.0]}
+        "geometry": {"type": "Point", "other":"nested", "coordinates": [101.0, 1.0]}
       }
       """,
       Feature(
         Some(Right("pizza")),
         Some(JsonObject("a" -> Json.fromString("b"))),
-        Some(Point(Coordinate(101.0, 1.0))),
+        Some(
+          Point(
+            Coordinate(101.0, 1.0),
+            None,
+            Some(JsonObject("other" -> Json.fromString("nested")))
+          )
+        ),
         Some(BBox(Coordinate(101.0, 1.0), Coordinate(101.0, 1.0))),
         Some(JsonObject("foreign" -> Json.fromString("member")))
       )

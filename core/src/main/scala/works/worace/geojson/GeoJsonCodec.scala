@@ -7,19 +7,14 @@ import TypeDiscriminator._
 import CoordinateCodec.implicits._
 import BBoxCodec.implicits._
 import IdCodec.implicits._
+import GeometryCodec.implicits._
+import FeatureCodec.implicits._
+import FeatureCollectionCodec.implicits._
 
 object GeoJsonCodec extends Codec[GeoJson] {
   object implicits {
     implicit val geoJsonEncoder = encoder
     implicit val geoJsonDecoder = decoder
-  }
-
-  def asJsonObject(gj: GeoJson): JsonObject = {
-    gj match {
-      case geom: Geometry        => GeometryCodec.asJsonObject(geom)
-      case f: Feature            => FeatureCodec.asJsonObject(f)
-      case fc: FeatureCollection => FeatureCollectionCodec.asJsonObject(fc)
-    }
   }
 
   private val base: Decoder[GeoJson] = deriveConfiguredDecoder[GeoJson]

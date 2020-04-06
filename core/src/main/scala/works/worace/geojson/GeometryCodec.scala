@@ -22,30 +22,82 @@ object GeometryCodec extends Codec[Geometry] {
       }
     })
   }
-  def asJsonObject(gj: Geometry): JsonObject = {
-    geometry(gj)
-  }
+}
 
-  private def geometryCollection(gc: GeometryCollection): JsonObject = {
-    val children = gc.geometries.map(child => Json.fromJsonObject(geometry(child)))
-    JsonObject("type" -> "GeometryCollection".asJson, "geometries" -> children.asJson)
+object PointCodec extends Codec[Point] {
+  object implicits {
+    implicit val pointEncoder = encoder
+    implicit val pointDecoder = decoder
   }
+  private val base: Decoder[Point] = deriveConfiguredDecoder[Point]
+  val decoder: Decoder[Point] = Decoder.instance { cursor =>
+    decodeWithForeignMembers(cursor, base, (geom, fMembers) => {
+      geom.withForeignMembers(fMembers)
+    })
+  }
+}
 
-  private def geometry(g: Geometry): JsonObject = {
-    g match {
-      case geom: Point =>
-        JsonObject("type" -> geom.`type`.asJson, "coordinates" -> geom.coordinates.asJson)
-      case geom: LineString =>
-        JsonObject("type" -> geom.`type`.asJson, "coordinates" -> geom.coordinates.asJson)
-      case geom: Polygon =>
-        JsonObject("type" -> geom.`type`.asJson, "coordinates" -> geom.coordinates.asJson)
-      case geom: MultiPoint =>
-        JsonObject("type" -> geom.`type`.asJson, "coordinates" -> geom.coordinates.asJson)
-      case geom: MultiLineString =>
-        JsonObject("type" -> geom.`type`.asJson, "coordinates" -> geom.coordinates.asJson)
-      case geom: MultiPolygon =>
-        JsonObject("type" -> geom.`type`.asJson, "coordinates" -> geom.coordinates.asJson)
-      case geom: GeometryCollection => geometryCollection(geom)
-    }
+object LineStringCodec extends Codec[LineString] {
+  object implicits {
+    implicit val lineStringEncoder = encoder
+    implicit val lineStringDecoder = decoder
+  }
+  private val base: Decoder[LineString] = deriveConfiguredDecoder[LineString]
+  val decoder: Decoder[LineString] = Decoder.instance { cursor =>
+    decodeWithForeignMembers(cursor, base, (geom, fMembers) => {
+      geom.withForeignMembers(fMembers)
+    })
+  }
+}
+
+object PolygonCodec extends Codec[Polygon] {
+  object implicits {
+    implicit val polyonEncoder = encoder
+    implicit val polyonDecoder = decoder
+  }
+  private val base: Decoder[Polygon] = deriveConfiguredDecoder[Polygon]
+  val decoder: Decoder[Polygon] = Decoder.instance { cursor =>
+    decodeWithForeignMembers(cursor, base, (geom, fMembers) => {
+      geom.withForeignMembers(fMembers)
+    })
+  }
+}
+
+object MultiPointCodec extends Codec[MultiPoint] {
+  object implicits {
+    implicit val multiPointEncoder = encoder
+    implicit val multiPointDecoder = decoder
+  }
+  private val base: Decoder[MultiPoint] = deriveConfiguredDecoder[MultiPoint]
+  val decoder: Decoder[MultiPoint] = Decoder.instance { cursor =>
+    decodeWithForeignMembers(cursor, base, (geom, fMembers) => {
+      geom.withForeignMembers(fMembers)
+    })
+  }
+}
+
+object MultiLineStringCodec extends Codec[MultiLineString] {
+  object implicits {
+    implicit val multiLineStringEncoder = encoder
+    implicit val multiLineStringDecoder = decoder
+  }
+  private val base: Decoder[MultiLineString] = deriveConfiguredDecoder[MultiLineString]
+  val decoder: Decoder[MultiLineString] = Decoder.instance { cursor =>
+    decodeWithForeignMembers(cursor, base, (geom, fMembers) => {
+      geom.withForeignMembers(fMembers)
+    })
+  }
+}
+
+object MultiPolygonCodec extends Codec[MultiPolygon] {
+  object implicits {
+    implicit val multiPolygonEncoder = encoder
+    implicit val multiPolygonDecoder = decoder
+  }
+  private val base: Decoder[MultiPolygon] = deriveConfiguredDecoder[MultiPolygon]
+  val decoder: Decoder[MultiPolygon] = Decoder.instance { cursor =>
+    decodeWithForeignMembers(cursor, base, (geom, fMembers) => {
+      geom.withForeignMembers(fMembers)
+    })
   }
 }

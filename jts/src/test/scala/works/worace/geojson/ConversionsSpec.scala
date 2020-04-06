@@ -144,12 +144,12 @@ class ConversionsSpec extends munit.FunSuite {
 
         (geoms(0), geom.getGeometryN(0)) match {
           case (gj: geojson.Point, jts: Point) => compareCoord(gj.coordinates, jts.getCoordinate)
-          case _                            => fail("expecting 2 points to compare")
+          case _                               => fail("expecting 2 points to compare")
         }
 
         (geoms(1), geom.getGeometryN(1)) match {
           case (gj: geojson.Polygon, jts: Polygon) => comparePolygon(gj.coordinates, jts)
-          case _                                => fail("expecting 2 polygons to compare")
+          case _                                   => fail("expecting 2 polygons to compare")
         }
 
         (geoms(2), geom.getGeometryN(2)) match {

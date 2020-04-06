@@ -2,42 +2,49 @@ package works.worace.geojson
 
 import io.circe._
 import io.circe.parser._
+import io.circe.syntax._
+import CoordinateCodec.implicits._
 
-object GeoJson {
-  def parse(rawJson: String): Either[io.circe.Error, GeoJson] = {
-    decode[GeoJson](rawJson)(GeoJsonCodec.decoder)
-  }
-
-  def fromJson(json: Json): Either[io.circe.Error, GeoJson] = {
-    json.as[GeoJson](GeoJsonCodec.decoder)
-  }
-
-  def asJson(gj: GeoJson): Json = {
-    import io.circe.syntax._
-    gj.asJson(GeoJsonCodec.encoder)
-  }
-}
-
-case class BBox(min: Coordinate, max: Coordinate) {
-  def flat: Array[Double] = {
-    min.array ++ max.array
-  }
+object GeoJson extends Codable[GeoJson] {
+  val codec = GeoJsonCodec
+  val coreKeys =
+    Set("type", "geometry", "coordinates", "properties", "features", "geometries", "id", "bbox")
 }
 
 trait ForeignMembers[A] {
   def withForeignMembers(foreignMembers: Option[JsonObject]): A
 }
 
-sealed trait Geometry extends GeoJson with ForeignMembers[Geometry] {
-  def `type`: String
-}
+sealed trait Geometry extends GeoJson with ForeignMembers[Geometry]
 
 sealed trait GeoJson {
   val foreignMembers: Option[JsonObject]
   val bbox: Option[BBox]
   def encode: Json = {
-    import io.circe.syntax._
     this.asJson(GeoJsonCodec.encoder)
+  }
+  def `type`: String
+  def asJsonObject: JsonObject = {
+    addTypeKey(addBBox(addForeignMembers(baseJsonObject, foreignMembers), bbox))
+  }
+
+  protected def baseJsonObject: JsonObject
+
+  private def addTypeKey(encoded: JsonObject): JsonObject = {
+    encoded.add("type", Json.fromString(this.`type`))
+  }
+
+  private def addForeignMembers(encoded: JsonObject, fm: Option[JsonObject]): JsonObject = {
+    fm.map { obj =>
+        val foreignMembers = obj.filterKeys(!GeoJson.coreKeys.contains(_))
+        encoded.deepMerge(foreignMembers)
+      }
+      .getOrElse(encoded)
+  }
+
+  private def addBBox(encoded: JsonObject, bbox: Option[BBox]): JsonObject = {
+    import BBoxCodec.implicits._
+    bbox.map { bbox => encoded.add("bbox", bbox.asJson) }.getOrElse(encoded)
   }
 }
 
@@ -47,8 +54,12 @@ case class Point(
   foreignMembers: Option[JsonObject]
 ) extends Geometry {
   val `type` = "Point"
-  def withForeignMembers(fm: Option[JsonObject]): Geometry = copy(foreignMembers = fm)
+  def withForeignMembers(fm: Option[JsonObject]): Point = copy(foreignMembers = fm)
+  def baseJsonObject: JsonObject = {
+    JsonObject("coordinates" -> coordinates.asJson)
+  }
 }
+
 case class LineString(
   coordinates: Vector[Coordinate],
   bbox: Option[BBox],
@@ -56,7 +67,10 @@ case class LineString(
 ) extends Geometry {
   val `type` = "LineString"
   def withForeignMembers(fm: Option[JsonObject]): LineString = copy(foreignMembers = fm)
+  def baseJsonObject: JsonObject = JsonObject("coordinates" -> coordinates.asJson)
+
 }
+
 case class Polygon(
   coordinates: Vector[Vector[Coordinate]],
   bbox: Option[BBox],
@@ -64,7 +78,9 @@ case class Polygon(
 ) extends Geometry {
   val `type` = "Polygon"
   def withForeignMembers(fm: Option[JsonObject]): Polygon = copy(foreignMembers = fm)
+  def baseJsonObject: JsonObject = JsonObject("coordinates" -> coordinates.asJson)
 }
+
 case class MultiPoint(
   coordinates: Vector[Coordinate],
   bbox: Option[BBox],
@@ -72,7 +88,9 @@ case class MultiPoint(
 ) extends Geometry {
   val `type` = "MultiPoint"
   def withForeignMembers(fm: Option[JsonObject]): MultiPoint = copy(foreignMembers = fm)
+  def baseJsonObject: JsonObject = JsonObject("coordinates" -> coordinates.asJson)
 }
+
 case class MultiLineString(
   coordinates: Vector[Vector[Coordinate]],
   bbox: Option[BBox],
@@ -80,7 +98,9 @@ case class MultiLineString(
 ) extends Geometry {
   val `type` = "MultiLineString"
   def withForeignMembers(fm: Option[JsonObject]): MultiLineString = copy(foreignMembers = fm)
+  def baseJsonObject: JsonObject = JsonObject("coordinates" -> coordinates.asJson)
 }
+
 case class MultiPolygon(
   coordinates: Vector[Vector[Vector[Coordinate]]],
   bbox: Option[BBox],
@@ -88,7 +108,9 @@ case class MultiPolygon(
 ) extends Geometry {
   val `type` = "MultiPolygon"
   def withForeignMembers(fm: Option[JsonObject]): MultiPolygon = copy(foreignMembers = fm)
+  def baseJsonObject: JsonObject = JsonObject("coordinates" -> coordinates.asJson)
 }
+
 case class GeometryCollection(
   geometries: Vector[Geometry],
   bbox: Option[BBox],
@@ -96,7 +118,12 @@ case class GeometryCollection(
 ) extends Geometry {
   val `type` = "GeometryCollection"
   def withForeignMembers(fm: Option[JsonObject]): GeometryCollection = copy(foreignMembers = fm)
+  def baseJsonObject: JsonObject = {
+    val children = geometries.map(child => Json.fromJsonObject(child.asJsonObject))
+    JsonObject("geometries" -> children.asJson)
+  }
 }
+
 case class Feature(
   id: Option[Either[JsonNumber, String]],
   properties: Option[JsonObject],
@@ -105,6 +132,7 @@ case class Feature(
   foreignMembers: Option[JsonObject]
 ) extends GeoJson
     with ForeignMembers[Feature] {
+  val `type` = "Feature"
   def withForeignMembers(fm: Option[JsonObject]): Feature = copy(foreignMembers = fm)
   def simpleId: Option[String] = id.map(_.fold(num => num.toString, s => s))
   def simpleProps: JsonObject = {
@@ -115,6 +143,17 @@ case class Feature(
   def simple: Option[SimpleFeature] = {
     geometry.map(geom => SimpleFeature(simpleId, simpleProps, geom))
   }
+
+  def baseJsonObject: JsonObject = {
+    import IdCodec.implicits._
+    val base = JsonObject("geometry" -> geometry.map(_.asJsonObject.asJson).getOrElse(Json.Null))
+    List(
+      id.map(id => ("id", id.asJson)),
+      properties.map(p => ("properties", p.asJson))
+    ).flatten.foldLeft(base)((feature: JsonObject, pair: (String, Json)) =>
+      feature.add(pair._1, pair._2)
+    )
+  }
 }
 
 case class FeatureCollection(
@@ -123,39 +162,48 @@ case class FeatureCollection(
   foreignMembers: Option[JsonObject]
 ) extends GeoJson
     with ForeignMembers[FeatureCollection] {
+  val `type` = "FeatureCollection"
   def withForeignMembers(fm: Option[JsonObject]): FeatureCollection = copy(foreignMembers = fm)
   def simple: SimpleFeatureCollection = SimpleFeatureCollection(features.flatMap(_.simple))
+  def baseJsonObject: JsonObject = JsonObject("features" -> features.map(_.asJsonObject).asJson)
 }
 
-object Point {
+object Point extends Codable[Point] {
+  val codec = PointCodec
   def apply(coord: Coordinate): Point = Point(coord, None, None)
   def apply(x: Double, y: Double): Point = Point(Coordinate(x, y))
 }
 
-object LineString {
+object LineString extends Codable[LineString] {
+  val codec = LineStringCodec
   def apply(coords: Seq[Coordinate]): LineString = LineString(coords.toVector, None, None)
 }
 
-object Polygon {
+object Polygon extends Codable[Polygon] {
+  val codec = PolygonCodec
   def apply(coords: Seq[Seq[Coordinate]]): Polygon =
     Polygon(coords.map(_.toVector).toVector, None, None)
 }
 
-object MultiPoint {
+object MultiPoint extends Codable[MultiPoint] {
+  val codec = MultiPointCodec
   def apply(coords: Seq[Coordinate]): MultiPoint = MultiPoint(coords.toVector, None, None)
 }
 
-object MultiLineString {
+object MultiLineString extends Codable[MultiLineString] {
+  val codec = MultiLineStringCodec
   def apply(coords: Seq[Seq[Coordinate]]): MultiLineString =
     MultiLineString(coords.map(_.toVector).toVector, None, None)
 }
 
-object MultiPolygon {
+object MultiPolygon extends Codable[MultiPolygon] {
+  val codec = MultiPolygonCodec
   def apply(coords: Seq[Seq[Seq[Coordinate]]]): MultiPolygon =
     MultiPolygon(coords.map(_.map(_.toVector).toVector).toVector, None, None)
 }
 
-object GeometryCollection {
+object GeometryCollection extends Codable[GeometryCollection] {
+  val codec = GeometryCollectionCodec
   def apply(geometries: Seq[Geometry]): GeometryCollection =
     GeometryCollection(geometries.toVector, None, None)
 }
@@ -169,7 +217,8 @@ case class SimpleFeature(id: Option[String], properties: JsonObject, geometry: G
 case class SimpleFeatureCollection(features: Vector[SimpleFeature])
 case class TypedFeature[T](id: Option[String], properties: T, geometry: Geometry)
 
-object Feature {
+object Feature extends Codable[Feature] {
+  val codec = FeatureCodec
   def empty: Feature = Feature(None, None, None, None, None)
   def apply(geometry: Geometry): Feature = Feature(None, None, Some(geometry), None, None)
   def apply(properties: JsonObject, geometry: Geometry): Feature =
@@ -178,14 +227,10 @@ object Feature {
     Feature(Some(Right(id)), Some(properties), Some(geometry), None, None)
   def apply(id: Int, properties: JsonObject, geometry: Geometry): Feature =
     Feature(Some(Left(Json.fromInt(id).asNumber.get)), Some(properties), Some(geometry), None, None)
-
-  object Codec {
-    implicit val featureEncoder = FeatureCodec.encoder
-    implicit val featureDecoder = FeatureCodec.decoder
-  }
 }
 
-object FeatureCollection {
+object FeatureCollection extends Codable[FeatureCollection] {
+  val codec = FeatureCollectionCodec
   def apply(features: Seq[Feature]): FeatureCollection =
     FeatureCollection(features.toVector, None, None)
 }
