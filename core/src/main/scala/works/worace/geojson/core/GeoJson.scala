@@ -11,6 +11,11 @@ object GeoJson {
   def fromJson(json: Json): Either[io.circe.Error, GeoJson] = {
     json.as[GeoJson](GeoJsonCodec.decoder)
   }
+
+  def asJson(gj: GeoJson): Json = {
+    import io.circe.syntax._
+    gj.asJson(GeoJsonCodec.encoder)
+  }
 }
 
 case class Coordinate(x: Double, y: Double, z: Option[Double], m: Option[Double]) {

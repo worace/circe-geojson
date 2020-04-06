@@ -4,31 +4,64 @@
 [![Sonatype Nexus (Snapshots)](https://img.shields.io/nexus/s/https/oss.sonatype.org/works.worace/circe-geojson-core_2.12.svg)](https://oss.sonatype.org/content/repositories/snapshots/works/worace/circe-geojson-core_2.12/)
 [![Sonatype Nexus (Snapshots)](https://img.shields.io/nexus/s/https/oss.sonatype.org/works.worace/circe-geojson-jts_2.12.svg)](https://oss.sonatype.org/content/repositories/snapshots/works/worace/circe-geojson-jts_2.12/)
 
-A Scala-friendly GeoJSON ADT for encoding and decoding with Circe. Includes optional JTS conversions.
+Library for working with GeoJSON in idiomatic Scala.
 
-Work in progress!
+Includes:
 
-### Publishing
+* A `GeoJson` Algebraic Data Type for representing GeoJSON data in accordance with the RFC 7946 Spec
+* Circe-based encoders and decoders for de/serializing GeoJSON to and from JSON
+* Optional extensions for converting GeoJSON geometries to and from Java Topology Suite (JTS) geometries
 
-https://docs.scala-lang.org/overviews/contributors/index.html
+### Quick-Start
 
+### Usage
+
+```scala
+import works.worace.geojson.core.{GeoJson, Point}
+
+val point: Either[io.circe.Error, GeoJson] = GeoJson.parse("""{"type":"Point","coordinates":[1.0,-1.0]}""")
+
+val encoded: io.circe.Json = GeoJson.asJson(point.right.get)
+
+val pretty: String = encoded.spaces2
+
+println(pretty)
+// {
+//   "type" : "Point",
+//   "coordinates" : [
+//     1.0,
+//     -1.0
+//   ]
+// }
+```
+
+#### Using JTS Conversions
+
+```scala
+import works.worace.geojson.core.{GeoJson, Point, Geometry}
+import org.locationtech.jts.geom.{Geometry => JtsGeom}
+import works.worace.geojson.jts.Conversions.implicits.GeometryToJts
+
+val point: GeoJson = GeoJson.parse("""{"type":"Point","coordinates":[1.0,-1.0]}""").right.get
+
+val jts: Option[JtsGeom] = point match {
+  case p: Geometry => Some(p.toJts)
+  case _ => None
+}
+// jts: Option[org.locationtech.jts.geom.Geometry] = Some(POINT (1 -1))
+```
+
+#### More Examples
+
+For more detailed instructions, see [Usage Examples](https://github.com/worace/circe-geojson/blob/master/docs/Usage.md).
+
+## Upcoming / TODOs
+
+* [ ] Hoist namespaces (`works.worace.geojson.jts.Conversions.implicits.GeometryToJts` => `works.worace.geojson.JtsConversions._`)
+* Publishing Improvements - https://docs.scala-lang.org/overviews/contributors/index.html
 * [ ] Readme
   * [ ] Install instructions
   * [ ] Background / Description
-* [x] License
-* [x] Maven Central / Sonatype
-  * [x] Make account - https://central.sonatype.org/pages/ossrh-guide.html
-  * [x] Claim domain? - https://issues.sonatype.org/browse/OSSRH-56244
-    * [x] Show ownership via TXT record
-* [x] CI / CD
-  * [X] Testing: Github Actions (https://github.com/olafurpg/setup-scala)
-  * [x] Publishing: Github Actions (https://github.com/olafurpg/setup-scala)
-    * [x] https://github.com/olafurpg/sbt-ci-release
-    * [x] Configure Credentials in GitHub Action: - https://help.github.com/en/actions/configuring-and-managing-workflows/creating-and-storing-encrypted-secrets
-      * (Add them under settings > secrets in the github repo menu)
-      * [x] sonatype user token - https://github.com/olafurpg/sbt-ci-release#optional-create-user-tokens
-      * [x] gpg pubring.asc
-      * [x] gpg secring.asc
 * [ ] Docs
   * [ ] Readme Usage examples (tut/md - compile-time check)
   * [ ] Scaladoc
