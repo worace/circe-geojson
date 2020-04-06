@@ -37,6 +37,26 @@ println(pretty)
 
 #### Using JTS Conversions
 
+Organizing Imports
+
+* works.worace.geojson
+  * GeoJson
+    * Codec
+  * FeatureCollection
+    * Codec
+  * Feature
+    * Codec
+  * Geometry
+    * Codec
+  * Point/LineString/etc
+    * Codec
+  * Codecs (combines implicits for all)
+* works.worace.geojson
+  * JtsConversions._
+  * Geometry/Feature toJts
+  * jts.geom.Geometry.toGeoJson
+
+
 ```scala
 import works.worace.geojson.core.{GeoJson, Point, Geometry}
 import org.locationtech.jts.geom.{Geometry => JtsGeom}

@@ -18,32 +18,6 @@ object GeoJson {
   }
 }
 
-case class Coordinate(x: Double, y: Double, z: Option[Double], m: Option[Double]) {
-  def array: Array[Double] = {
-    this match {
-      case Coordinate(x, y, None, None)       => Array(x, y)
-      case Coordinate(x, y, Some(z), None)    => Array(x, y, z)
-      case Coordinate(x, y, Some(z), Some(m)) => Array(x, y, z, m)
-      // TODO: What is right here? Should ideally prevent constructing Coord with x,y,m but no z
-      case Coordinate(x, y, None, Some(_)) => Array(x, y)
-    }
-  }
-}
-
-object Coordinate {
-  def apply(x: Double, y: Double): Coordinate = {
-    Coordinate(x, y, None, None)
-  }
-
-  def apply(x: Double, y: Double, z: Double): Coordinate = {
-    Coordinate(x, y, Some(z), None)
-  }
-
-  def apply(x: Double, y: Double, z: Double, m: Double): Coordinate = {
-    Coordinate(x, y, Some(z), Some(m))
-  }
-}
-
 case class BBox(min: Coordinate, max: Coordinate) {
   def flat: Array[Double] = {
     min.array ++ max.array
@@ -204,6 +178,11 @@ object Feature {
     Feature(Some(Right(id)), Some(properties), Some(geometry), None, None)
   def apply(id: Int, properties: JsonObject, geometry: Geometry): Feature =
     Feature(Some(Left(Json.fromInt(id).asNumber.get)), Some(properties), Some(geometry), None, None)
+
+  object Codec {
+    implicit val featureEncoder = FeatureCodec.encoder
+    implicit val featureDecoder = FeatureCodec.decoder
+  }
 }
 
 object FeatureCollection {
@@ -242,29 +221,29 @@ object FeatureCollection {
 //   * [x] BBox
 //   * [x] Features
 // Basic Geometry XYZM
-// * [ ] Point
-// * [ ] LineString
-// * [ ] Polygon
-// * [ ] MultiPoint
-// * [ ] MultiLineString
-// * [ ] MultiPolygon
-// * [ ] GeometryCollection
+// * [x] Point
+// * [x] LineString
+// * [x] Polygon
+// * [x] MultiPoint
+// * [x] MultiLineString
+// * [x] MultiPolygon
+// * [x] GeometryCollection
 // Basic Geometry BBox
-// * [ ] Point
-// * [ ] LineString
-// * [ ] Polygon
-// * [ ] MultiPoint
-// * [ ] MultiLineString
-// * [ ] MultiPolygon
-// * [ ] GeometryCollection
+// * [x] Point
+// * [x] LineString
+// * [x] Polygon
+// * [x] MultiPoint
+// * [x] MultiLineString
+// * [x] MultiPolygon
+// * [x] GeometryCollection
 // Basic Geometry Foreign Members
-// * [ ] Point
-// * [ ] LineString
-// * [ ] Polygon
-// * [ ] MultiPoint
-// * [ ] MultiLineString
-// * [ ] MultiPolygon
-// * [ ] GeometryCollection
+// * [x] Point
+// * [x] LineString
+// * [x] Polygon
+// * [x] MultiPoint
+// * [x] MultiLineString
+// * [x] MultiPolygon
+// * [x] GeometryCollection
 // Misc
 // * [ ] JSNumber overflow case
 // * [ ] XYM Coordinate (no Z) encoding
@@ -277,7 +256,7 @@ object FeatureCollection {
 //   * [x] null props (filled with empty jsonobject)
 //   * [x] foreign members and props (merged)
 // * [x] FeatureCollection to SimpleFeatureCollection
-// * [ ] SimpleFeature typed conversions
+// * [x] SimpleFeature typed conversions
 // JTS Conversions
 // ToJts
 // * [x] Point
