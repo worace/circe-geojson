@@ -33,8 +33,9 @@ GeoJson.parse(encodedComplexFeature)
 ### Creating and Encoding GeoJSON
 
 ```scala mdoc
-import works.worace.geojson.{BBox, Coordinate, Feature, Point}
+import works.worace.geojson.{BBox, Coordinate, Feature, Point, FeatureCodec}
 import io.circe.{Json, JsonObject}
+
 
 val feature = Feature(
   id=Some(Right("String ID")),
@@ -43,6 +44,15 @@ val feature = Feature(
   bbox=Some(BBox(Coordinate(101,1.0),Coordinate(101,1.0))),
   foreignMembers=Some(JsonObject("topLevel" -> Json.fromString("properties")))
 )
+
+// circe syntax for the asJson extension
+import io.circe.syntax._
+// Feature-specific json encoders
+import FeatureCodec.implicits._
+feature.asJson
+feature.asJson.toString
+
 feature.encode
-feature.encode.spaces2
+feature.encode.toString
+GeoJson.asJson(feature)
 ```

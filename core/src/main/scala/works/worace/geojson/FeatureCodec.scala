@@ -11,8 +11,8 @@ import GeometryCodec._
 import BBoxCodec.implicits._
 
 object FeatureCodec extends Codec[Feature] {
-  object Implicits {
-    implicit val featureEncoder = encoder
+  object implicits {
+    implicit val featureEncoder: Encoder[Feature] = encoder
     implicit val featureDecoder = decoder
   }
   private val base = deriveConfiguredDecoder[Feature]

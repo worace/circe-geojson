@@ -70,8 +70,9 @@ GeoJson.parse(encodedComplexFeature)
 ### Creating and Encoding GeoJSON
 
 ```scala
-import works.worace.geojson.{BBox, Coordinate, Feature, Point}
+import works.worace.geojson.{BBox, Coordinate, Feature, Point, FeatureCodec}
 import io.circe.{Json, JsonObject}
+
 
 val feature = Feature(
   id=Some(Right("String ID")),
@@ -89,7 +90,12 @@ val feature = Feature(
 //   ),
 //   Some(object[topLevel -> "properties"])
 // )
-feature.encode
+
+// circe syntax for the asJson extension
+import io.circe.syntax._
+// Feature-specific json encoders
+import FeatureCodec.Implicits._
+feature.asJson
 // res3: Json = JObject(
 //   object[topLevel -> "properties",type -> "Feature",id -> "String ID",properties -> {
 //   "a" : "b"
@@ -108,7 +114,7 @@ feature.encode
 //   "type" : "Point"
 // }]
 // )
-feature.encode.spaces2
+feature.asJson.toString
 // res4: String = """{
 //   "topLevel" : "properties",
 //   "type" : "Feature",
@@ -132,4 +138,67 @@ feature.encode.spaces2
 //     "type" : "Point"
 //   }
 // }"""
+
+feature.encode
+// res5: Json = JObject(
+//   object[topLevel -> "properties",type -> "Feature",id -> "String ID",properties -> {
+//   "a" : "b"
+// },bbox -> [
+//   101.0,
+//   1.0,
+//   101.0,
+//   1.0
+// ],geometry -> {
+//   "coordinates" : [
+//     101.0,
+//     1.0
+//   ],
+//   "bbox" : null,
+//   "foreignMembers" : null,
+//   "type" : "Point"
+// }]
+// )
+feature.encode.toString
+// res6: String = """{
+//   "topLevel" : "properties",
+//   "type" : "Feature",
+//   "id" : "String ID",
+//   "properties" : {
+//     "a" : "b"
+//   },
+//   "bbox" : [
+//     101.0,
+//     1.0,
+//     101.0,
+//     1.0
+//   ],
+//   "geometry" : {
+//     "coordinates" : [
+//       101.0,
+//       1.0
+//     ],
+//     "bbox" : null,
+//     "foreignMembers" : null,
+//     "type" : "Point"
+//   }
+// }"""
+GeoJson.asJson(feature)
+// res7: Json = JObject(
+//   object[topLevel -> "properties",type -> "Feature",id -> "String ID",properties -> {
+//   "a" : "b"
+// },bbox -> [
+//   101.0,
+//   1.0,
+//   101.0,
+//   1.0
+// ],geometry -> {
+//   "coordinates" : [
+//     101.0,
+//     1.0
+//   ],
+//   "bbox" : null,
+//   "foreignMembers" : null,
+//   "type" : "Point"
+// }]
+// )
 ```
