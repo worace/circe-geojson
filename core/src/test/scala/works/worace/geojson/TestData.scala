@@ -302,7 +302,11 @@ object TestData {
 
     val bboxPoint = Case(
       """{"type": "Point", "bbox": [102.0, 0.5, 102.0, 0.5], "coordinates": [102.0, 0.5]}""",
-      Point(Coordinate(102.0, 0.5), Some(BBox(Coordinate(102.0, 0.5), Coordinate(102.0, 0.5))), None)
+      Point(
+        Coordinate(102.0, 0.5),
+        Some(BBox(Coordinate(102.0, 0.5), Coordinate(102.0, 0.5))),
+        None
+      )
     )
 
     val fMemberPoint = Case(
@@ -424,7 +428,13 @@ object TestData {
       Feature(
         Some(Right("pizza")),
         Some(JsonObject("a" -> Json.fromString("b"))),
-        Some(Point(Coordinate(101.0, 1.0), None, Some(JsonObject("other" -> Json.fromString("nested"))))),
+        Some(
+          Point(
+            Coordinate(101.0, 1.0),
+            None,
+            Some(JsonObject("other" -> Json.fromString("nested")))
+          )
+        ),
         Some(BBox(Coordinate(101.0, 1.0), Coordinate(101.0, 1.0))),
         Some(JsonObject("foreign" -> Json.fromString("member")))
       )

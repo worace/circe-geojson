@@ -5,7 +5,7 @@ import io.circe.parser._
 import io.circe.syntax._
 import CoordinateCodec.implicits._
 
-object GeoJson extends Codable[GeoJson]{
+object GeoJson extends Codable[GeoJson] {
   val codec = GeoJsonCodec
   val coreKeys =
     Set("type", "geometry", "coordinates", "properties", "features", "geometries", "id", "bbox")
@@ -36,9 +36,10 @@ sealed trait GeoJson {
 
   private def addForeignMembers(encoded: JsonObject, fm: Option[JsonObject]): JsonObject = {
     fm.map { obj =>
-      val foreignMembers = obj.filterKeys(!GeoJson.coreKeys.contains(_))
-      encoded.deepMerge(foreignMembers)
-    }.getOrElse(encoded)
+        val foreignMembers = obj.filterKeys(!GeoJson.coreKeys.contains(_))
+        encoded.deepMerge(foreignMembers)
+      }
+      .getOrElse(encoded)
   }
 
   private def addBBox(encoded: JsonObject, bbox: Option[BBox]): JsonObject = {
@@ -104,7 +105,7 @@ case class MultiPolygon(
   coordinates: Vector[Vector[Vector[Coordinate]]],
   bbox: Option[BBox],
   foreignMembers: Option[JsonObject]
-) extends Geometry  {
+) extends Geometry {
   val `type` = "MultiPolygon"
   def withForeignMembers(fm: Option[JsonObject]): MultiPolygon = copy(foreignMembers = fm)
   def baseJsonObject: JsonObject = JsonObject("coordinates" -> coordinates.asJson)
@@ -149,7 +150,9 @@ case class Feature(
     List(
       id.map(id => ("id", id.asJson)),
       properties.map(p => ("properties", p.asJson))
-    ).flatten.foldLeft(base)((feature: JsonObject, pair: (String, Json)) => feature.add(pair._1, pair._2))
+    ).flatten.foldLeft(base)((feature: JsonObject, pair: (String, Json)) =>
+      feature.add(pair._1, pair._2)
+    )
   }
 }
 

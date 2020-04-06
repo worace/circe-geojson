@@ -21,9 +21,12 @@ trait TestHelpers extends munit.FunSuite {
 
   }
 
-  def roundTripCodecCase[G <: GeoJson: ClassTag](gj: G)(implicit decoder: Decoder[G], encoder: Encoder[G]) = {
+  def roundTripCodecCase[G <: GeoJson: ClassTag](
+    gj: G
+  )(implicit decoder: Decoder[G], encoder: Encoder[G]) = {
     val encoded: Json = gj.asJson
-    encoded.as[G](decoder)
+    encoded
+      .as[G](decoder)
       .fold(
         err => fail(s"Failed round-trip: ${gj}", clues(gj, err, encoded)),
         decoded => assertEquals(decoded, gj)

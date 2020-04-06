@@ -20,7 +20,10 @@ class CodableTest extends munit.FunSuite with TestHelpers {
     codablePermutationTests(Permutations.featureCollections, FeatureCollection)
   }
 
-  def codablePermutationTests[G <: GeoJson : ClassTag](permutations: Vector[G], codable: Codable[G]) = {
+  def codablePermutationTests[G <: GeoJson: ClassTag](
+    permutations: Vector[G],
+    codable: Codable[G]
+  ) = {
     permutations.foreach { gj =>
       val encoded = codable.asJson(gj)
       assertEquals(codable.fromJson(encoded), Right(gj))
