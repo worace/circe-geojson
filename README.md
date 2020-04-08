@@ -37,6 +37,21 @@ println(pretty)
 
 #### Using JTS Conversions
 
+
+```scala
+import works.worace.geojson.{GeoJson, Point, Geometry}
+import org.locationtech.jts.geom.{Geometry => JtsGeom}
+import works.worace.geojson.jts.Conversions.implicits.GeometryToJts
+
+val point: GeoJson = GeoJson.parse("""{"type":"Point","coordinates":[1.0,-1.0]}""").right.get
+
+val jts: Option[JtsGeom] = point match {
+  case p: Geometry => Some(p.toJts)
+  case _ => None
+}
+// jts: Option[org.locationtech.jts.geom.Geometry] = Some(POINT (1 -1))
+```
+
 Organizing Imports
 
 * works.worace.geojson
@@ -56,24 +71,107 @@ Organizing Imports
   * Geometry/Feature toJts
   * jts.geom.Geometry.toGeoJson
 
-
-```scala
-import works.worace.geojson.{GeoJson, Point, Geometry}
-import org.locationtech.jts.geom.{Geometry => JtsGeom}
-import works.worace.geojson.jts.Conversions.implicits.GeometryToJts
-
-val point: GeoJson = GeoJson.parse("""{"type":"Point","coordinates":[1.0,-1.0]}""").right.get
-
-val jts: Option[JtsGeom] = point match {
-  case p: Geometry => Some(p.toJts)
-  case _ => None
-}
-// jts: Option[org.locationtech.jts.geom.Geometry] = Some(POINT (1 -1))
-```
-
 #### More Examples
 
 For more detailed instructions, see [Usage Examples](https://github.com/worace/circe-geojson/blob/master/docs/Usage.md).
+
+### GeoJson ADT
+
+The library represents GeoJSON using the following ADT hierarchy:
+
+* `works.worace.geojson.GeoJson`
+  * `works.worace.geojson.FeatureCollection`
+  * `works.worace.geojson.Feature`
+  * `works.worace.geojson.Geometry`
+    * `works.worace.geojson.Point`
+    * `works.worace.geojson.LineString`
+    * `works.worace.geojson.Polygon`
+    * `works.worace.geojson.MultiPoint`
+    * `works.worace.geojson.MultiLineString`
+    * `works.worace.geojson.MultiPolygon`
+    * `works.worace.geojson.GeometryCollection`
+
+Wherever appropriate, embedded JSON values (such as the `properties` field on a GeoJSON Feature) are represented using Circe's `io.circe.JsonObject`.
+
+Additionally, 2 fundamental types `works.worace.geojson.BBox` and `works.worace.geojson.Coordinate` are used to represent these GeoJSON components. A `Coordinate` represents a coordinate with X,Y, and optional Z and M coordinates. A BBox is a bounding rectangle represented by a min and max Coordinate.
+
+### Codec Organization and Parsing
+
+All of the main GeoJSON types under the `works.worace.geojson.GeoJson` ADT include circe-based codecs for encoding and decoding to and from JSON. These are organized using a `works.worace.geojson.Codable` trait (TODO doc link) which includes helper methods like `parse(rawJson: String): Either[io.circe.Error, T]`. They also expose the circe decoder and encoder instances so that you can use those instead if you prefer.
+
+So, for example, you could decode any arbitrary GeoJSON using the `Codable` interface on `works.worace.geojson.GeoJson`:
+
+```scala
+works.worace.geojson.GeoJson.parse("""{"type":"Point","coordinates":[1.0,-1.0]}""")
+```
+
+But you could also decode this at a Geometry or Point level (for example if you knew in advance that your GeoJson would be one of these types):
+
+```scala
+works.worace.geojson.Geometry.parse("""{"type":"Point","coordinates":[1.0,-1.0]}""")
+// or
+works.worace.geojson.Point.parse("""{"type":"Point","coordinates":[1.0,-1.0]}""")
+```
+
+Or, you could also just import the implicit encoder and decoder instances directly, and use them in combination with Circe's standard syntax:
+
+```scala
+import io.circe.syntax._
+import io.circe.parser.parse
+import works.wroace.geojson.Geometry.codec.implicits._
+
+parse("""{"type":"Point","coordinates":[1.0,-1.0]}""").as[Geometry]
+```
+
+### Foreign Members
+
+One of the trickier aspects of the GeoJSON Spec (defined in [section 6](https://tools.ietf.org/html/rfc7946#section-6)) is the provision for "Foreign Members". Objects are allowed to include non-standard keys at the top-level, such as a `Feature` object with the key of "title" alongside the standard "id", "type", "properties", and "geometry" keys. This is less of a problem in dynamic languages that can represent GeoJson as nested dictionaries or objects, but is a little tricky to represent in Scala. To this end, each of the `GeoJson` types in the library includes a `foreignMembers: Option[JsonObject]` member to capture these additional keys, if any are present.
+
+### Feature Nullability and the "Simple" Feature Interface
+
+`Feature` is the most common and useful GeoJSON type because it lets us combine spatial geometries with arbitrary metadata. However, there are several nuances about the definition of Features in the GeoJSON spec which make them more complicated to work with than expected:
+
+* The `geometry` property of a feature is nullable: `{"type": "Feature", "geometry": null}` is actually a valid Feature.
+* Feature `properties` are optional, even though we may think of the default case as being simply an empty JSON Object
+* `id` is also an optional field, but if present it can be _either_ a number or a string.
+* Like other GeoJSON types, features can optionally include a `bbox` field as well as any number of "foreign member" top-level keys.
+
+For the core GeoJson ADT types, this library tries to stay as true to the spec as possible. Therefore the core `Feature` implementation looks something like this:
+
+```scala
+case class Feature(
+  id: Option[Either[JsonNumber, String]],
+  properties: Option[JsonObject],
+  geometry: Option[Geometry],
+  bbox: Option[BBox],
+  foreignMembers: Option[JsonObject]
+)
+```
+
+While this is accurate, and allows us to properly decode all variants of GeoJSON according to the spec, it can be tedious to work with because it doesn't match common conventions of how GeoJSON Features are actually used.
+
+To help with this mismatch, this library also includes another type `works.worace.geojson.SimpleFeature` which looks like this:
+
+```scala
+case class SimpleFeature(
+  id: Option[String]
+  properties: JsonObject,
+  geometry: Geometry
+)
+```
+
+A Feature can be converted to an optional `SimpleFeature` via the interface:
+
+```scala
+val simple: Option[SimpleFeature] = feature.simple
+```
+
+According to the following rules:
+
+* A `Feature` with an empty geometry will yield an empty `SimpleFeature`
+* Features with empty properties receive an empty `io.circe.JsonObject` for their properties
+* Any foreign members on the feature will be merged into the `properties` field on the simple version
+* Numeric Feature ids will be converted to strings (so that the type can be `Option[String]` rather than `Option[Either[JsonNumber, String]]`)
 
 ## Upcoming / TODOs
 

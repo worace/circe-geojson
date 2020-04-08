@@ -212,6 +212,15 @@ case class SimpleFeature(id: Option[String], properties: JsonObject, geometry: G
   def propsAs[T](implicit decoder: Decoder[T]): Decoder.Result[TypedFeature[T]] = {
     Json.fromJsonObject(properties).as[T].map(props => TypedFeature(id, props, geometry))
   }
+  def feature: Feature = {
+    Feature(
+      id = id.map(Right(_)),
+      properties = Some(properties),
+      geometry = Some(geometry),
+      bbox = None,
+      foreignMembers = None
+    )
+  }
 }
 
 case class SimpleFeatureCollection(features: Vector[SimpleFeature])
