@@ -56,7 +56,7 @@ val jts: Option[JtsGeom] = point match {
 
 For more detailed instructions, see [Usage Examples](https://github.com/worace/circe-geojson/blob/master/docs/Usage.md).
 
-### GeoJson ADT
+### GeoJson Types and ADT
 
 The library represents GeoJSON using the following ADT hierarchy:
 
@@ -72,36 +72,50 @@ The library represents GeoJSON using the following ADT hierarchy:
     * `works.worace.geojson.MultiPolygon`
     * `works.worace.geojson.GeometryCollection`
 
-Wherever appropriate, embedded JSON values (such as the `properties` field on a GeoJSON Feature) are represented using Circe's `io.circe.JsonObject`.
+Where necessary, embedded JSON values (such as the `properties` field on a GeoJSON Feature) are represented using Circe's `io.circe.JsonObject`.
 
-Additionally, 2 fundamental types `works.worace.geojson.BBox` and `works.worace.geojson.Coordinate` are used to represent these GeoJSON components. A `Coordinate` represents a coordinate with X,Y, and optional Z and M coordinates. A BBox is a bounding rectangle represented by a min and max Coordinate.
+Additionally, 2 the types `works.worace.geojson.BBox` and `works.worace.geojson.Coordinate` represent these respective GeoJSON components.
+
+`Coordinate` represents a coordinate with X,Y, and optional Z and M coordinates.
+
+A `BBox` is a bounding rectangle represented by a min and max Coordinate.
 
 ### Codec Organization and Parsing
 
-All of the main GeoJSON types under the `works.worace.geojson.GeoJson` ADT include circe-based codecs for encoding and decoding to and from JSON. These are organized using a `works.worace.geojson.Codable` trait (TODO doc link) which includes helper methods like `parse(rawJson: String): Either[io.circe.Error, T]`. They also expose the circe decoder and encoder instances so that you can use those instead if you prefer.
+All of the main GeoJSON types under the `works.worace.geojson.GeoJson` ADT include circe-based codecs for encoding and decoding to and from JSON.
 
-So, for example, you could decode any arbitrary GeoJSON using the `Codable` interface on `works.worace.geojson.GeoJson`:
+These are organized using a `works.worace.geojson.Codable` trait (TODO doc link) which looks like:
+
+```scala
+trait Codable[T <: GeoJson] {
+  def parse(rawJson: String): Either[io.circe.Error, T]
+  def fromJson(json: Json): Either[io.circe.Error, T]
+  def asJson(gj: T): Json
+}
+```
+
+So, for example, the companion object `GeoJson` implements `Codable[GeoJson]`, and could be used to parse a JSON string representing a point:
 
 ```scala
 works.worace.geojson.GeoJson.parse("""{"type":"Point","coordinates":[1.0,-1.0]}""")
 ```
 
-But you could also decode this at a Geometry or Point level (for example if you knew in advance that your GeoJson would be one of these types):
+Similarly the `Point` companion object can be used to parse points (this can be useful if you know the type of your data in advance and want to narrow the output type):
 
 ```scala
-works.worace.geojson.Geometry.parse("""{"type":"Point","coordinates":[1.0,-1.0]}""")
-// or
 works.worace.geojson.Point.parse("""{"type":"Point","coordinates":[1.0,-1.0]}""")
 ```
 
-Or, you could also just import the implicit encoder and decoder instances directly, and use them in combination with Circe's standard syntax:
+Finally, the Codable types also expose Circe decoder and encoder instances, which can be used with Circe's standard syntax directly if preferred.
 
 ```scala
 import io.circe.syntax._
 import io.circe.parser.parse
-import works.wroace.geojson.Geometry.codec.implicits._
+import works.wroace.geojson.Point.codec.implicits._
+import works.wroace.geojson.GeoJson.codec.implicits._
 
-parse("""{"type":"Point","coordinates":[1.0,-1.0]}""").as[Geometry]
+parse("""{"type":"Point","coordinates":[1.0,-1.0]}""").as[Point]
+parse("""{"type":"Point","coordinates":[1.0,-1.0]}""").as[GeoJson]
 ```
 
 ### Foreign Members
