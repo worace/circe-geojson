@@ -118,6 +118,12 @@ parse("""{"type":"Point","coordinates":[1.0,-1.0]}""").as[Point]
 parse("""{"type":"Point","coordinates":[1.0,-1.0]}""").as[GeoJson]
 ```
 
+## GeoJSON Nuances and Gotchas
+
+This library attempts to fully implement the GeoJSON Spec, which in some cases is more nuanced than it seems at first glance. In particular many of the GeoJSON types contain optional or dynamic fields, and accounting for these adds some complexities to the provided types.
+
+This section goes over some of these nuances and describes some techniques to make working with them easier.
+
 ### Foreign Members
 
 One of the trickier aspects of the GeoJSON Spec (defined in [section 6](https://tools.ietf.org/html/rfc7946#section-6)) is the provision for "Foreign Members". Objects are allowed to include non-standard keys at the top-level, such as a `Feature` object with the key of "title" alongside the standard "id", "type", "properties", and "geometry" keys. This is less of a problem in dynamic languages that can represent GeoJson as nested dictionaries or objects, but is a little tricky to represent in Scala. To this end, each of the `GeoJson` types in the library includes a `foreignMembers: Option[JsonObject]` member to capture these additional keys, if any are present.
