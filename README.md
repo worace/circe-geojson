@@ -52,25 +52,6 @@ val jts: Option[JtsGeom] = point match {
 // jts: Option[org.locationtech.jts.geom.Geometry] = Some(POINT (1 -1))
 ```
 
-Organizing Imports
-
-* works.worace.geojson
-  * GeoJson
-    * Codec
-  * FeatureCollection
-    * Codec
-  * Feature
-    * Codec
-  * Geometry
-    * Codec
-  * Point/LineString/etc
-    * Codec
-  * Codecs (combines implicits for all)
-* works.worace.geojson
-  * JtsConversions._
-  * Geometry/Feature toJts
-  * jts.geom.Geometry.toGeoJson
-
 #### More Examples
 
 For more detailed instructions, see [Usage Examples](https://github.com/worace/circe-geojson/blob/master/docs/Usage.md).
