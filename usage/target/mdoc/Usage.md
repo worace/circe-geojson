@@ -115,9 +115,9 @@ import works.worace.geojson.GeoJson.codec.implicits._
 
 // Example Encoder and Decoder instances
 works.worace.geojson.Point.codec.implicits.pointEncoder
-// res4: io.circe.Encoder[Point] = io.circe.Encoder$$anon$3@76186045
+// res4: io.circe.Encoder[Point] = io.circe.Encoder$$anon$3@238cda50
 works.worace.geojson.Point.codec.implicits.pointDecoder
-// res5: io.circe.Decoder[Point] = io.circe.Decoder$$anon$16@7acf338b
+// res5: io.circe.Decoder[Point] = io.circe.Decoder$$anon$16@34c01b1c
 
 // Decoding using standard Circe methods,
 // along with the provided decoders
