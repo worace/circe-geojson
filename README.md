@@ -8,13 +8,13 @@ Library for working with GeoJSON in idiomatic Scala.
 
 Includes:
 
-* A `GeoJson` Algebraic Data Type for representing GeoJSON data in accordance with the RFC 7946 Spec
-* Circe-based encoders and decoders for de/serializing GeoJSON to and from JSON
-* Optional extensions for converting GeoJSON geometries to and from Java Topology Suite (JTS) geometries
+* An Algebraic Data Type (`works.worace.geojson.GeoJson`) for representing GeoJSON data in accordance with the RFC 7946 Spec
+* Circe-based encoders and decoders for converting GeoJSON to and from JSON
+* Optional extensions for converting between `GeoJson` types and Java Topology Suite (JTS) geometries
 
 ### Docs
 
-For usage examples and more information about the library, see the [Docs](https://github.com/worace/circe-geojson/blob/master/docs/Usage.md)
+**For usage examples and more information about the library, see the [Docs](https://github.com/worace/circe-geojson/blob/master/docs/Usage.md)**
 
 ## Further Reading
 
@@ -22,14 +22,14 @@ For usage examples and more information about the library, see the [Docs](https:
 * [IETF RFC 7946 (GeoJSON Spec)](https://tools.ietf.org/html/rfc7946)
 * [georust/geojson](https://github.com/georust/geojson) - A Rust implementation of GeoJSON which inspired the ADT hierarchy and type definitions for this package
 
+## Development
 
-## Upcoming / TODOs
+* Run tests with `sbt test`
+* Releases are pushed by CI (Github Actions) using [sbt-ci-release](https://github.com/olafurpg/sbt-ci-release)
+* Markdown doc examples are compiled using [mdoc](https://github.com/scalameta/mdoc)
 
-* [x] Hoist namespaces (`works.worace.geojson.jts.Conversions.implicits.GeometryToJts` => `works.worace.geojson.JtsConversions._`)
-* Publishing Improvements - https://docs.scala-lang.org/overviews/contributors/index.html
-* [ ] Readme
-  * [x] Install instructions
-  * [x] Background / Description
+### Upcoming / TODOs
+
 * [ ] Docs
   * [x] Readme Usage examples (tut/md - compile-time check)
   * [ ] Scaladoc
