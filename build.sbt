@@ -28,7 +28,8 @@ val commonSettings = Seq(
 lazy val root = Project(
   id = "root",
   base = file(".")
-).aggregate(core, jts)
+).settings(commonSettings: _*)
+  .aggregate(core, jts)
   .settings(
     skip in publish := true,
     publishArtifact := false
