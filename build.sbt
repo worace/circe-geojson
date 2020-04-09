@@ -30,6 +30,7 @@ lazy val root = Project(
   base = file(".")
 ).aggregate(core, jts)
   .settings(
+    skip in publish := true,
     publishArtifact := false
   )
 
