@@ -1,7 +1,6 @@
 package works.worace.geojson
 
 import io.circe.{Json, JsonObject, Decoder, DecodingFailure}
-import io.circe.parser.decode
 import scala.reflect.ClassTag
 
 class CodableTest extends munit.FunSuite with TestHelpers {
