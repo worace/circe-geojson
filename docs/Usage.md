@@ -209,11 +209,9 @@ This section is purely opinion-based, but here are some thoughts on the best way
 
 A very common use-case for GeoJSON (especially if you're using it in Scala) is to feed geospatial data + metadata into a data pipeline.
 
-For the spatial data you'll need one of the `Geometry` types, and to combine it with metadata you'll need to use a `Feature`. And because you're doing data pipeline work, it's possible that the size of your dataset will get large.
+For the spatial data you'll need one of the `Geometry` types, and to combine it with metadata you'll need to use a `Feature`. At first glance a `FeatureCollection` might seem like a good fit for this use case, since it allows you to bundle up a collection of features. However, a `FeatureCollection` is still a single JSON object, which means the whole thing must be loaded and parsed before you can start processing any of the individual features. Unfortunately, this makes it relatively useless in data engineering contexts -- anywhere you might be working with variable-sized datasets that could grow larger than what comfortably fits in RAM.
 
-For this reason, the GeoJSON `FeatureCollection` type is relatively useless for data engineering. This is because it requires you to parse the entire (potentially large) string before you can begin processing any of the features -- there is no streaming.
-
-So, for example, when Microsoft releases their [US Building Footprints Dataset](https://github.com/microsoft/USBuildingFootprints) (which is awesome, and very nice of them to share) as `.geojson` files containing `FeatureCollections`, this is less awesome, because they force everyone to load (in the case of California) a 2GB+ file into memory before they can start parsing it.
+So, for example, when Microsoft releases their [US Building Footprints Dataset](https://github.com/microsoft/USBuildingFootprints) (which is awesome, and very nice of them to share) as `.geojson` files containing `FeatureCollections`, this is less awesome, because they force everyone to load (in the case of California) a 2GB+ file into memory before they can start parsing and processing it.
 
 Instead, it's better to store data as newline-delimited GeoJSON Features, so that you can stream the dataset and handle each feature in turn without loading the whole thing into memory.
 
@@ -235,7 +233,7 @@ Source
 // res: Iterator[Either[io.circe.Error, Feature]]
 ```
 
-Then you can flatten out the error cases (or just throw exceptions on them), and maybe even convert to `SimpleFeature`s and be on your way.
+Then you can flatten out the error cases (or handle them however you want), and maybe even convert to `SimpleFeature`s and be on your way.
 
 This approach also works great for processing large files in a distributed context like Spark:
 
@@ -247,3 +245,9 @@ spark.read.textFile("hdfs:///big_honkin_dataset.geojsonseq")
   .flatMap(_.toOption)
 // res: RDD[Feature]
 ```
+
+## Further Reading
+
+* [More than you ever wanted to know about GeoJSON](https://macwright.org/2015/03/23/geojson-second-bite.html) - If you're new to working with GeoJSON in general, this article by Tom MacWright is a great overview.
+* [IETF RFC 7946 (GeoJSON Spec)](https://tools.ietf.org/html/rfc7946) - The full GeoJSON spec
+* [georust/geojson](https://github.com/georust/geojson) - A Rust implementation of GeoJSON which inspired the ADT hierarchy and type definitions for this library

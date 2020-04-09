@@ -14,12 +14,6 @@ Includes:
 
 ### For usage examples and more information about the library, see the [Docs](https://github.com/worace/circe-geojson/blob/master/usage/target/mdoc/Usage.md)
 
-## Further Reading
-
-* If you're new to working with GeoJSON in general, Tom MacWright's [More than you ever wanted to know about GeoJSON](https://macwright.org/2015/03/23/geojson-second-bite.html) is a great overview.
-* [IETF RFC 7946 (GeoJSON Spec)](https://tools.ietf.org/html/rfc7946)
-* [georust/geojson](https://github.com/georust/geojson) - A Rust implementation of GeoJSON which inspired the ADT hierarchy and type definitions for this package
-
 ## Development
 
 * Run tests with `sbt test`
