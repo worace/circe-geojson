@@ -12,7 +12,7 @@ Includes:
 * Circe-based encoders and decoders for converting GeoJSON to and from JSON
 * Optional extensions for converting between `GeoJson` types and Java Topology Suite (JTS) geometries
 
-#### For usage examples and more information about the library, see the [Docs](https://github.com/worace/circe-geojson/blob/master/docs/Usage.md)
+### For usage examples and more information about the library, see the [Docs](https://github.com/worace/circe-geojson/blob/master/docs/Usage.md)
 
 ## Further Reading
 
