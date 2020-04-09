@@ -13,7 +13,6 @@ val commonSettings = Seq(
   testFrameworks += new TestFramework("munit.Framework"),
   scalacOptions ++= Seq("-Xfatal-warnings", "-feature", "-deprecation"),
   licenses := Seq("APL2" -> url("https://www.apache.org/licenses/LICENSE-2.0.txt")),
-  publishTo := sonatypePublishTo.value,
   sonatypeProjectHosting := Some(GitHubHosting("worace", "circe-geojson", "horace@worace.works")),
   developers := List(
     Developer(
