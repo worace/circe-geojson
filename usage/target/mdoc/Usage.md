@@ -278,13 +278,15 @@ This section is purely opinion-based, but here are some thoughts on the best way
 
 A very common use-case for GeoJSON (especially if you're using it in Scala) is to feed geospatial data + metadata into a data pipeline.
 
-For the spatial data you'll need one of the `Geometry` types, and to combine it with metadata you'll need to use a `Feature`. At first glance a `FeatureCollection` might seem like a good fit for this use case, since it allows you to bundle up a collection of features. However, a `FeatureCollection` is still a single JSON object, which means the whole thing must be loaded and parsed before you can start processing any of the individual features. Unfortunately, this makes it relatively useless in data engineering contexts -- anywhere you might be working with variable-sized datasets that could grow larger than what comfortably fits in RAM.
+For the spatial data you'll need one of the `Geometry` types, and to combine it with metadata you'll need to use a `Feature`.
+
+At first glance a `FeatureCollection` might seem like a good fit for this use case, since it allows you to bundle up a collection of features. However, a `FeatureCollection` is still a single JSON object, which means the whole thing must be loaded and parsed before you can start processing any of the individual features.
+
+Unfortunately, this makes it relatively useless in data engineering contexts -- anywhere you might be working with variable-sized datasets that could grow larger than what comfortably fits in RAM.
 
 So, for example, when Microsoft releases their [US Building Footprints Dataset](https://github.com/microsoft/USBuildingFootprints) (which is awesome, and very nice of them to share) as `.geojson` files containing `FeatureCollections`, this is less awesome, because they force everyone to load (in the case of California) a 2GB+ file into memory before they can start parsing and processing it.
 
-Instead, it's better to store data as newline-delimited GeoJSON Features, so that you can stream the dataset and handle each feature in turn without loading the whole thing into memory.
-
-This type of encoding is sometimes called "geojsonseq" or "ndjson", and it actually has its own special RFC definition ([IETF RFC 8142](https://tools.ietf.org/html/rfc8142)).
+Instead, it's better to store data as newline-delimited GeoJSON Features, so that you can stream the dataset and handle each feature in turn without loading the whole thing into memory. This type of encoding is sometimes called "geojsonseq" or "ndjson", and it actually has its own special RFC definition ([IETF RFC 8142](https://tools.ietf.org/html/rfc8142)).
 
 So, coming back to this library, the top-level `GeoJson` type is useful if you need to decode arbitrary GeoJSON whose type you may not know in advance.
 
