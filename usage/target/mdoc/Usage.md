@@ -5,7 +5,7 @@
 Installation:
 
 ```scala
-libraryDependencies += "works.worace" % "circe-geojson-core** % "0.0.0+97-24e2548f+20200408-1919-SNAPSHOT**
+libraryDependencies += "works.worace" % "circe-geojson-core" % "0.0.0+97-24e2548f+20200408-1919-SNAPSHOT"
 ```
 
 **Basic Decoding Example**
