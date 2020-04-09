@@ -154,9 +154,9 @@ This section goes over some of these nuances and describes some techniques to ma
 
 ### Foreign Members
 
-One of the trickier aspects of the GeoJSON Spec (defined in [section 6](https://tools.ietf.org/html/rfc7946#section-6)) is the provision for "Foreign Members". GeoJSON objects contain a standard set of fields like `geometry` or `type`. But they are also allowed to include non-standard keys at the top-level: for example a `Feature` object with the extra key of "title" alongside its standard "id", "type", "properties", and "geometry" keys. The spec describes these extra fields as "Foreign Members."
+GeoJSON objects contain a standard set of fields like `geometry` or `type`. But they are also allowed to include non-standard keys at the top-level: for example a `Feature` object with the extra key of `title` alongside its standard `id`, `type`, `properties`, and `geometry` keys. The spec (in [section 6](https://tools.ietf.org/html/rfc7946#section-6)) describes these extra fields as "Foreign Members."
 
-This is less problematic for dynamic languages that can represent GeoJson as nested dictionaries or objects, but is a little tricky to represent in Scala. To this end, each of the `GeoJson` types in the library includes a `foreignMembers: Option[JsonObject]` member to capture these additional keys, if any are present.
+Foreign members aren't so problematic for dynamic languages that can represent GeoJson as free-form nested dictionaries or objects, but they are a little tricky to model in Scala. We do it by adding a `foreignMembers` field to each GeoJson type containing an `Option[JsonObject]`. If any extra keys (outside of the standard set covered in the spec) are added to a GeoJSON object, they'll be bundled into this `foreignMembers` field. If there are no foreign members, the field will be `None`.
 
 So, for example a GeoJSON Point with an extra field "title" will decode to a Point instance with a `foreignMembers` JsonObject containing the key "title":
 
@@ -202,7 +202,7 @@ However, it's also one of the most complicated, because the spec allows many of 
 * `id` is also an optional field, but if present it can be _either_ a number or a string.
 * Like other GeoJSON types, features can optionally include a `bbox` field as well as any number of "foreign member" top-level keys.
 
-For the core GeoJson ADT types, this library tries to stay as true to the spec as possible. Therefore the core `Feature` implementation looks something like this:
+Representing all this in Scala looks roughly like this:
 
 ```scala
 case class Feature(
