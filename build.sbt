@@ -32,7 +32,9 @@ lazy val root = Project(
   .aggregate(core, jts)
   .settings(
     skip in publish := true,
-    publishArtifact := false
+    publishArtifact := false,
+    publishLocal := {},
+    publish := { }
   )
 
 lazy val core = project
