@@ -1,10 +1,10 @@
-## circe-geojson
+# circe-geojson
 
 ![Build Status](https://github.com/worace/circe-geojson/workflows/CI/badge.svg)
 [![Sonatype Nexus (Snapshots)](https://img.shields.io/nexus/s/https/oss.sonatype.org/works.worace/circe-geojson-core_2.12.svg)](https://oss.sonatype.org/content/repositories/snapshots/works/worace/circe-geojson-core_2.12/)
 [![Sonatype Nexus (Snapshots)](https://img.shields.io/nexus/s/https/oss.sonatype.org/works.worace/circe-geojson-jts_2.12.svg)](https://oss.sonatype.org/content/repositories/snapshots/works/worace/circe-geojson-jts_2.12/)
 
-Library for working with GeoJSON in idiomatic Scala.
+A library for working with GeoJSON in idiomatic Scala.
 
 Includes:
 
@@ -12,9 +12,7 @@ Includes:
 * Circe-based encoders and decoders for converting GeoJSON to and from JSON
 * Optional extensions for converting between `GeoJson` types and Java Topology Suite (JTS) geometries
 
-### Docs
-
-**For usage examples and more information about the library, see the [Docs](https://github.com/worace/circe-geojson/blob/master/docs/Usage.md)**
+#### For usage examples and more information about the library, see the [Docs](https://github.com/worace/circe-geojson/blob/master/docs/Usage.md)
 
 ## Further Reading
 
