@@ -6,6 +6,15 @@
 
 A library for working with GeoJSON in idiomatic Scala.
 
+```scala
+import works.worace.geojson.GeoJson
+
+GeoJson.parse("""{"type":"Point","coordinates":[1.0,-1.0]}""")
+// res: Either[io.circe.Error, GeoJson] = Right(
+//   Point(Coordinate(1.0, -1.0, None, None), None, None)
+// )
+```
+
 Includes:
 
 * An Algebraic Data Type (`works.worace.geojson.GeoJson`) for representing GeoJSON data in accordance with the RFC 7946 Spec
