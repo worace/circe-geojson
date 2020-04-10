@@ -28,8 +28,11 @@ lazy val root = Project(
   id = "root",
   base = file(".")
 ).settings(commonSettings: _*)
+  .enablePlugins(GhpagesPlugin)
   .aggregate(core, jts)
   .settings(
+    git.remoteRepo := "git@github.com:worace/circe-geojson.git",
+    ghpagesNoJekyll := true,
     skip in publish := true,
     publishArtifact := false,
     publishLocal := {},
