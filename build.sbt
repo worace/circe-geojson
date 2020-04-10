@@ -28,9 +28,13 @@ lazy val root = Project(
   id = "root",
   base = file(".")
 ).settings(commonSettings: _*)
-  .enablePlugins(GhpagesPlugin)
   .aggregate(core, jts)
+  .enablePlugins(GhpagesPlugin)
+  .enablePlugins(SiteScaladocPlugin)
+  .enablePlugins(ScalaUnidocPlugin)
   .settings(
+    siteSubdirName in ScalaUnidoc := "api",
+    addMappingsToSiteDir(mappings in (ScalaUnidoc, packageDoc), siteSubdirName in ScalaUnidoc),
     git.remoteRepo := "git@github.com:worace/circe-geojson.git",
     ghpagesNoJekyll := true,
     skip in publish := true,
