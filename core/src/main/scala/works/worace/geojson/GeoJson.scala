@@ -17,6 +17,12 @@ trait ForeignMembers[A] {
 
 sealed trait Geometry extends GeoJson with ForeignMembers[Geometry]
 
+/**
+ * Core GeoJSON ADT, implemented as a sealed trait.
+ *
+ * This is further documentation of what we're documenting.
+ * Here are more details about how it works and what it does.
+ */
 sealed trait GeoJson {
   val foreignMembers: Option[JsonObject]
   val bbox: Option[BBox]
