@@ -24,14 +24,6 @@ val commonSettings = Seq(
   )
 )
 
-val cnameFilter = new FileFilter{
-  def accept(f: File) = {
-    println("check file")
-    println(f.getName)
-    f.getName == "CNAME"
-  }
-}
-
 lazy val root = Project(
   id = "root",
   base = file(".")
@@ -41,7 +33,7 @@ lazy val root = Project(
   .enablePlugins(SiteScaladocPlugin)
   .enablePlugins(ScalaUnidocPlugin)
   .settings(
-    excludeFilter in ghpagesCleanSite := cnameFilter,
+    excludeFilter in ghpagesCleanSite := "CNAME",
     siteSubdirName in ScalaUnidoc := "api",
     addMappingsToSiteDir(mappings in (ScalaUnidoc, packageDoc), siteSubdirName in ScalaUnidoc),
     git.remoteRepo := "git@github.com:worace/circe-geojson.git",
