@@ -10,7 +10,7 @@ val commonSettings = Seq(
     "org.scalameta" %% "munit" % "0.7.1" % Test
   ),
   crossScalaVersions := Seq("2.12.11", "2.13.1"),
-  scalaVersion := "2.12.11",
+  scalaVersion := "2.13.1",
   testFrameworks += new TestFramework("munit.Framework"),
   scalacOptions ++= Seq("-Xfatal-warnings", "-feature", "-deprecation"),
   licenses := Seq("APL2" -> url("https://www.apache.org/licenses/LICENSE-2.0.txt")),

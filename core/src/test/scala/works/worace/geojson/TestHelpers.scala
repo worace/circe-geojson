@@ -10,7 +10,7 @@ trait TestHelpers extends munit.FunSuite {
   import GeoJsonCodec.implicits._
   import FeatureCodec.implicits._
   import GeometryCodec.implicits._
-  def roundTripCase(gj: GeoJson) {
+  def roundTripCase(gj: GeoJson) = {
     val encoded = gj.asJson
     GeoJson
       .fromJson(encoded)
