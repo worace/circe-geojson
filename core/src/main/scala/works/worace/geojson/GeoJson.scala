@@ -12,10 +12,33 @@ object GeoJson extends Codable[GeoJson] {
     Set("type", "geometry", "coordinates", "properties", "features", "geometries", "id", "bbox")
 }
 
-trait ForeignMembers[A] {
+trait ForeignMembers[A <: GeoJson] {
+  /** Copy this GeoJson object with the provided foreignMembers merged in.
+    *
+    * Mostly for internal use by the library.
+    *
+    * @param foreignMembers Optional Circe JsonObject to replace this GeoJson object's foreignMembers property.
+    */
   def withForeignMembers(foreignMembers: Option[JsonObject]): A
 }
 
+/**
+  * Sealed trait ADT containing geometric GeoJson subtypes.
+  *
+  * Members of this type represent the 7 GeoJson subtypes:
+  *
+  *  - [[Point]]
+  *  - [[LineString]]
+  *  - [[Polygon]]
+  *  - [[MultiPoint]]
+  *  - [[MultiLineString]]
+  *  - [[MultiPolygon]]
+  *  - [[GeometryCollection]]
+  *
+  *  [[Geometry]] subtypes are also [[GeoJson]] subtypes, and provide the same interfaces like [[Codable]],
+  *  [[GeoJson.bbox]], and [[GeoJson.foreignMembers]]
+  *
+  */
 sealed trait Geometry extends GeoJson with ForeignMembers[Geometry]
 
 /**
