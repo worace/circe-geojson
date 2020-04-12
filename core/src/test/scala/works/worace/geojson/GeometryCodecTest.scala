@@ -37,7 +37,7 @@ class GeometryCodecTest extends munit.FunSuite with TestHelpers {
     codecPermutationTests(Permutations.geometryCollections, GeometryCollectionCodec)
   }
 
-  def codecPermutationTests[G <: GeoJson: ClassTag](permutations: Vector[G], codec: Codec[G]) = {
+  def codecPermutationTests[G <: GeoJson: ClassTag](permutations: Vector[G], codec: GjCodec[G]) = {
     implicit val decoder = codec.decoder
     implicit val encoder = codec.encoder
     permutations.foreach { g => roundTripCodecCase[G](g) }

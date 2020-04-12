@@ -11,7 +11,7 @@ import CoordinateCodec.implicits._
 import GeometryCodec.implicits._
 import IdCodec.implicits._
 
-private object FeatureCollectionCodec extends Codec[FeatureCollection] {
+private object FeatureCollectionCodec extends GjCodec[FeatureCollection] {
   object implicits {
     implicit val featureCollectionEncoder = encoder
     implicit val featureCollectionDecoder = decoder

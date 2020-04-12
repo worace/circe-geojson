@@ -1,6 +1,6 @@
 package works.worace.geojson
 
-import io.circe._
+import io.circe.Decoder
 import io.circe.syntax._
 import io.circe.generic.extras.auto._
 import io.circe.generic.extras.semiauto._
@@ -8,7 +8,7 @@ import TypeDiscriminator._
 import CoordinateCodec.implicits._
 import BBoxCodec.implicits._
 
-private object GeometryCodec extends Codec[Geometry] {
+private object GeometryCodec extends GjCodec[Geometry] {
   object implicits {
     implicit val geometryEncoder = encoder
     implicit val geometryDecoder = decoder
@@ -24,7 +24,7 @@ private object GeometryCodec extends Codec[Geometry] {
   }
 }
 
-private object PointCodec extends Codec[Point] {
+private object PointCodec extends GjCodec[Point] {
   object implicits {
     implicit val pointEncoder = encoder
     implicit val pointDecoder = decoder
@@ -37,7 +37,7 @@ private object PointCodec extends Codec[Point] {
   }
 }
 
-private object LineStringCodec extends Codec[LineString] {
+private object LineStringCodec extends GjCodec[LineString] {
   object implicits {
     implicit val lineStringEncoder = encoder
     implicit val lineStringDecoder = decoder
@@ -50,7 +50,7 @@ private object LineStringCodec extends Codec[LineString] {
   }
 }
 
-private object PolygonCodec extends Codec[Polygon] {
+private object PolygonCodec extends GjCodec[Polygon] {
   object implicits {
     implicit val polyonEncoder = encoder
     implicit val polyonDecoder = decoder
@@ -63,7 +63,7 @@ private object PolygonCodec extends Codec[Polygon] {
   }
 }
 
-private object MultiPointCodec extends Codec[MultiPoint] {
+private object MultiPointCodec extends GjCodec[MultiPoint] {
   object implicits {
     implicit val multiPointEncoder = encoder
     implicit val multiPointDecoder = decoder
@@ -76,7 +76,7 @@ private object MultiPointCodec extends Codec[MultiPoint] {
   }
 }
 
-private object MultiLineStringCodec extends Codec[MultiLineString] {
+private object MultiLineStringCodec extends GjCodec[MultiLineString] {
   object implicits {
     implicit val multiLineStringEncoder = encoder
     implicit val multiLineStringDecoder = decoder
@@ -89,7 +89,7 @@ private object MultiLineStringCodec extends Codec[MultiLineString] {
   }
 }
 
-private object MultiPolygonCodec extends Codec[MultiPolygon] {
+private object MultiPolygonCodec extends GjCodec[MultiPolygon] {
   object implicits {
     implicit val multiPolygonEncoder = encoder
     implicit val multiPolygonDecoder = decoder

@@ -1,6 +1,6 @@
 package works.worace.geojson
 
-import io.circe._
+import io.circe.Decoder
 import io.circe.generic.extras.auto._
 import io.circe.generic.extras.semiauto._
 import TypeDiscriminator._
@@ -11,7 +11,7 @@ import GeometryCodec.implicits._
 import FeatureCodec.implicits._
 import FeatureCollectionCodec.implicits._
 
-private object GeoJsonCodec extends Codec[GeoJson] {
+private object GeoJsonCodec extends GjCodec[GeoJson] {
   object implicits {
     implicit val geoJsonEncoder = encoder
     implicit val geoJsonDecoder = decoder

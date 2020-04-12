@@ -1,12 +1,12 @@
 package works.worace.geojson
 
-import io.circe._
+import io.circe.{Decoder, HCursor, Encoder, JsonObject, Json}
 import io.circe.Decoder.Result
 import io.circe.syntax._
 
-private trait Codec[T <: GeoJson] {
-  val encoder: Encoder[T] = Encoder.instance(_.asJsonObject.asJson)
-  val decoder: Decoder[T]
+private trait GjCodec[T <: GeoJson] {
+  final val encoder: Encoder[T] = Encoder.instance(_.asJsonObject.asJson)
+  def decoder: Decoder[T]
 
   protected def decodeWithForeignMembers[T <: GeoJson](
     cursor: HCursor,
