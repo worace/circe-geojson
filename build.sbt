@@ -1,15 +1,16 @@
 import xerial.sbt.Sonatype._
 
-val SCALA_VERSION = "2.12.10"
+
 val CIRCE_VERSION = "0.13.0"
 
 val commonSettings = Seq(
   organization := "works.worace",
   homepage := Some(url("https://github.com/worace/circe-geojson")),
-  scalaVersion := SCALA_VERSION,
   libraryDependencies ++= Seq(
     "org.scalameta" %% "munit" % "0.7.1" % Test
   ),
+  crossScalaVersions := Seq("2.12.11"),
+  scalaVersion := "2.12.11",
   testFrameworks += new TestFramework("munit.Framework"),
   scalacOptions ++= Seq("-Xfatal-warnings", "-feature", "-deprecation"),
   licenses := Seq("APL2" -> url("https://www.apache.org/licenses/LICENSE-2.0.txt")),
