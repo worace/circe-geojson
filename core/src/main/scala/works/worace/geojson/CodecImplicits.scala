@@ -52,6 +52,8 @@ object CodecImplicits {
   implicit val multiPolygonEncoder: Encoder[MultiPolygon] = MultiPolygonCodec.encoder
   implicit val multiPolygonDecoder: Decoder[MultiPolygon] = MultiPolygonCodec.decoder
 
-  implicit val geometryCollectionEncoder: Encoder[GeometryCollection] = GeometryCollectionCodec.encoder
-  implicit val geometryCollectionDecoder: Decoder[GeometryCollection] = GeometryCollectionCodec.decoder
+  implicit val geometryCollectionEncoder: Encoder[GeometryCollection] =
+    GeometryCollectionCodec.encoder
+  implicit val geometryCollectionDecoder: Decoder[GeometryCollection] =
+    GeometryCollectionCodec.decoder
 }
