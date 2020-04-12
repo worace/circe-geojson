@@ -6,7 +6,7 @@ import io.circe.generic.extras.auto._
 import io.circe.generic.extras.semiauto._
 import io.circe.generic.extras._
 
-object GeometryCollectionCodec extends Codec[GeometryCollection] {
+private object GeometryCollectionCodec extends Codec[GeometryCollection] {
   import TypeDiscriminator._
   import CoordinateCodec.implicits._
   import BBoxCodec.implicits._

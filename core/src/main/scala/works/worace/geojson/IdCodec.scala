@@ -2,7 +2,7 @@ package works.worace.geojson
 
 import io.circe._
 
-object IdCodec {
+private object IdCodec {
   type ID = Either[Long, String]
 
   object implicits {

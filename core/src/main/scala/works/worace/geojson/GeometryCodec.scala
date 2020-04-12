@@ -8,7 +8,7 @@ import TypeDiscriminator._
 import CoordinateCodec.implicits._
 import BBoxCodec.implicits._
 
-object GeometryCodec extends Codec[Geometry] {
+private object GeometryCodec extends Codec[Geometry] {
   object implicits {
     implicit val geometryEncoder = encoder
     implicit val geometryDecoder = decoder
@@ -24,7 +24,7 @@ object GeometryCodec extends Codec[Geometry] {
   }
 }
 
-object PointCodec extends Codec[Point] {
+private object PointCodec extends Codec[Point] {
   object implicits {
     implicit val pointEncoder = encoder
     implicit val pointDecoder = decoder
@@ -37,7 +37,7 @@ object PointCodec extends Codec[Point] {
   }
 }
 
-object LineStringCodec extends Codec[LineString] {
+private object LineStringCodec extends Codec[LineString] {
   object implicits {
     implicit val lineStringEncoder = encoder
     implicit val lineStringDecoder = decoder
@@ -50,7 +50,7 @@ object LineStringCodec extends Codec[LineString] {
   }
 }
 
-object PolygonCodec extends Codec[Polygon] {
+private object PolygonCodec extends Codec[Polygon] {
   object implicits {
     implicit val polyonEncoder = encoder
     implicit val polyonDecoder = decoder
@@ -63,7 +63,7 @@ object PolygonCodec extends Codec[Polygon] {
   }
 }
 
-object MultiPointCodec extends Codec[MultiPoint] {
+private object MultiPointCodec extends Codec[MultiPoint] {
   object implicits {
     implicit val multiPointEncoder = encoder
     implicit val multiPointDecoder = decoder
@@ -76,7 +76,7 @@ object MultiPointCodec extends Codec[MultiPoint] {
   }
 }
 
-object MultiLineStringCodec extends Codec[MultiLineString] {
+private object MultiLineStringCodec extends Codec[MultiLineString] {
   object implicits {
     implicit val multiLineStringEncoder = encoder
     implicit val multiLineStringDecoder = decoder
@@ -89,7 +89,7 @@ object MultiLineStringCodec extends Codec[MultiLineString] {
   }
 }
 
-object MultiPolygonCodec extends Codec[MultiPolygon] {
+private object MultiPolygonCodec extends Codec[MultiPolygon] {
   object implicits {
     implicit val multiPolygonEncoder = encoder
     implicit val multiPolygonDecoder = decoder

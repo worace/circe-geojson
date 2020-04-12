@@ -23,6 +23,8 @@ Includes:
 
 ### See the full [Docs](https://github.com/worace/circe-geojson/blob/master/usage/target/mdoc/Usage.md) for usage examples and more information
 
+### [Scaladoc](http://circe-geojson.worace.works/api/)
+
 ## Development
 
 * Run tests with `sbt test`

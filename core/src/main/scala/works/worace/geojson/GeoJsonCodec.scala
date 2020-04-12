@@ -11,7 +11,7 @@ import GeometryCodec.implicits._
 import FeatureCodec.implicits._
 import FeatureCollectionCodec.implicits._
 
-object GeoJsonCodec extends Codec[GeoJson] {
+private object GeoJsonCodec extends Codec[GeoJson] {
   object implicits {
     implicit val geoJsonEncoder = encoder
     implicit val geoJsonDecoder = decoder

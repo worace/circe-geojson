@@ -10,7 +10,7 @@ import IdCodec.implicits._
 import BBoxCodec.implicits._
 import GeometryCodec.implicits._
 
-object FeatureCodec extends Codec[Feature] {
+private object FeatureCodec extends Codec[Feature] {
   object implicits {
     implicit val featureEncoder: Encoder[Feature] = encoder
     implicit val featureDecoder = decoder

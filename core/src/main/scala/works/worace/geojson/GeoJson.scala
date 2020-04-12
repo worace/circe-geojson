@@ -6,7 +6,8 @@ import io.circe.syntax._
 import CoordinateCodec.implicits._
 
 object GeoJson extends Codable[GeoJson] {
-  val codec = GeoJsonCodec
+  val decoder = GeoJsonCodec.decoder
+  val encoder = GeoJsonCodec.encoder
   val coreKeys =
     Set("type", "geometry", "coordinates", "properties", "features", "geometries", "id", "bbox")
 }
@@ -18,11 +19,26 @@ trait ForeignMembers[A] {
 sealed trait Geometry extends GeoJson with ForeignMembers[Geometry]
 
 /**
- * Core GeoJSON ADT, implemented as a sealed trait.
- *
- * This is further documentation of what we're documenting.
- * Here are more details about how it works and what it does.
- */
+  * Core GeoJSON ADT, implemented as a sealed trait.
+  *
+  * Members of this type represent the individual GeoJSON types:
+  *
+  *  - [[FeatureCollection]]
+  *  - [[Feature]]
+  *  - [[Point]]
+  *  - [[LineString]]
+  *  - [[Polygon]]
+  *  - [[MultiPoint]]
+  *  - [[MultiLineString]]
+  *  - [[MultiPolygon]]
+  *  - [[GeometryCollection]]
+  *
+  * Additionally, a second trait ADT, [[Geometry]], contains the 7
+  * geometric subtypes.
+  *
+  * Companion objects for GeoJson subtypes also implement the [[Codable]] trait,
+  * which provides the interface for decoding GeoJson types from strings or [[https://circe.github.io/circe/api/io/circe/Json.html io.circe.Json]].
+  */
 sealed trait GeoJson {
   val foreignMembers: Option[JsonObject]
   val bbox: Option[BBox]
@@ -175,41 +191,48 @@ case class FeatureCollection(
 }
 
 object Point extends Codable[Point] {
-  val codec = PointCodec
+  val decoder = PointCodec.decoder
+  val encoder = PointCodec.encoder
   def apply(coord: Coordinate): Point = Point(coord, None, None)
   def apply(x: Double, y: Double): Point = Point(Coordinate(x, y))
 }
 
 object LineString extends Codable[LineString] {
-  val codec = LineStringCodec
+  val decoder = LineStringCodec.decoder
+  val encoder = LineStringCodec.encoder
   def apply(coords: Seq[Coordinate]): LineString = LineString(coords.toVector, None, None)
 }
 
 object Polygon extends Codable[Polygon] {
-  val codec = PolygonCodec
+  val decoder = PolygonCodec.decoder
+  val encoder = PolygonCodec.encoder
   def apply(coords: Seq[Seq[Coordinate]]): Polygon =
     Polygon(coords.map(_.toVector).toVector, None, None)
 }
 
 object MultiPoint extends Codable[MultiPoint] {
-  val codec = MultiPointCodec
+  val decoder = MultiPointCodec.decoder
+  val encoder = MultiPointCodec.encoder
   def apply(coords: Seq[Coordinate]): MultiPoint = MultiPoint(coords.toVector, None, None)
 }
 
 object MultiLineString extends Codable[MultiLineString] {
-  val codec = MultiLineStringCodec
+  val decoder = MultiLineStringCodec.decoder
+  val encoder = MultiLineStringCodec.encoder
   def apply(coords: Seq[Seq[Coordinate]]): MultiLineString =
     MultiLineString(coords.map(_.toVector).toVector, None, None)
 }
 
 object MultiPolygon extends Codable[MultiPolygon] {
-  val codec = MultiPolygonCodec
+  val decoder = MultiPolygonCodec.decoder
+  val encoder = MultiPolygonCodec.encoder
   def apply(coords: Seq[Seq[Seq[Coordinate]]]): MultiPolygon =
     MultiPolygon(coords.map(_.map(_.toVector).toVector).toVector, None, None)
 }
 
 object GeometryCollection extends Codable[GeometryCollection] {
-  val codec = GeometryCollectionCodec
+  val decoder = GeometryCollectionCodec.decoder
+  val encoder = GeometryCollectionCodec.encoder
   def apply(geometries: Seq[Geometry]): GeometryCollection =
     GeometryCollection(geometries.toVector, None, None)
 }
@@ -233,7 +256,6 @@ case class SimpleFeatureCollection(features: Vector[SimpleFeature])
 case class TypedFeature[T](id: Option[String], properties: T, geometry: Geometry)
 
 object Feature extends Codable[Feature] {
-  val codec = FeatureCodec
   def empty: Feature = Feature(None, None, None, None, None)
   def apply(geometry: Geometry): Feature = Feature(None, None, Some(geometry), None, None)
   def apply(properties: JsonObject, geometry: Geometry): Feature =
@@ -242,12 +264,15 @@ object Feature extends Codable[Feature] {
     Feature(Some(Right(id)), Some(properties), Some(geometry), None, None)
   def apply(id: Int, properties: JsonObject, geometry: Geometry): Feature =
     Feature(Some(Left(Json.fromInt(id).asNumber.get)), Some(properties), Some(geometry), None, None)
+  val decoder = FeatureCodec.decoder
+  val encoder = FeatureCodec.encoder
 }
 
 object FeatureCollection extends Codable[FeatureCollection] {
-  val codec = FeatureCollectionCodec
   def apply(features: Seq[Feature]): FeatureCollection =
     FeatureCollection(features.toVector, None, None)
+  val decoder = FeatureCollectionCodec.decoder
+  val encoder = FeatureCollectionCodec.encoder
 }
 // Goals
 // Coordinates

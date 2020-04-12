@@ -3,7 +3,7 @@ package works.worace.geojson
 import io.circe._
 import io.circe.syntax._
 
-object CoordinateCodec {
+private object CoordinateCodec {
   object implicits {
     implicit val coordinateEncoder = encoder
     implicit val coordinateDecoder = decoder

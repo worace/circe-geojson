@@ -4,7 +4,7 @@ import io.circe._
 import io.circe.syntax._
 import CoordinateCodec.implicits._
 
-object BBoxCodec {
+private object BBoxCodec {
   object implicits {
     implicit val bboxEncoder = encoder
     implicit val bboxDecoder = decoder
