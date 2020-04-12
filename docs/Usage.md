@@ -29,7 +29,7 @@ import works.worace.geojson.{GeoJson, Point}
 
 val example: Either[io.circe.Error, GeoJson] = GeoJson.parse("""{"type":"Point","coordinates":[1.0,-1.0]}""")
 
-val encoded: io.circe.Json = GeoJson.asJson(example.right.get)
+val encoded: io.circe.Json = GeoJson.asJson(example.toOption.get)
 
 encoded.spaces2
 ```
@@ -40,7 +40,7 @@ encoded.spaces2
 import works.worace.geojson.Point
 import works.worace.geojson.jts.Conversions.implicits.GeometryToJts
 
-val point: Point = Point.parse("""{"type":"Point","coordinates":[1.0,-1.0]}""").right.get
+val point: Point = Point.parse("""{"type":"Point","coordinates":[1.0,-1.0]}""").toOption.get
 
 point.toJts
 ```
@@ -100,12 +100,7 @@ Finally, the Codable types also expose Circe decoder and encoder instances, whic
 ```scala mdoc
 import io.circe.syntax._
 import io.circe.parser.decode
-import works.worace.geojson.Point.codec.implicits._
-import works.worace.geojson.GeoJson.codec.implicits._
-
-// Example Encoder and Decoder instances
-works.worace.geojson.Point.codec.implicits.pointEncoder
-works.worace.geojson.Point.codec.implicits.pointDecoder
+import works.worace.geojson.CodecImplicits._
 
 // Decoding using standard Circe methods,
 // along with the provided decoders

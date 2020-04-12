@@ -2,10 +2,24 @@
 
 ## Quick-Start
 
-Installation:
+### Installation
+
+Core module (GeoJson types + Circe Encoders/Decoders):
 
 ```scala
-libraryDependencies += "works.worace" % "circe-geojson-core" % "0.0.0+97-24e2548f+20200408-1919-SNAPSHOT"
+libraryDependencies += "works.worace" % "circe-geojson-core" % "0.1.2+2-6e891d19-SNAPSHOT"
+```
+
+Java Topology Suite Extensions (Conversions for GeoJson types to JTS types):
+
+```scala
+libraryDependencies += "works.worace" % "circe-geojson-jts" % "0.1.2+2-6e891d19-SNAPSHOT"
+```
+
+Composite module (both deps in one):
+
+```scala
+libraryDependencies += "works.worace" % "circe-geojson" % "0.1.2+2-6e891d19-SNAPSHOT"
 ```
 
 **Basic Decoding Example**
@@ -18,7 +32,7 @@ val example: Either[io.circe.Error, GeoJson] = GeoJson.parse("""{"type":"Point",
 //   Point(Coordinate(1.0, -1.0, None, None), None, None)
 // )
 
-val encoded: io.circe.Json = GeoJson.asJson(example.right.get)
+val encoded: io.circe.Json = GeoJson.asJson(example.toOption.get)
 // encoded: io.circe.Json = JObject(
 //   object[coordinates -> [
 //   1.0,
@@ -42,7 +56,7 @@ encoded.spaces2
 import works.worace.geojson.Point
 import works.worace.geojson.jts.Conversions.implicits.GeometryToJts
 
-val point: Point = Point.parse("""{"type":"Point","coordinates":[1.0,-1.0]}""").right.get
+val point: Point = Point.parse("""{"type":"Point","coordinates":[1.0,-1.0]}""").toOption.get
 // point: Point = Point(Coordinate(1.0, -1.0, None, None), None, None)
 
 point.toJts
@@ -110,23 +124,16 @@ Finally, the Codable types also expose Circe decoder and encoder instances, whic
 ```scala
 import io.circe.syntax._
 import io.circe.parser.decode
-import works.worace.geojson.Point.codec.implicits._
-import works.worace.geojson.GeoJson.codec.implicits._
-
-// Example Encoder and Decoder instances
-works.worace.geojson.Point.codec.implicits.pointEncoder
-// res4: io.circe.Encoder[Point] = io.circe.Encoder$$anon$3@238cda50
-works.worace.geojson.Point.codec.implicits.pointDecoder
-// res5: io.circe.Decoder[Point] = io.circe.Decoder$$anon$16@34c01b1c
+import works.worace.geojson.CodecImplicits._
 
 // Decoding using standard Circe methods,
 // along with the provided decoders
 decode[Point]("""{"type":"Point","coordinates":[1.0,-1.0]}""")
-// res6: Either[io.circe.Error, Point] = Right(
+// res4: Either[io.circe.Error, Point] = Right(
 //   Point(Coordinate(1.0, -1.0, None, None), None, None)
 // )
 decode[GeoJson]("""{"type":"Point","coordinates":[1.0,-1.0]}""")
-// res7: Either[io.circe.Error, GeoJson] = Right(
+// res5: Either[io.circe.Error, GeoJson] = Right(
 //   Point(Coordinate(1.0, -1.0, None, None), None, None)
 // )
 
@@ -134,7 +141,7 @@ decode[GeoJson]("""{"type":"Point","coordinates":[1.0,-1.0]}""")
 // Re-encoding the decoded Point using asJson from circe's syntax
 decode[GeoJson]("""{"type":"Point","coordinates":[1.0,-1.0]}""")
   .map(_.asJson)
-// res8: Either[io.circe.Error, io.circe.Json] = Right(
+// res6: Either[io.circe.Error, io.circe.Json] = Right(
 //   JObject(
 //     object[coordinates -> [
 //   1.0,
@@ -172,14 +179,14 @@ val fMemberPoint = works.worace.geojson.Point.parse("""{"type":"Point", "title":
 
 
 fMemberPoint.map(_.foreignMembers)
-// res9: Either[io.circe.Error, Option[io.circe.JsonObject]] = Right(
+// res7: Either[io.circe.Error, Option[io.circe.JsonObject]] = Right(
 //   Some(object[title -> "using a foreign member"])
 // )
 
 // foreignMember fields will be merged back in to the
 // top level of the JSON object when encoded
 fMemberPoint.map(Point.asJson).map(_.spaces2)
-// res10: Either[io.circe.Error, String] = Right(
+// res8: Either[io.circe.Error, String] = Right(
 //   """{
 //   "title" : "using a foreign member",
 //   "coordinates" : [
@@ -252,7 +259,7 @@ works.worace.geojson.Feature.parse(
   "geometry": {"type": "Point", "coordinates": [101.0, 1.0]}
 }"""
 ).map(_.simple)
-// res11: Either[io.circe.Error, Option[works.worace.geojson.SimpleFeature]] = Right(
+// res9: Either[io.circe.Error, Option[works.worace.geojson.SimpleFeature]] = Right(
 //   Some(
 //     SimpleFeature(
 //       Some("123"),
