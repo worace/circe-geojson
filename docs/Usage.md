@@ -2,10 +2,24 @@
 
 ## Quick-Start
 
-Installation:
+### Installation
+
+Core module (GeoJson types + Circe Encoders/Decoders):
 
 ```scala
 libraryDependencies += "works.worace" % "circe-geojson-core" % "@VERSION@"
+```
+
+Java Topology Suite Extensions (Conversions for GeoJson types to JTS types):
+
+```scala
+libraryDependencies += "works.worace" % "circe-geojson-jts" % "@VERSION@"
+```
+
+Composite module (both deps in one):
+
+```scala
+libraryDependencies += "works.worace" % "circe-geojson" % "@VERSION@"
 ```
 
 **Basic Decoding Example**
