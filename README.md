@@ -35,6 +35,7 @@ Includes:
 
 * [ ] Docs
   * [x] Readme Usage examples (tut/md - compile-time check)
-  * [ ] Scaladoc
-  * [ ] Publish scaladoc to github pages somehow?
+  * [x] Scaladoc
+  * [x] Publish scaladoc to github pages somehow? (sbt-site - `sbt ghpagesPushSite`)
+  * [ ] Push github pages site from CI (may need a token or ssh key)
 * [ ] Cross-build (2.11, 2.12, 2.13? Will these even work?)

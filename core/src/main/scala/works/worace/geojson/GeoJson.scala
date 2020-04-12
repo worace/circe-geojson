@@ -13,6 +13,7 @@ object GeoJson extends Codable[GeoJson] {
 }
 
 trait ForeignMembers[A <: GeoJson] {
+
   /** Copy this GeoJson object with the provided foreignMembers merged in.
     *
     * Mostly for internal use by the library.
