@@ -16,11 +16,11 @@ object TestData {
   def genCoordXY: Coordinate = Coordinate(rand, rand)
   def genCoordXYZ: Coordinate = Coordinate(rand, rand, rand)
   def genCoordXYZM: Coordinate = Coordinate(rand, rand, rand, rand)
-  def streamOf[T](f: => T): Stream[T] = f #:: streamOf(f)
+  def streamOf[T](f: => T): Seq[T] = StreamOf.streamOf[T](f)
   def nOf[T](f: => T, n: Int): Vector[T] = streamOf(f).take(n).toVector
-  def coordSeqXY: Stream[Coordinate] = streamOf(genCoordXY) //genCoordXY #:: coordSeqXY
-  def coordSeqXYZ: Stream[Coordinate] = streamOf(genCoordXYZ)
-  def coordSeqXYZM: Stream[Coordinate] = streamOf(genCoordXYZM)
+  def coordSeqXY: Seq[Coordinate] = streamOf(genCoordXY)
+  def coordSeqXYZ: Seq[Coordinate] = streamOf(genCoordXYZ)
+  def coordSeqXYZM: Seq[Coordinate] = streamOf(genCoordXYZM)
   def pointXY: Point = Point(genCoordXY)
   def pointXYZ: Point = Point(genCoordXYZ)
   def pointXYZM: Point = Point(genCoordXYZM)
@@ -38,7 +38,7 @@ object TestData {
     Polygon(rings)
   }
 
-  def closedRing(coords: Stream[Coordinate]): Vector[Coordinate] = {
+  def closedRing(coords: Seq[Coordinate]): Vector[Coordinate] = {
     val seq = coords.take(randInt() + 3).toVector
     seq :+ seq.head
   }
