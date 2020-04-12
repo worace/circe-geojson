@@ -1,4 +1,4 @@
-name: CI
+name: Scalafmt
 on:
   push:
 jobs:
@@ -7,5 +7,5 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - uses: olafurpg/setup-scala@v5
-    - name: Test
-      run: sbt test
+    - name: Scalafmt Check
+      run: sbt scalafmtCheck
