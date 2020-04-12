@@ -3,6 +3,8 @@ import xerial.sbt.Sonatype._
 
 val CIRCE_VERSION = "0.13.0"
 
+ThisBuild / scalaVersion := "2.13.1"
+
 val commonSettings = Seq(
   organization := "works.worace",
   homepage := Some(url("https://github.com/worace/circe-geojson")),
