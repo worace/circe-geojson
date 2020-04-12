@@ -9,7 +9,7 @@ val commonSettings = Seq(
   libraryDependencies ++= Seq(
     "org.scalameta" %% "munit" % "0.7.1" % Test
   ),
-  crossScalaVersions := Seq("2.12.11"),
+  crossScalaVersions := Seq("2.12.11", "2.13.1"),
   scalaVersion := "2.12.11",
   testFrameworks += new TestFramework("munit.Framework"),
   scalacOptions ++= Seq("-Xfatal-warnings", "-feature", "-deprecation"),
