@@ -52,6 +52,8 @@ encoded.spaces2
 
 **Using JTS Conversions**
 
+Converting GeoJson Geometries to JTS Geometries:
+
 ```scala
 import works.worace.geojson.Point
 import works.worace.geojson.jts.Conversions.implicits.GeometryToJts
@@ -61,6 +63,31 @@ val point: Point = Point.parse("""{"type":"Point","coordinates":[1.0,-1.0]}""").
 
 point.toJts
 // res1: org.locationtech.jts.geom.Geometry = POINT (1 -1)
+```
+
+Converting JTS Geometries to GeoJson Geometries:
+
+```scala
+import org.locationtech.jts.{geom => jts}
+import works.worace.geojson.jts.Conversions.implicits.JtsToGeometry
+
+val pm = new jts.PrecisionModel(jts.PrecisionModel.FLOATING)
+// pm: org.locationtech.jts.geom.PrecisionModel = Floating
+val SRID = 4326
+// SRID: Int = 4326
+val factory = new jts.GeometryFactory(pm, SRID)
+// factory: org.locationtech.jts.geom.GeometryFactory = org.locationtech.jts.geom.GeometryFactory@4f52ae12
+
+val jtsPoint = factory.createPoint(new jts.Coordinate(-118.4, 34.1))
+// jtsPoint: org.locationtech.jts.geom.Point = POINT (-118.4 34.1)
+
+// Convert org.locationtech.jts.geom.Point to works.worace.geojson.Point
+jtsPoint.toGeoJson
+// res2: works.worace.geojson.Geometry = Point(
+//   Coordinate(-118.4, 34.1, None, None),
+//   None,
+//   None
+// )
 ```
 
 ## Representing GeoJSON
@@ -105,7 +132,7 @@ So, for example, the companion object `GeoJson` implements `Codable[GeoJson]`, a
 
 ```scala
 works.worace.geojson.GeoJson.parse("""{"type":"Point","coordinates":[1.0,-1.0]}""")
-// res2: Either[io.circe.Error, GeoJson] = Right(
+// res3: Either[io.circe.Error, GeoJson] = Right(
 //   Point(Coordinate(1.0, -1.0, None, None), None, None)
 // )
 ```
@@ -114,7 +141,7 @@ Similarly the `Point` companion object can be used to parse points (this can be 
 
 ```scala
 works.worace.geojson.Point.parse("""{"type":"Point","coordinates":[1.0,-1.0]}""")
-// res3: Either[io.circe.Error, Point] = Right(
+// res4: Either[io.circe.Error, Point] = Right(
 //   Point(Coordinate(1.0, -1.0, None, None), None, None)
 // )
 ```
@@ -129,11 +156,11 @@ import works.worace.geojson.CodecImplicits._
 // Decoding using standard Circe methods,
 // along with the provided decoders
 decode[Point]("""{"type":"Point","coordinates":[1.0,-1.0]}""")
-// res4: Either[io.circe.Error, Point] = Right(
+// res5: Either[io.circe.Error, Point] = Right(
 //   Point(Coordinate(1.0, -1.0, None, None), None, None)
 // )
 decode[GeoJson]("""{"type":"Point","coordinates":[1.0,-1.0]}""")
-// res5: Either[io.circe.Error, GeoJson] = Right(
+// res6: Either[io.circe.Error, GeoJson] = Right(
 //   Point(Coordinate(1.0, -1.0, None, None), None, None)
 // )
 
@@ -141,7 +168,7 @@ decode[GeoJson]("""{"type":"Point","coordinates":[1.0,-1.0]}""")
 // Re-encoding the decoded Point using asJson from circe's syntax
 decode[GeoJson]("""{"type":"Point","coordinates":[1.0,-1.0]}""")
   .map(_.asJson)
-// res6: Either[io.circe.Error, io.circe.Json] = Right(
+// res7: Either[io.circe.Error, io.circe.Json] = Right(
 //   JObject(
 //     object[coordinates -> [
 //   1.0,
@@ -179,14 +206,14 @@ val fMemberPoint = works.worace.geojson.Point.parse("""{"type":"Point", "title":
 
 
 fMemberPoint.map(_.foreignMembers)
-// res7: Either[io.circe.Error, Option[io.circe.JsonObject]] = Right(
+// res8: Either[io.circe.Error, Option[io.circe.JsonObject]] = Right(
 //   Some(object[title -> "using a foreign member"])
 // )
 
 // foreignMember fields will be merged back in to the
 // top level of the JSON object when encoded
 fMemberPoint.map(Point.asJson).map(_.spaces2)
-// res8: Either[io.circe.Error, String] = Right(
+// res9: Either[io.circe.Error, String] = Right(
 //   """{
 //   "title" : "using a foreign member",
 //   "coordinates" : [
@@ -259,7 +286,7 @@ works.worace.geojson.Feature.parse(
   "geometry": {"type": "Point", "coordinates": [101.0, 1.0]}
 }"""
 ).map(_.simple)
-// res9: Either[io.circe.Error, Option[works.worace.geojson.SimpleFeature]] = Right(
+// res10: Either[io.circe.Error, Option[works.worace.geojson.SimpleFeature]] = Right(
 //   Some(
 //     SimpleFeature(
 //       Some("123"),

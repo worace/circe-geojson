@@ -36,6 +36,8 @@ encoded.spaces2
 
 **Using JTS Conversions**
 
+Converting GeoJson Geometries to JTS Geometries:
+
 ```scala mdoc
 import works.worace.geojson.Point
 import works.worace.geojson.jts.Conversions.implicits.GeometryToJts
@@ -43,6 +45,22 @@ import works.worace.geojson.jts.Conversions.implicits.GeometryToJts
 val point: Point = Point.parse("""{"type":"Point","coordinates":[1.0,-1.0]}""").toOption.get
 
 point.toJts
+```
+
+Converting JTS Geometries to GeoJson Geometries:
+
+```scala mdoc
+import org.locationtech.jts.{geom => jts}
+import works.worace.geojson.jts.Conversions.implicits.JtsToGeometry
+
+val pm = new jts.PrecisionModel(jts.PrecisionModel.FLOATING)
+val SRID = 4326
+val factory = new jts.GeometryFactory(pm, SRID)
+
+val jtsPoint = factory.createPoint(new jts.Coordinate(-118.4, 34.1))
+
+// Convert org.locationtech.jts.geom.Point to works.worace.geojson.Point
+jtsPoint.toGeoJson
 ```
 
 ## Representing GeoJSON
