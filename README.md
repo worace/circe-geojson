@@ -34,6 +34,12 @@ Includes:
 * Run Mdoc live server: `sbt docs/mdoc --watch`
 * Push Scaladoc to GitHub Pages: `sbt ghpagesPushSite`
 
+## Releasing
+
+* Check the last version with `git tag`
+* Tag the next one, e.g. `git tag v0.1.3`
+* Push `git push origin v0.1.3` and sbt-ci-release will push the release to sonatype
+
 ### Upcoming / TODOs
 
 * [ ] Docs
