@@ -22,7 +22,7 @@ Composite module (both deps in one):
 libraryDependencies += "works.worace" % "circe-geojson" % "0.1.2+3-f1ebf4b9+20200509-1702-SNAPSHOT"
 ```
 
-**Basic Decoding Example**
+### Basic Decoding Example
 
 ```scala
 import works.worace.geojson.{GeoJson, Point}
@@ -50,9 +50,9 @@ encoded.spaces2
 // }"""
 ```
 
-**Using JTS Conversions**
+### Using JTS Conversions
 
-Converting GeoJson Geometries to JTS Geometries:
+#### Converting GeoJson Geometries to JTS Geometries
 
 ```scala
 import works.worace.geojson.Point
@@ -65,7 +65,7 @@ point.toJts
 // res1: org.locationtech.jts.geom.Geometry = POINT (1 -1)
 ```
 
-Converting JTS Geometries to GeoJson Geometries:
+#### Converting JTS Geometries to GeoJson Geometries
 
 ```scala
 import org.locationtech.jts.{geom => jts}
@@ -76,7 +76,7 @@ val pm = new jts.PrecisionModel(jts.PrecisionModel.FLOATING)
 val SRID = 4326
 // SRID: Int = 4326
 val factory = new jts.GeometryFactory(pm, SRID)
-// factory: org.locationtech.jts.geom.GeometryFactory = org.locationtech.jts.geom.GeometryFactory@5b65a0ad
+// factory: org.locationtech.jts.geom.GeometryFactory = org.locationtech.jts.geom.GeometryFactory@15df9ad1
 
 val jtsPoint = factory.createPoint(new jts.Coordinate(-118.4, 34.1))
 // jtsPoint: org.locationtech.jts.geom.Point = POINT (-118.4 34.1)

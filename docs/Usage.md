@@ -22,7 +22,7 @@ Composite module (both deps in one):
 libraryDependencies += "works.worace" % "circe-geojson" % "@VERSION@"
 ```
 
-**Basic Decoding Example**
+### Basic Decoding Example
 
 ```scala mdoc
 import works.worace.geojson.{GeoJson, Point}
@@ -34,9 +34,9 @@ val encoded: io.circe.Json = GeoJson.asJson(example.toOption.get)
 encoded.spaces2
 ```
 
-**Using JTS Conversions**
+### Using JTS Conversions
 
-Converting GeoJson Geometries to JTS Geometries:
+#### Converting GeoJson Geometries to JTS Geometries
 
 ```scala mdoc
 import works.worace.geojson.Point
@@ -47,7 +47,7 @@ val point: Point = Point.parse("""{"type":"Point","coordinates":[1.0,-1.0]}""").
 point.toJts
 ```
 
-Converting JTS Geometries to GeoJson Geometries:
+#### Converting JTS Geometries to GeoJson Geometries
 
 ```scala mdoc
 import org.locationtech.jts.{geom => jts}
