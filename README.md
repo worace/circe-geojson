@@ -30,6 +30,9 @@ Includes:
 * Run tests with `sbt test`
 * Releases are pushed by CI (Github Actions) using [sbt-ci-release](https://github.com/olafurpg/sbt-ci-release)
 * Markdown doc examples are compiled using [mdoc](https://github.com/scalameta/mdoc)
+* Build Mdoc: `sbt docs/mdoc`
+* Run Mdoc live server: `sbt docs/mdoc --watch`
+* Push Scaladoc to GitHub Pages: `sbt ghpagesPushSite`
 
 ### Upcoming / TODOs
 
@@ -38,4 +41,4 @@ Includes:
   * [x] Scaladoc
   * [x] Publish scaladoc to github pages somehow? (sbt-site - `sbt ghpagesPushSite`)
   * [ ] Push github pages site from CI (may need a token or ssh key)
-* [ ] Cross-build (2.11, 2.12, 2.13? Will these even work?)
+* [x] Cross-build (2.11, 2.12, 2.13? Will these even work?)

@@ -76,7 +76,7 @@ val pm = new jts.PrecisionModel(jts.PrecisionModel.FLOATING)
 val SRID = 4326
 // SRID: Int = 4326
 val factory = new jts.GeometryFactory(pm, SRID)
-// factory: org.locationtech.jts.geom.GeometryFactory = org.locationtech.jts.geom.GeometryFactory@4f52ae12
+// factory: org.locationtech.jts.geom.GeometryFactory = org.locationtech.jts.geom.GeometryFactory@5b65a0ad
 
 val jtsPoint = factory.createPoint(new jts.Coordinate(-118.4, 34.1))
 // jtsPoint: org.locationtech.jts.geom.Point = POINT (-118.4 34.1)
