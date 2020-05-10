@@ -7,19 +7,19 @@
 Core module (GeoJson types + Circe Encoders/Decoders):
 
 ```scala
-libraryDependencies += "works.worace" % "circe-geojson-core" % "0.1.2+2-6e891d19-SNAPSHOT"
+libraryDependencies += "works.worace" % "circe-geojson-core" % "0.1.2+3-f1ebf4b9+20200509-1702-SNAPSHOT"
 ```
 
 Java Topology Suite Extensions (Conversions for GeoJson types to JTS types):
 
 ```scala
-libraryDependencies += "works.worace" % "circe-geojson-jts" % "0.1.2+2-6e891d19-SNAPSHOT"
+libraryDependencies += "works.worace" % "circe-geojson-jts" % "0.1.2+3-f1ebf4b9+20200509-1702-SNAPSHOT"
 ```
 
 Composite module (both deps in one):
 
 ```scala
-libraryDependencies += "works.worace" % "circe-geojson" % "0.1.2+2-6e891d19-SNAPSHOT"
+libraryDependencies += "works.worace" % "circe-geojson" % "0.1.2+3-f1ebf4b9+20200509-1702-SNAPSHOT"
 ```
 
 **Basic Decoding Example**

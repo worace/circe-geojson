@@ -51,11 +51,16 @@ class ConversionsSpec extends munit.FunSuite {
     }
   }
 
+  def roundTrip(geom: geojson.Geometry): Unit = {
+    assertEquals(geom, geom.toJts.toGeoJson)
+  }
+
   test("Point") {
     val p = pointXY
     val j = p.toJts
     assert(j.isInstanceOf[Point])
     compareCoord(p.coordinates, j.asInstanceOf[Point].getCoordinate())
+    roundTrip(p)
   }
 
   test("linestring") {
@@ -66,6 +71,7 @@ class ConversionsSpec extends munit.FunSuite {
       }
       case other => fail("should convert to jts linestring", clues(other))
     }
+    roundTrip(ls)
   }
 
   test("polygon") {
@@ -87,6 +93,7 @@ class ConversionsSpec extends munit.FunSuite {
       }
       case other => fail("should convert to jts polygon", clues(other))
     }
+    roundTrip(p)
   }
 
   test("multi point") {
@@ -101,6 +108,7 @@ class ConversionsSpec extends munit.FunSuite {
       }
       case other => fail("should convert to jts MultiPoint", clues(other))
     }
+    roundTrip(mp)
   }
 
   test("MultiLineString") {
@@ -112,6 +120,7 @@ class ConversionsSpec extends munit.FunSuite {
       }
       case _ => fail("should convert to jts MultiLineString")
     }
+    roundTrip(mls)
   }
 
   test("MultiPolygon") {
@@ -129,6 +138,7 @@ class ConversionsSpec extends munit.FunSuite {
       }
       case _ => fail("should convert to jts MultiPolygon")
     }
+    roundTrip(mp)
   }
 
   test("GeometryCollection") {
@@ -160,5 +170,6 @@ class ConversionsSpec extends munit.FunSuite {
       }
       case _ => fail("should convert to jts GeometryCollection")
     }
+    roundTrip(gc)
   }
 }
