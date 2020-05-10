@@ -78,7 +78,12 @@ object Conversions {
   }
 
   private def coord(coord: jts.Coordinate): Coordinate = {
-    Coordinate(coord.getX(), coord.getY(), Option(coord.getZ).filterNot(_.isNaN()), Option(coord.getM).filterNot(_.isNaN()))
+    Coordinate(
+      coord.getX(),
+      coord.getY(),
+      Option(coord.getZ).filterNot(_.isNaN()),
+      Option(coord.getM).filterNot(_.isNaN())
+    )
   }
 
   private def coordSeq(coordArray: Array[jts.Coordinate]): Vector[Coordinate] = {
@@ -119,15 +124,16 @@ object Conversions {
     */
   def fromJts(geom: jts.Geometry): Geometry = {
     geom match {
-      case g: jts.Point              => Point(coord(g.getCoordinate()))
-      case g: jts.LineString         => LineString(coordSeq(g.getCoordinates()))
-      case g: jts.Polygon            => Polygon(polygonRings(g))
-      case g: jts.MultiPoint         => MultiPoint(multiPointCoords(g))
-      case g: jts.MultiLineString    => MultiLineString(multiLineStringCoords(g))
-      case g: jts.MultiPolygon       => MultiPolygon(multiPolygonCoords(g))
-      case g: jts.GeometryCollection => GeometryCollection(
-        (0 until g.getNumGeometries()).map(n => g.getGeometryN(n)).map(fromJts(_))
-      )
+      case g: jts.Point           => Point(coord(g.getCoordinate()))
+      case g: jts.LineString      => LineString(coordSeq(g.getCoordinates()))
+      case g: jts.Polygon         => Polygon(polygonRings(g))
+      case g: jts.MultiPoint      => MultiPoint(multiPointCoords(g))
+      case g: jts.MultiLineString => MultiLineString(multiLineStringCoords(g))
+      case g: jts.MultiPolygon    => MultiPolygon(multiPolygonCoords(g))
+      case g: jts.GeometryCollection =>
+        GeometryCollection(
+          (0 until g.getNumGeometries()).map(n => g.getGeometryN(n)).map(fromJts(_))
+        )
     }
   }
 

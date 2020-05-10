@@ -33,6 +33,7 @@ Includes:
 * Build Mdoc: `sbt docs/mdoc`
 * Run Mdoc live server: `sbt docs/mdoc --watch`
 * Push Scaladoc to GitHub Pages: `sbt ghpagesPushSite`
+* Run scalafmt: `sbt scalafmtAll`
 
 ## Releasing
 
